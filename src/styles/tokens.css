@@ -1,0 +1,161 @@
+/* ==========================================================================
+   Wirebox Design Tokens
+   Source of truth: Figma "Wirebox" — Style guide page (Colours + Typography)
+   Type scale is a 1.2 (minor-third) modular scale on a 17.5px base.
+   ========================================================================== */
+
+:root {
+	/* --- Brand & palette ------------------------------------------------ */
+	--color-primary-blue: #5418d0;
+	--color-dark-blue: #2a0c67;
+	--color-headings-dark: #161026;
+	--color-paragraph: #5b5767; /* "Paragraph text dark" */
+
+	--color-white: #ffffff;
+	--color-white-80: #f1f0f7; /* "80% White" / Light BG 1 */
+	--color-light-bg-1: #f1f0f7;
+	--color-light-bg-2: #f8f7fa;
+	--color-divider: #dcdae6;
+
+	/* Accent set */
+	--color-fuchsia: #cf1993;
+	--color-light-pink: #e78cc9;
+	--color-lavender: #aa8ce7;
+	--color-light-green: #8ce7aa;
+	--color-light-yellow: #e7e78c;
+
+	/* Vivid accents (used for bullet markers / small highlights) */
+	--color-pink-vivid: #e60775;
+	--color-green-vivid: #18d054;
+
+	/* --- Semantic roles ------------------------------------------------- *
+	 * Map raw palette values to their job. Components reference these, not
+	 * the primitives above, so a palette change propagates everywhere.     */
+
+	/* Surfaces */
+	--surface-page: var(--color-white);
+	--surface-subtle: var(--color-light-bg-1); /* lavender-tint panels & chips */
+	--surface-muted: var(--color-light-bg-2); /* off-white section background */
+	--surface-card: var(--color-white);
+	--surface-brand: var(--color-primary-blue);
+	--surface-brand-deep: var(--color-dark-blue);
+	--surface-invert: var(--color-headings-dark); /* footer */
+	--surface-input: #260d5a; /* form fields on the dark-blue panel */
+	--surface-glass: rgba(255, 255, 255, 0.025); /* translucent panel on dark */
+	--surface-footer-bar: #07050b; /* near-black legal bar */
+	--surface-placeholder: #9485b3; /* media placeholder before image loads */
+	--surface-overlay: rgba(255, 255, 255, 0.92); /* play-button disc */
+
+	/* Text */
+	--text-heading: var(--color-headings-dark);
+	--text-body: var(--color-paragraph);
+	--text-on-brand: var(--color-white);
+	--text-on-dark: var(--color-white-80);
+	--text-on-dark-muted: rgba(248, 247, 250, 0.82);
+	--text-on-dark-subtle: rgba(248, 247, 250, 0.6);
+	--text-on-dark-placeholder: rgba(255, 255, 255, 0.5);
+
+	/* Borders */
+	--border-subtle: var(--color-divider);
+	--border-on-dark: rgba(255, 255, 255, 0.18);
+	--border-on-dark-strong: rgba(255, 255, 255, 0.25);
+	--border-on-dark-faint: rgba(255, 255, 255, 0.12);
+	--border-on-image: rgba(255, 255, 255, 0.9); /* outlines over photos */
+
+	/* Interactive states */
+	--color-primary-hover: #f0f0a8; /* yellow button hover */
+	--color-brand-deep-hover: #34107e; /* dark-blue surface hover */
+	--color-youtube: #ff0000;
+
+	/* --- Typography ----------------------------------------------------- */
+	--font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system,
+		'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+	/* Desktop font sizes (px → rem at 16px root). Fluid clamps applied in global.css. */
+	--fs-h1: 3.9194rem; /* 62.71px */
+	--fs-h2: 3.2656rem; /* 52.25px */
+	--fs-h3: 2.7219rem; /* 43.55px */
+	--fs-h4: 2.2681rem; /* 36.29px */
+	--fs-h5: 1.89rem; /* 30.24px */
+	--fs-subtitle: 1.575rem; /* 25.2px */
+	--fs-paragraph: 1.3125rem; /* 21px */
+	--fs-small: 1.09375rem; /* 17.5px */
+	--fs-category: 0.875rem; /* 14px */
+
+	/* Responsive (fluid) heading sizes — mobile-first minimums up to the
+	   desktop max above. Used by .h1–.h5 and section headings. */
+	--fs-h1-fluid: clamp(1.95rem, 1.05rem + 4.3vw, var(--fs-h1));
+	--fs-h2-fluid: clamp(1.7rem, 1.2rem + 2.4vw, var(--fs-h2));
+	--fs-h3-fluid: clamp(1.55rem, 1.2rem + 1.9vw, var(--fs-h3));
+	--fs-h4-fluid: clamp(1.4rem, 1.15rem + 1.3vw, var(--fs-h4));
+	--fs-h5-fluid: clamp(1.3rem, 1.12rem + 0.9vw, var(--fs-h5));
+	--fs-subtitle-fluid: clamp(1.2rem, 1.05rem + 0.7vw, var(--fs-subtitle));
+	--fs-paragraph-fluid: clamp(1.125rem, 1.02rem + 0.5vw, var(--fs-paragraph));
+
+	--fw-regular: 400;
+	--fw-medium: 500;
+	--fw-semibold: 600;
+
+	/* Line heights */
+	--lh-tight: 1.25; /* H1–H3 */
+	--lh-heading: 1.3; /* H4 */
+	--lh-h5: 1.35;
+	--lh-subtitle: 1.45;
+	--lh-body: 1.5;
+	--lh-quote: 1.6;
+	--lh-button: 1;
+	--lh-category: 1.1;
+
+	/* Letter spacing (Figma text styles use PERCENT → em) */
+	--ls-h1: -0.04em; /* -4% */
+	--ls-h2: -0.03em; /* -3% */
+	--ls-h3: -0.02em; /* -2% */
+	--ls-h4: -0.02em; /* -2% */
+	--ls-h5: -0.02em; /* -2% */
+	--ls-subtitle: -0.01em; /* -1% */
+	--ls-button: 0.01em; /* 1% */
+	--ls-category: 0.02em; /* 2% */
+
+	/* --- Layout --------------------------------------------------------- */
+	--canvas-width: 1920px; /* Figma artboard width */
+	--container-max: 1312px; /* content column (1920 - 2×304 side margins ≈ 1312) */
+	--container-pad: clamp(1.25rem, 5vw, 4rem);
+
+	/* Section vertical rhythm (fluid). Sections pick one of these three. */
+	--section-py-sm: clamp(3rem, 5vw, 5rem);
+	--section-py: clamp(3rem, 6vw, 6rem);
+	--section-py-lg: clamp(3.5rem, 6vw, 6.5rem);
+
+	/* --- Spacing scale -------------------------------------------------- */
+	--space-3xs: 0.25rem;
+	--space-2xs: 0.5rem;
+	--space-xs: 0.75rem;
+	--space-sm: 1rem;
+	--space-md: 1.5rem;
+	--space-lg: 2rem;
+	--space-xl: 3rem;
+	--space-2xl: 4rem;
+
+	/* --- Elevation ------------------------------------------------------ */
+	/* Card shadow is a hard offset (no blur) in primary-blue @16% — reads as
+	   an offset border, per the Figma design. */
+	--shadow-card: 6px 6px 0 0 rgba(84, 24, 208, 0.16);
+	--shadow-soft: 0 2px 16px rgba(22, 16, 38, 0.04);
+
+	/* --- Stacking order ------------------------------------------------- */
+	--z-header: 100;
+	--z-skip-link: 1000;
+
+	/* --- Radius -------------------------------------------------------- */
+	/* The design language is binary: corners are either sharp (0) or fully
+	   rounded (pill/circle). No intermediate radii. */
+	--radius-sm: 0;
+	--radius-md: 0;
+	--radius-lg: 0;
+	--radius-pill: 999px;
+
+	/* --- Motion --------------------------------------------------------- */
+	--ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+	--dur-fast: 150ms;
+	--dur-base: 250ms;
+}

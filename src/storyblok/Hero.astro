@@ -1,0 +1,183 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Button from '../components/Button.astro';
+import type { IconName } from '../lib/icons';
+import type { ButtonVariant } from '../lib/ui';
+
+const { blok } = Astro.props;
+
+interface CtaBlok {
+	label: string;
+	link?: { url?: string; cached_url?: string } | string;
+	variant?: ButtonVariant;
+	icon?: IconName | null;
+}
+
+const heading: string =
+	blok?.heading || 'Bespoke software\ndevelopment that enhances\nyour brand';
+const eyebrow: string = blok?.eyebrow || '';
+const ctas: CtaBlok[] = blok?.ctas?.length
+	? blok.ctas
+	: [
+			{ label: 'what we do', link: '/what-we-do', variant: 'primary', icon: 'arrow-right' },
+			{ label: 'Contact us', link: '/contact', variant: 'outline' },
+		];
+const imageSrc: string = blok?.image?.filename || 'https://a.storyblok.com/f/293147646055661/4523685dc8/hero-pacman.png';
+const imageAlt: string =
+	blok?.image?.alt || 'The Wirebox team at work in our studio';
+---
+
+<section class="hero" {...storyblokEditable(blok)}>
+	<div class="hero__inner container">
+		<div class="hero__content">
+			<p class="hero__eyebrow" aria-hidden={eyebrow ? undefined : 'true'}>
+				{
+					eyebrow ? (
+						<span class="hero__eyebrow-text category">{eyebrow}</span>
+					) : (
+						<>
+							<span class="hero__dot"></span>
+							<span class="hero__dash"></span>
+							<span class="hero__dash"></span>
+						</>
+					)
+				}
+			</p>
+
+			<h1 class="hero__heading">{heading}</h1>
+
+			<div class="hero__actions">
+				{
+					ctas.map((cta) => (
+						<Button
+							label={cta.label}
+							link={cta.link}
+							variant={cta.variant ?? 'primary'}
+							icon={cta.icon ?? null}
+						/>
+					))
+				}
+			</div>
+		</div>
+
+		<div class="hero__media">
+			<img
+				class="hero__pacman"
+				src={imageSrc}
+				alt={imageAlt}
+				width="620"
+				height="620"
+				fetchpriority="high"
+				decoding="async"
+			/>
+		</div>
+	</div>
+</section>
+
+<style>
+	.hero {
+		position: relative;
+		background: var(--color-primary-blue);
+		color: var(--color-white);
+		overflow: hidden;
+	}
+
+	.hero__inner {
+		position: relative;
+		display: flex;
+		align-items: center;
+		min-height: 680px;
+	}
+
+	.hero__content {
+		position: relative;
+		z-index: 2;
+		max-width: 900px;
+		padding-block: 4rem;
+	}
+
+	/* Decorative eyebrow accent (yellow dot + two green dashes) */
+	.hero__eyebrow {
+		display: flex;
+		align-items: center;
+		gap: 5px;
+		height: 30px;
+		margin-bottom: 1.75rem;
+	}
+	.hero__dot {
+		width: 30px;
+		height: 30px;
+		border-radius: 50%;
+		background: var(--color-light-yellow);
+	}
+	.hero__dash {
+		width: 32px;
+		height: 5px;
+		border-radius: var(--radius-pill);
+		background: var(--color-light-green);
+	}
+	.hero__eyebrow-text {
+		color: var(--color-light-yellow);
+	}
+
+	.hero__heading {
+		color: var(--color-white);
+		font-size: var(--fs-h1-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h1);
+		/* Honour editor line breaks; falls back to natural wrap on small screens */
+		white-space: pre-line;
+		text-wrap: balance;
+	}
+	@media (max-width: 560px) {
+		.hero__heading {
+			white-space: normal;
+		}
+	}
+
+	.hero__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 2rem;
+		margin-top: 2.5rem;
+	}
+
+	.hero__media {
+		position: absolute;
+		right: -0.5rem;
+		top: 50%;
+		transform: translateY(-50%);
+		z-index: 1;
+		width: 610px;
+		max-width: 47%;
+		pointer-events: none;
+	}
+	.hero__pacman {
+		width: 100%;
+		height: auto;
+		display: block;
+	}
+
+	/* --- Responsive --- */
+	@media (max-width: 1024px) {
+		.hero__inner {
+			flex-direction: column;
+			align-items: flex-start;
+			min-height: 0;
+			gap: 2.5rem;
+		}
+		.hero__content {
+			max-width: 100%;
+			padding-block: 3rem 0;
+		}
+		.hero__media {
+			position: static;
+			transform: none;
+			width: min(420px, 80%);
+			max-width: 80%;
+			margin-inline: auto;
+			padding-bottom: 3rem;
+		}
+	}
+</style>

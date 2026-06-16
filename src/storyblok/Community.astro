@@ -1,0 +1,105 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Button from '../components/Button.astro';
+
+const { blok } = Astro.props;
+
+const heading: string =
+	blok?.heading ||
+	'We’re a hard-working community of doers and dreamers, united by a love of tech and a desire to do things differently_';
+const body: string =
+	blok?.body ||
+	"Since 2005, our web development agency has been creating engaging online experiences for incredible brands. We combine the build skills of a web development agency and the instincts of a digital marketing firm into a full-service tech design concept you can rely on. Lean on our expertise to achieve your goals. Whether you're looking for new capabilities, outsourcing management of your existing tech stack or innovating something completely new; Wirebox is here to help.";
+const ctaLabel: string = blok?.cta_label || 'view all work';
+const ctaLink =
+	(typeof blok?.cta_link === 'string' ? blok.cta_link : blok?.cta_link?.cached_url) ||
+	'/our-work';
+
+const images = blok?.images?.length
+	? blok.images
+	: [
+			{ filename: 'https://a.storyblok.com/f/293147646055661/65bf3ecadb/community-1.png', alt: 'Wirebox team in a meeting room' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/4ac7363c64/community-2.png', alt: 'Developers working at their desks' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/5fdef43245/community-3.png', alt: 'A team member presenting at a whiteboard' },
+		];
+---
+
+<section class="community" {...storyblokEditable(blok)}>
+	<div class="community__inner container">
+		<h2 class="community__heading">{heading}</h2>
+
+		<div class="community__grid">
+			<div class="community__col community__col--left">
+				<img class="community__img" src={images[0].filename} alt={images[0].alt} width="512" height="300" loading="lazy" />
+				<p class="community__body">{body}</p>
+				<Button label={ctaLabel} link={ctaLink} variant="solid" />
+			</div>
+			<div class="community__col community__col--right">
+				<img class="community__img" src={images[1].filename} alt={images[1].alt} width="486" height="286" loading="lazy" />
+				<img class="community__img community__img--offset" src={images[2].filename} alt={images[2].alt} width="472" height="300" loading="lazy" />
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.community {
+		background: var(--surface-muted);
+		padding-block: var(--section-py);
+	}
+	.community__heading {
+		max-width: 60rem;
+		font-size: var(--fs-h3-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h3);
+		color: var(--color-fuchsia);
+		margin-bottom: clamp(2rem, 4vw, 3.5rem);
+	}
+	.community__grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: clamp(1.5rem, 3vw, 2.5rem);
+		align-items: start;
+	}
+	.community__col {
+		display: flex;
+		flex-direction: column;
+		gap: clamp(1.5rem, 3vw, 2.25rem);
+	}
+	.community__col--left {
+		align-items: flex-start;
+	}
+	.community__img {
+		width: 100%;
+		height: auto;
+		border-radius: var(--radius-md);
+		object-fit: cover;
+	}
+	.community__col--right {
+		margin-top: clamp(2rem, 6vw, 5.5rem);
+	}
+	.community__img--offset {
+		margin-left: clamp(0px, 4vw, 3.5rem);
+		width: clamp(0px, 100%, calc(100% - 3.5rem));
+	}
+	.community__body {
+		font-size: var(--fs-paragraph-fluid);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+		max-width: 38ch;
+	}
+
+	@media (max-width: 860px) {
+		.community__grid {
+			grid-template-columns: 1fr;
+		}
+		.community__col--right {
+			margin-top: 0;
+		}
+		.community__img--offset {
+			margin-left: 0;
+			width: 100%;
+		}
+	}
+</style>

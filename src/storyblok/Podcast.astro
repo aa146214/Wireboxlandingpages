@@ -1,0 +1,159 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Icon from '../components/Icon.astro';
+
+const { blok } = Astro.props;
+const eyebrow: string = blok?.eyebrow || 'Our podcast · latest episode';
+const heading: string =
+	blok?.heading || 'Can one platform really run your entire business?';
+const description: string =
+	blok?.description ||
+	'In this episode, Alex Carter (Lead Product Designer) sits down with Maria Honeycombe (Senior Backend Engineer) and Daniel Schmidt (Frontend Tech Lead) to talk about what it really takes to build scalable, maintainable software. From architecture decisions to day-to-day teamwork, they share practical insights from real projects.';
+const rawTags = blok?.tags;
+const tags: string[] = Array.isArray(rawTags)
+	? rawTags
+	: typeof rawTags === 'string' && rawTags.trim()
+		? rawTags.split(/\r?\n|,/).map((t) => t.trim()).filter(Boolean)
+		: ['mobile development', 'api', 'AWS'];
+const poster: string = blok?.poster?.filename || 'https://a.storyblok.com/f/293147646055661/1b24882ab6/podcast-video.png';
+const videoLink =
+	(typeof blok?.video_link === 'string' ? blok.video_link : blok?.video_link?.cached_url) ||
+	'#';
+---
+
+<section class="podcast" {...storyblokEditable(blok)}>
+	<div class="podcast__inner container">
+		<p class="podcast__eyebrow category">{eyebrow}</p>
+		<h2 class="podcast__heading section-heading">{heading}</h2>
+
+		<div class="podcast__grid">
+			<a
+				class="podcast__video"
+				href={videoLink}
+				aria-label={`Play podcast: ${heading}`}
+			>
+				<img src={poster} alt="" width="742" height="404" loading="lazy" />
+				<span class="podcast__play play-button play-button--solid" aria-hidden="true">
+					<Icon name="play" size={30} />
+				</span>
+			</a>
+
+			<div class="podcast__info">
+				<p class="podcast__desc">{description}</p>
+				<ul class="podcast__tags" role="list">
+					{tags.map((t) => <li>{t}</li>)}
+				</ul>
+				<a class="podcast__youtube" href={videoLink}>
+					<Icon name="youtube" size={22} />
+					<span>Watch on YouTube</span>
+				</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.podcast {
+		position: relative;
+		background: var(--surface-brand-deep);
+		color: var(--text-on-dark);
+		overflow: hidden;
+		padding-block: var(--section-py);
+	}
+	/* Diagonal band on the right: a lavender wedge multiplied over the
+	   dark-blue base (matches the design's mix-blend treatment). */
+	.podcast::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: var(--color-lavender);
+		mix-blend-mode: multiply;
+		clip-path: polygon(72% 0, 100% 0, 100% 100%, 55% 100%);
+		pointer-events: none;
+	}
+	.podcast__inner {
+		position: relative;
+		z-index: 1;
+	}
+	.podcast__eyebrow {
+		color: var(--color-light-yellow);
+		margin-bottom: 1rem;
+	}
+	.podcast__heading {
+		color: var(--surface-muted);
+		margin-bottom: 2.5rem;
+	}
+	.podcast__grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: clamp(2rem, 4vw, 64px);
+		align-items: start;
+	}
+	.podcast__video {
+		position: relative;
+		display: block;
+		border: 8px solid var(--color-lavender);
+		border-radius: var(--radius-md);
+		overflow: hidden;
+	}
+	.podcast__video img {
+		width: 100%;
+		height: auto;
+		display: block;
+	}
+	.podcast__play {
+		position: absolute;
+		inset: 0;
+		margin: auto;
+		width: 72px;
+		height: 72px;
+		transition: transform var(--dur-base) var(--ease-out);
+	}
+	.podcast__video:hover .podcast__play {
+		transform: scale(1.08);
+	}
+	.podcast__desc {
+		font-size: var(--fs-paragraph-fluid);
+		line-height: var(--lh-body);
+		color: var(--color-white-80);
+		margin-bottom: 1.75rem;
+	}
+	.podcast__tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin: 0 0 1.75rem;
+		padding: 0;
+	}
+	.podcast__tags li {
+		padding: 0.3rem 0.9rem;
+		background: var(--surface-subtle);
+		color: var(--color-dark-blue);
+		border-radius: var(--radius-sm);
+		font-size: var(--fs-small);
+		font-weight: var(--fw-medium);
+	}
+	.podcast__youtube {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		color: var(--color-white);
+	}
+	.podcast__youtube :global(svg) {
+		color: var(--color-youtube);
+	}
+	.podcast__youtube:hover {
+		opacity: 0.85;
+	}
+
+	@media (max-width: 900px) {
+		.podcast__grid {
+			grid-template-columns: 1fr;
+		}
+		.podcast::before {
+			clip-path: polygon(80% 0, 100% 0, 100% 100%, 70% 100%);
+		}
+	}
+</style>

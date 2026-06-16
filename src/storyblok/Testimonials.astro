@@ -1,0 +1,200 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Icon from '../components/Icon.astro';
+
+const { blok } = Astro.props;
+
+interface Testimonial {
+	quote?: string;
+	name: string;
+	role: string;
+	video?: { filename?: string } | string;
+}
+
+const heading: string = blok?.heading || 'What our clients say_';
+const items: Testimonial[] = blok?.items ?? [];
+const videoSrc = (v: Testimonial['video']) =>
+	typeof v === 'string' ? v : v?.filename;
+---
+
+<section class="testimonials" {...storyblokEditable(blok)}>
+	<div class="container">
+		<h2 class="testimonials__heading section-heading">{heading}</h2>
+	</div>
+
+	<div class="testimonials__viewport" data-carousel>
+		<ul class="testimonials__track" role="list">
+			{
+				items.map((t) => {
+					const src = videoSrc(t.video);
+					return src ? (
+						<li class="t-card t-card--video">
+							<a class="t-card__video" href="#" aria-label={`Play video testimonial from ${t.name}`}>
+								<img src={src} alt="" width="404" height="228" loading="lazy" />
+								<span class="t-card__play play-button play-button--solid" aria-hidden="true">
+									<Icon name="play" size={24} />
+								</span>
+							</a>
+							<footer class="t-card__author">
+								<p class="t-card__name">{t.name}</p>
+								<p class="t-card__role">{t.role}</p>
+							</footer>
+						</li>
+					) : (
+						<li class="t-card">
+							<blockquote class="t-card__quote">{t.quote}</blockquote>
+							<span class="t-card__dash" aria-hidden="true" />
+							<footer class="t-card__author">
+								<p class="t-card__name">{t.name}</p>
+								<p class="t-card__role">{t.role}</p>
+							</footer>
+						</li>
+					);
+				})
+			}
+		</ul>
+	</div>
+
+	<div class="container">
+		<div class="testimonials__dots" role="tablist" aria-label="Testimonials">
+			<button type="button" class="testimonials__dot" data-page="0" aria-label="Page 1"></button>
+			<button type="button" class="testimonials__dot" data-page="1" aria-label="Page 2"></button>
+			<button type="button" class="testimonials__dot" data-page="2" aria-label="Page 3"></button>
+		</div>
+	</div>
+</section>
+
+<style>
+	.testimonials {
+		--t-card-w: clamp(280px, 82vw, 404px);
+		background: var(--surface-subtle);
+		padding-block: var(--section-py-sm);
+		overflow: hidden;
+	}
+	.testimonials__heading {
+		text-align: center;
+		color: var(--color-dark-blue);
+		margin-bottom: clamp(2rem, 4vw, 3rem);
+	}
+
+	.testimonials__viewport {
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+		scroll-padding-inline: var(--container-pad);
+	}
+	.testimonials__viewport::-webkit-scrollbar {
+		display: none;
+	}
+	.testimonials__track {
+		display: flex;
+		gap: clamp(20px, 2.5vw, 48px);
+		margin: 0;
+		padding: 1rem var(--container-pad);
+		width: max-content;
+	}
+
+	.t-card {
+		flex: 0 0 var(--t-card-w);
+		min-height: 366px;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		padding: 2rem;
+		background: var(--surface-card);
+		border-radius: 0;
+		box-shadow: var(--shadow-card);
+		scroll-snap-align: center;
+	}
+	.t-card--video {
+		padding: 0 0 1.75rem;
+		overflow: hidden;
+	}
+
+	.t-card__quote {
+		margin: 0;
+		font-style: italic;
+		font-size: var(--fs-small);
+		line-height: var(--lh-quote);
+		color: var(--color-dark-blue);
+	}
+	.t-card__dash {
+		width: 40px;
+		height: 2px;
+		background: var(--color-fuchsia);
+		margin: 1.75rem 0 1.25rem;
+	}
+	.t-card__video {
+		position: relative;
+		display: block;
+		align-self: stretch;
+	}
+	.t-card__video img {
+		width: 100%;
+		height: auto;
+		display: block;
+	}
+	.t-card__play {
+		position: absolute;
+		inset: 0;
+		margin: auto;
+		width: 56px;
+		height: 56px;
+	}
+	.t-card--video .t-card__author {
+		padding-inline: 2rem;
+		margin-top: 1.5rem;
+	}
+	.t-card__name {
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		color: var(--color-headings-dark);
+	}
+	.t-card__role {
+		font-size: var(--fs-small);
+		color: var(--color-paragraph);
+		margin-top: 0.15rem;
+	}
+
+	.testimonials__dots {
+		display: flex;
+		justify-content: center;
+		gap: 0.75rem;
+		margin-top: clamp(1.5rem, 3vw, 2.5rem);
+	}
+	.testimonials__dot {
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+		background: var(--color-lavender);
+		opacity: 0.4;
+		transition: opacity var(--dur-fast) var(--ease-out);
+	}
+	.testimonials__dot.is-active {
+		opacity: 1;
+		background: var(--color-primary-blue);
+	}
+</style>
+
+<script>
+	document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((vp) => {
+		const dots = vp.parentElement?.querySelectorAll<HTMLButtonElement>(
+			'.testimonials__dot'
+		);
+		if (!dots?.length) return;
+		const pageWidth = () => vp.clientWidth * 0.8;
+		dots.forEach((dot, i) => {
+			dot.addEventListener('click', () => {
+				const max = vp.scrollWidth - vp.clientWidth;
+				vp.scrollTo({ left: (max / (dots.length - 1)) * i, behavior: 'smooth' });
+			});
+		});
+		const sync = () => {
+			const max = vp.scrollWidth - vp.clientWidth || 1;
+			const active = Math.round((vp.scrollLeft / max) * (dots.length - 1));
+			dots.forEach((d, i) => d.classList.toggle('is-active', i === active));
+		};
+		vp.addEventListener('scroll', sync, { passive: true });
+		sync();
+	});
+</script>

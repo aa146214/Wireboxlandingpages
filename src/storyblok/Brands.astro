@@ -1,0 +1,85 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+interface Logo {
+	filename: string;
+	alt: string;
+}
+
+const heading: string = blok?.heading || 'Great brands and great clients_';
+const logos: Logo[] = blok?.logos?.length
+	? blok.logos
+	: [
+			{ filename: 'https://a.storyblok.com/f/293147646055661/748d18982a/bulgin.png', alt: 'Bulgin' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/72d1d1bc59/mrclutch.png', alt: 'Mr Clutch Autocentres' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/896d454416/sas.png', alt: 'SAS' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/399e93cb76/pennies.png', alt: 'Pennies — the digital charity box' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/104d6e867e/kidney-care.png', alt: 'Kidney Care UK' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/6ee28981f4/middlesex.png', alt: 'Middlesex University London' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/66e39fe1a3/commonwealth.png', alt: 'The Commonwealth' },
+		];
+---
+
+<section class="brands" {...storyblokEditable(blok)}>
+	<div class="brands__inner container">
+		<h2 class="brands__heading section-heading">{heading}</h2>
+		<ul class="brands__grid" role="list">
+			{
+				logos.map((logo) => (
+					<li class="brands__item">
+						<img src={logo.filename} alt={logo.alt} loading="lazy" />
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.brands {
+		background: var(--surface-page);
+		padding-block: var(--section-py-sm);
+	}
+	.brands__heading {
+		color: var(--text-heading);
+		margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+	}
+	.brands__grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: clamp(2.5rem, 5vw, 4.5rem) clamp(1.5rem, 3vw, 3rem);
+		align-items: center;
+		justify-items: center;
+		margin: 0;
+		padding: 0;
+		max-width: 1280px;
+	}
+	/* Match the design: first row holds 3 logos, second row holds 4 */
+	.brands__item:nth-child(4) {
+		grid-column: 1;
+	}
+	.brands__item {
+		display: grid;
+		place-items: center;
+		width: 100%;
+		min-height: 96px;
+	}
+	.brands__item img {
+		max-width: 100%;
+		max-height: 96px;
+		width: auto;
+		height: auto;
+		object-fit: contain;
+	}
+
+	@media (max-width: 768px) {
+		.brands__grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+		.brands__item:nth-child(4) {
+			grid-column: auto;
+		}
+	}
+</style>

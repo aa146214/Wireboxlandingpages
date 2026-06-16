@@ -1,0 +1,120 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+interface Badge {
+	filename: string;
+	alt: string;
+}
+
+const heading: string = blok?.heading || 'Awards and ratings_';
+const intro: string =
+	blok?.intro ||
+	'We have worked over 1000 happy clients and ratings on Google over 4.5';
+const badges: Badge[] = blok?.badges?.length
+	? blok.badges
+	: [
+			{ filename: 'https://a.storyblok.com/f/293147646055661/c568c68780/clutch-reviews.svg', alt: 'Reviewed on Clutch' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/f453538fd5/google.svg', alt: 'Google Rating 4.9 based on 61 reviews' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/21d5b6561a/biz4biz.png', alt: 'biz4Biz Awards 2023 Winner' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/ee403ac740/sme.png', alt: 'SME Hertfordshire Business Awards 2024' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/ca9658e63b/gbc.svg', alt: 'Good Business Charter Accredited' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/b53145ded4/disability.svg', alt: 'Disability Confident Employer' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/2a61e4d2aa/meta.svg', alt: 'Meta Business Partner' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/d1466912ef/clutch-cambridge.svg', alt: 'Clutch Top Laravel Developers, Cambridge 2025' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/522456fd62/clutch-web.svg', alt: 'Clutch Top Web Developers' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/72fdfe4eef/certification.png', alt: 'Certified Laravel Company' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/2310eddeaa/watford.png', alt: 'Watford Business Pledge Member' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/fa49031603/wpengine.svg', alt: 'WP Engine Agency Partner' },
+		];
+const maps = blok?.maps?.length
+	? blok.maps
+	: [
+			{ filename: 'https://a.storyblok.com/f/293147646055661/9ad800e8c0/map-1.png', alt: 'Map of the Milton Keynes studio location' },
+			{ filename: 'https://a.storyblok.com/f/293147646055661/c6c18caced/map-2.png', alt: 'Map of the Watford office location' },
+		];
+---
+
+<section class="awards" {...storyblokEditable(blok)}>
+	<div class="awards__inner container">
+		<h2 class="awards__heading section-heading">{heading}</h2>
+		<p class="awards__intro">{intro}</p>
+
+		<ul class="awards__grid" role="list">
+			{
+				badges.map((b) => (
+					<li class="awards__badge">
+						<img src={b.filename} alt={b.alt} loading="lazy" />
+					</li>
+				))
+			}
+		</ul>
+	</div>
+
+	<div class="awards__maps" aria-hidden="true">
+		{maps.map((m) => <img src={m.filename} alt="" loading="lazy" />)}
+	</div>
+</section>
+
+<style>
+	.awards {
+		background: var(--surface-muted);
+		padding-top: var(--section-py-sm);
+	}
+	.awards__heading {
+		color: var(--text-heading);
+		margin-bottom: 1rem;
+	}
+	.awards__intro {
+		max-width: 44ch;
+		color: var(--color-paragraph);
+		font-size: var(--fs-paragraph-fluid);
+		line-height: var(--lh-body);
+		margin-bottom: clamp(2.5rem, 5vw, 4rem);
+	}
+	.awards__grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: clamp(2rem, 4vw, 3.5rem);
+		align-items: center;
+		justify-items: center;
+		margin: 0;
+		padding: 0;
+		max-width: 1200px;
+	}
+	.awards__badge {
+		display: grid;
+		place-items: center;
+		width: 100%;
+		min-height: 120px;
+	}
+	.awards__badge img {
+		max-width: 100%;
+		max-height: 120px;
+		width: auto;
+		height: auto;
+		object-fit: contain;
+	}
+	.awards__maps {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		margin-top: clamp(2.5rem, 5vw, 4rem);
+	}
+	.awards__maps img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+
+	@media (max-width: 768px) {
+		.awards__grid {
+			grid-template-columns: repeat(2, 1fr);
+			gap: 2rem;
+		}
+		.awards__maps {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

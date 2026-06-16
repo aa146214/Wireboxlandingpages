@@ -1,0 +1,29 @@
+# build output
+dist/
+.vercel/
+
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+
+# environment variables
+.env
+
+# local Claude config (contains MCP tokens / machine-specific settings)
+.claude/settings.json
+.claude/settings.local.json
+
+# macOS-specific files
+.DS_Store
+
+# local design reference (Figma crops, scratch)
+.design-ref/
+.design-ref-home-overview.png
+
+# raw manually-exported Figma assets (staging; used copies live in /public)
+public/manually-exported-assets/

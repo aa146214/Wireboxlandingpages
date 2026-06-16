@@ -1,0 +1,33 @@
+/* ==========================================================================
+   Reusable patterns — composable classes for blocks that recur across
+   sections. Components add these in markup and only declare what is unique
+   (colour, size, position) in their own scoped <style>.
+   Depends on tokens.css.
+   ========================================================================== */
+
+/* --- Section title ----------------------------------------------------- *
+ * The recurring section heading (H2 scale). Components set colour + margin. */
+.section-heading {
+	font-size: var(--fs-h2-fluid);
+	font-weight: var(--fw-semibold);
+	line-height: var(--lh-tight);
+	letter-spacing: var(--ls-h2);
+}
+
+/* --- Play button ------------------------------------------------------- *
+ * Circular play affordance layered over video/podcast media. Components set
+ * size and position; `--solid` paints the filled disc, the bare class is the
+ * outlined (over-photo) variant. */
+.play-button {
+	display: grid;
+	place-items: center;
+	border-radius: var(--radius-pill);
+}
+.play-button--solid {
+	background: var(--surface-overlay);
+	color: var(--color-dark-blue);
+}
+.play-button--ghost {
+	border: 2px solid var(--border-on-image);
+	color: var(--color-white);
+}

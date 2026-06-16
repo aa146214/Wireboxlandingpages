@@ -1,0 +1,75 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+const eyebrow: string = blok?.eyebrow || 'New podcast episode available now →';
+const title: string =
+	blok?.title || 'Can one platform really run your entire business?';
+const thumb: string = blok?.thumbnail?.filename || 'https://a.storyblok.com/f/293147646055661/7ee2fdb559/podcast-thumb.png';
+const href =
+	(typeof blok?.link === 'string' ? blok.link : blok?.link?.cached_url) || '#';
+---
+
+<a class="podcast-banner" href={href} {...storyblokEditable(blok)}>
+	<div class="podcast-banner__inner container">
+		<img
+			class="podcast-banner__thumb"
+			src={thumb}
+			alt=""
+			width="116"
+			height="76"
+			loading="lazy"
+		/>
+		<div class="podcast-banner__text">
+			<span class="podcast-banner__eyebrow">{eyebrow}</span>
+			<span class="podcast-banner__title">{title}</span>
+		</div>
+	</div>
+</a>
+
+<style>
+	.podcast-banner {
+		display: block;
+		background: var(--surface-brand-deep);
+		color: var(--color-white);
+		transition: background var(--dur-base) var(--ease-out);
+	}
+	.podcast-banner:hover {
+		background: var(--color-brand-deep-hover);
+	}
+	.podcast-banner__inner {
+		display: flex;
+		align-items: center;
+		gap: 1.75rem;
+		padding-block: 1.5rem;
+	}
+	.podcast-banner__thumb {
+		flex-shrink: 0;
+		width: 116px;
+		height: 76px;
+		object-fit: cover;
+		border-radius: var(--radius-sm);
+	}
+	.podcast-banner__text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+	}
+	.podcast-banner__eyebrow {
+		font-size: var(--fs-small);
+		font-weight: var(--fw-medium);
+		color: var(--color-white-80);
+	}
+	.podcast-banner__title {
+		font-size: var(--fs-h4-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: 1.2;
+		letter-spacing: var(--ls-h4);
+		color: var(--color-light-yellow);
+	}
+	@media (max-width: 640px) {
+		.podcast-banner__thumb {
+			display: none;
+		}
+	}
+</style>

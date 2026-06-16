@@ -1,0 +1,221 @@
+/* ==========================================================================
+   Global base — reset, typography, a11y helpers
+   Depends on tokens.css (imported first in Layout).
+   ========================================================================== */
+
+/* --- Modern reset ----------------------------------------------------- */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+* {
+	margin: 0;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+	scroll-behavior: smooth;
+}
+
+body {
+	min-height: 100svh;
+	font-family: var(--font-sans);
+	font-size: var(--fs-paragraph-fluid);
+	line-height: var(--lh-body);
+	color: var(--color-paragraph);
+	background: var(--color-white);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+}
+
+img,
+picture,
+svg,
+video,
+canvas {
+	display: block;
+	max-width: 100%;
+	height: auto;
+}
+
+input,
+button,
+textarea,
+select {
+	font: inherit;
+	color: inherit;
+}
+
+button {
+	cursor: pointer;
+	background: none;
+	border: none;
+}
+
+a {
+	color: inherit;
+	text-decoration: none;
+}
+
+ul[role='list'],
+ol[role='list'] {
+	list-style: none;
+	padding: 0;
+}
+
+p,
+li {
+	text-wrap: pretty;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	text-wrap: balance;
+}
+
+/* --- Headings & type scale (fluid; desktop max = Figma values) -------- */
+.h1,
+h1 {
+	font-size: var(--fs-h1-fluid);
+	font-weight: var(--fw-semibold);
+	line-height: var(--lh-tight);
+	letter-spacing: var(--ls-h1);
+	color: var(--color-headings-dark);
+}
+
+.h2,
+h2 {
+	font-size: var(--fs-h2-fluid);
+	font-weight: var(--fw-semibold);
+	line-height: var(--lh-tight);
+	letter-spacing: var(--ls-h2);
+	color: var(--color-headings-dark);
+}
+
+.h3,
+h3 {
+	font-size: var(--fs-h3-fluid);
+	font-weight: var(--fw-semibold);
+	line-height: var(--lh-tight);
+	letter-spacing: var(--ls-h3);
+	color: var(--color-headings-dark);
+}
+
+.h4,
+h4 {
+	font-size: var(--fs-h4-fluid);
+	font-weight: var(--fw-semibold);
+	line-height: var(--lh-heading);
+	letter-spacing: var(--ls-h4);
+	color: var(--color-headings-dark);
+}
+
+.h5,
+h5 {
+	font-size: var(--fs-h5-fluid);
+	font-weight: var(--fw-semibold);
+	line-height: var(--lh-h5);
+	letter-spacing: var(--ls-h5);
+	color: var(--color-headings-dark);
+}
+
+.subtitle {
+	font-size: var(--fs-subtitle-fluid);
+	font-weight: var(--fw-medium);
+	line-height: var(--lh-subtitle);
+	letter-spacing: var(--ls-subtitle);
+}
+
+.paragraph {
+	font-size: clamp(1.0625rem, 1rem + 0.5vw, var(--fs-paragraph));
+	font-weight: var(--fw-regular);
+	line-height: var(--lh-body);
+}
+
+.paragraph--strong {
+	font-weight: var(--fw-semibold);
+}
+
+.small {
+	font-size: var(--fs-small);
+	line-height: var(--lh-body);
+}
+
+.quote {
+	font-style: italic;
+	font-size: var(--fs-small);
+	line-height: var(--lh-quote);
+}
+
+.category {
+	font-size: var(--fs-category);
+	font-weight: var(--fw-semibold);
+	line-height: var(--lh-category);
+	letter-spacing: var(--ls-category);
+	text-transform: uppercase;
+}
+
+/* --- Layout helpers --------------------------------------------------- */
+.container {
+	width: 100%;
+	max-width: calc(var(--container-max) + 2 * var(--container-pad));
+	margin-inline: auto;
+	padding-inline: var(--container-pad);
+}
+
+/* --- Accessibility ---------------------------------------------------- */
+.visually-hidden:not(:focus):not(:active) {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.skip-link {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: var(--z-skip-link);
+	padding: 0.75rem 1.25rem;
+	background: var(--color-primary-blue);
+	color: var(--color-white);
+	border-radius: 0 0 var(--radius-sm) 0;
+	transform: translateY(-120%);
+	transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.skip-link:focus {
+	transform: translateY(0);
+}
+
+:where(a, button, input, textarea, select):focus-visible {
+	outline: 3px solid var(--color-fuchsia);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}

@@ -1,0 +1,22 @@
+---
+import { useStoryblokApi } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import Layout from '../layouts/Layout.astro';
+import { getHomeContent } from '../data/home-content';
+
+// Content is served from Storyblok (Home story). The local fixture remains as a
+// build-time fallback so the page still renders if the CMS is unreachable.
+let content;
+try {
+	const storyblokApi = useStoryblokApi();
+	const { data } = await storyblokApi.get('cdn/stories/home', { version: 'draft' });
+	content = data.story.content;
+} catch (err) {
+	console.warn('[index] Storyblok fetch failed — using local fixture:', (err as Error).message);
+	content = getHomeContent();
+}
+---
+
+<Layout>
+	<StoryblokComponent blok={content} />
+</Layout>

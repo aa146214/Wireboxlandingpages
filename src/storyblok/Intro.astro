@@ -1,0 +1,114 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+interface Bullet {
+	text: string;
+	color?: string;
+}
+
+const heading: string =
+	blok?.heading || 'Hire a web development agency that really gets your business_';
+const body: string =
+	blok?.body ||
+	"We're in your corner to keep things moving, help you understand how technology can enhance your operations and delight your customers with new features.";
+const bullets: Bullet[] = blok?.bullets?.length
+	? blok.bullets
+	: [
+			{ text: 'Struggling with outdated systems?', color: 'var(--color-pink-vivid)' },
+			{ text: 'Lacking tech support in-house?', color: 'var(--color-primary-blue)' },
+			{ text: 'Not sure what you need?', color: 'var(--color-green-vivid)' },
+			{ text: 'Need to keep costs down?', color: 'var(--color-primary-blue)' },
+			{ text: 'Want bespoke software development?', color: 'var(--color-pink-vivid)' },
+		];
+const imageSrc: string = blok?.image?.filename || 'https://a.storyblok.com/f/293147646055661/cb65d1315f/intro-office.png';
+const imageAlt: string =
+	blok?.image?.alt || 'Wirebox developers collaborating at their desks';
+---
+
+<section class="intro" {...storyblokEditable(blok)}>
+	<div class="intro__inner container">
+		<div class="intro__content">
+			<h2 class="intro__heading h2">{heading}</h2>
+			<p class="intro__body paragraph">{body}</p>
+			<ul class="intro__bullets" role="list">
+				{
+					bullets.map((b) => (
+						<li class="intro__bullet">
+							<span class="intro__dot" style={`--dot: ${b.color ?? 'var(--color-primary-blue)'}`} />
+							<span>{b.text}</span>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+
+		<div class="intro__media">
+			<img
+				src={imageSrc}
+				alt={imageAlt}
+				width="632"
+				height="544"
+				loading="lazy"
+				decoding="async"
+			/>
+		</div>
+	</div>
+</section>
+
+<style>
+	.intro {
+		background: var(--surface-page);
+		padding-block: var(--section-py);
+	}
+	.intro__inner {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: clamp(2rem, 4vw, 52px);
+		align-items: center;
+	}
+	.intro__heading {
+		margin-bottom: 1.5rem;
+	}
+	.intro__body {
+		color: var(--color-paragraph);
+		max-width: 38ch;
+		margin-bottom: 2rem;
+	}
+	.intro__bullets {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		margin: 0;
+		padding: 0;
+	}
+	.intro__bullet {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		font-size: var(--fs-paragraph-fluid);
+		font-weight: var(--fw-medium);
+		color: var(--color-headings-dark);
+	}
+	.intro__dot {
+		flex-shrink: 0;
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: var(--dot);
+	}
+	.intro__media img {
+		width: 100%;
+		height: auto;
+		border-radius: var(--radius-md);
+		object-fit: cover;
+	}
+
+	@media (max-width: 900px) {
+		.intro__inner {
+			grid-template-columns: 1fr;
+			gap: 2.5rem;
+		}
+	}
+</style>

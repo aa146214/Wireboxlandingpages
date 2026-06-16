@@ -1,0 +1,389 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Icon from '../components/Icon.astro';
+import type { IconName } from '../lib/icons';
+
+const { blok } = Astro.props;
+
+interface NavItem {
+	label: string;
+	link?: { url?: string; cached_url?: string } | string;
+	highlight?: boolean;
+}
+interface Social {
+	platform: IconName;
+	url: string;
+}
+
+const resolveLink = (link: NavItem['link']): string => {
+	if (!link) return '#';
+	if (typeof link === 'string') return link;
+	return link.url || link.cached_url || '#';
+};
+
+const nav: NavItem[] = blok?.nav?.length
+	? blok.nav
+	: [
+			{ label: 'what we do', link: '/what-we-do' },
+			{ label: 'our process', link: '/our-process' },
+			{ label: 'our work', link: '/our-work' },
+			{ label: 'blog', link: '/blog' },
+			{ label: 'about us', link: '/about-us' },
+			{ label: 'contact', link: '/contact', highlight: true },
+		];
+
+const socials: Social[] = blok?.socials?.length
+	? blok.socials
+	: [
+			{ platform: 'facebook', url: '#' },
+			{ platform: 'twitter', url: '#' },
+			{ platform: 'vimeo', url: '#' },
+			{ platform: 'linkedin', url: '#' },
+			{ platform: 'github', url: '#' },
+			{ platform: 'instagram', url: '#' },
+			{ platform: 'tiktok', url: '#' },
+			{ platform: 'youtube', url: '#' },
+		];
+
+const phoneLabel = blok?.phone_label || 'Call us on:';
+const phoneNumber = blok?.phone_number || '0207 993 5485';
+const phoneHref = `tel:${phoneNumber.replace(/[^\d+]/g, '')}`;
+const logoSrc = blok?.logo?.filename || '/logo-wirebox-white.svg';
+const socialLabels: Record<string, string> = {
+	facebook: 'Facebook',
+	twitter: 'Twitter / X',
+	vimeo: 'Vimeo',
+	linkedin: 'LinkedIn',
+	github: 'GitHub',
+	instagram: 'Instagram',
+	tiktok: 'TikTok',
+	youtube: 'YouTube',
+};
+---
+
+<header class="site-header" {...storyblokEditable(blok)}>
+	<div class="site-header__inner">
+		<a class="site-header__logo" href="/" aria-label="Wirebox — home">
+			<img src={logoSrc} alt="Wirebox" width="149" height="38" />
+		</a>
+
+		<div class="site-header__cluster">
+			<nav class="site-header__nav" aria-label="Primary">
+				<ul role="list">
+					{
+						nav.map((item) => (
+							<li>
+								<a
+									href={resolveLink(item.link)}
+									class:list={['site-header__link', { 'is-highlight': item.highlight }]}
+								>
+									{item.label}
+								</a>
+							</li>
+						))
+					}
+				</ul>
+			</nav>
+
+			<div class="site-header__actions">
+				<a class="site-header__phone" href={phoneHref}>
+					<span class="site-header__phone-label">{phoneLabel}</span>
+					<span class="site-header__phone-number">{phoneNumber}</span>
+				</a>
+				<button class="site-header__search" type="button" aria-label="Search">
+					<Icon name="search" size={22} />
+				</button>
+				<ul class="site-header__socials" role="list">
+					{
+						socials.map((s) => (
+							<li>
+								<a href={s.url} aria-label={socialLabels[s.platform] ?? s.platform}>
+									<img
+										src={`/social/${s.platform}.svg`}
+										alt=""
+										width="22"
+										height="22"
+										loading="lazy"
+									/>
+								</a>
+							</li>
+						))
+					}
+				</ul>
+			</div>
+		</div>
+
+		<button
+			class="site-header__toggle"
+			type="button"
+			aria-label="Open menu"
+			aria-expanded="false"
+			aria-controls="mobile-menu"
+		>
+			<Icon name="menu" size={28} />
+		</button>
+	</div>
+
+	<!-- Mobile drawer -->
+	<div class="site-header__drawer" id="mobile-menu" hidden>
+		<nav aria-label="Mobile">
+			<ul role="list">
+				{
+					nav.map((item) => (
+						<li>
+							<a href={resolveLink(item.link)} class="site-header__drawer-link">
+								{item.label}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</nav>
+		<a class="site-header__phone site-header__phone--drawer" href={phoneHref}>
+			<span class="site-header__phone-label">{phoneLabel}</span>
+			<span class="site-header__phone-number">{phoneNumber}</span>
+		</a>
+		<ul class="site-header__socials" role="list">
+			{
+				socials.map((s) => (
+					<li>
+						<a href={s.url} aria-label={socialLabels[s.platform] ?? s.platform}>
+							<img
+								src={`/social/${s.platform}.svg`}
+								alt=""
+								width="22"
+								height="22"
+								loading="lazy"
+							/>
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</header>
+
+<style>
+	.site-header {
+		position: sticky;
+		top: 0;
+		z-index: var(--z-header);
+		background: var(--surface-invert);
+		color: var(--text-on-dark);
+	}
+
+	.site-header__inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.5rem;
+		height: 100px;
+		padding-inline: clamp(1.25rem, 2.5vw, 48px);
+	}
+
+	.site-header__logo {
+		flex-shrink: 0;
+		display: block;
+	}
+	.site-header__logo img {
+		height: 38px;
+		width: auto;
+	}
+
+	/* Right cluster groups nav + actions (matches the design: logo far-left, everything else right) */
+	.site-header__cluster {
+		display: flex;
+		align-items: center;
+		gap: clamp(1.5rem, 2.2vw, 75px);
+		min-width: 0;
+	}
+
+	.site-header__nav ul {
+		display: flex;
+		align-items: center;
+		gap: clamp(18px, 1.6vw, 36px);
+		margin: 0;
+		padding: 0;
+	}
+
+	.site-header__link {
+		font-size: var(--fs-paragraph);
+		font-weight: var(--fw-medium);
+		line-height: 1;
+		text-transform: lowercase;
+		color: var(--color-white-80);
+		white-space: nowrap;
+		transition: color var(--dur-fast) var(--ease-out);
+	}
+	.site-header__link:hover {
+		color: var(--color-lavender);
+	}
+	.site-header__link.is-highlight {
+		font-weight: var(--fw-semibold);
+		color: var(--color-lavender);
+	}
+
+	.site-header__actions {
+		display: flex;
+		align-items: center;
+		gap: clamp(0.75rem, 1.2vw, 1.5rem);
+		flex-shrink: 0;
+	}
+
+	.site-header__phone {
+		flex-shrink: 0;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4ch;
+		height: 48px;
+		padding-inline: 24px;
+		border: 1px solid var(--color-lavender);
+		border-radius: var(--radius-pill);
+		font-size: var(--fs-paragraph);
+		text-transform: lowercase;
+		white-space: nowrap;
+		transition:
+			background var(--dur-fast) var(--ease-out),
+			color var(--dur-fast) var(--ease-out);
+	}
+	.site-header__phone:hover {
+		background: var(--color-lavender);
+		color: var(--color-headings-dark);
+	}
+	.site-header__phone-label {
+		color: var(--color-lavender);
+		font-weight: var(--fw-regular);
+	}
+	.site-header__phone:hover .site-header__phone-label {
+		color: var(--color-headings-dark);
+	}
+	.site-header__phone-number {
+		color: var(--color-white);
+		font-weight: var(--fw-semibold);
+	}
+	.site-header__phone:hover .site-header__phone-number {
+		color: var(--color-headings-dark);
+	}
+
+	.site-header__search {
+		flex-shrink: 0;
+		display: grid;
+		place-items: center;
+		width: 48px;
+		height: 48px;
+		border: 1px solid var(--color-lavender);
+		border-radius: 50%;
+		color: var(--color-lavender);
+		transition:
+			background var(--dur-fast) var(--ease-out),
+			color var(--dur-fast) var(--ease-out);
+	}
+	.site-header__search:hover {
+		background: var(--color-lavender);
+		color: var(--color-headings-dark);
+	}
+
+	.site-header__socials {
+		display: flex;
+		align-items: center;
+		gap: 14px;
+		margin: 0;
+		padding: 0;
+		flex-shrink: 0;
+	}
+	/* Header socials only fit alongside the nav + call pill on wide desktops */
+	@media (max-width: 1500px) {
+		.site-header__cluster .site-header__socials {
+			display: none;
+		}
+	}
+	.site-header__socials a {
+		flex-shrink: 0;
+		display: grid;
+		place-items: center;
+		transition: opacity var(--dur-fast) var(--ease-out);
+	}
+	.site-header__socials a:hover {
+		opacity: 0.7;
+	}
+	.site-header__socials img {
+		display: block;
+		width: 22px;
+		height: 22px;
+	}
+
+	.site-header__toggle {
+		display: none;
+		color: var(--color-white);
+	}
+
+	/* --- Responsive: collapse to drawer below 1200px --- */
+	@media (max-width: 1200px) {
+		.site-header__cluster {
+			display: none;
+		}
+		.site-header__toggle {
+			display: grid;
+			place-items: center;
+		}
+	}
+
+	.site-header__drawer {
+		display: none;
+		flex-direction: column;
+		gap: 1.5rem;
+		padding: 1.5rem clamp(1.25rem, 5vw, 48px) 2.5rem;
+		border-top: 1px solid var(--border-on-dark-faint);
+	}
+	.site-header__drawer[data-open] {
+		display: flex;
+	}
+	.site-header__drawer nav ul {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		margin: 0;
+		padding: 0;
+	}
+	.site-header__drawer-link {
+		display: block;
+		padding: 0.75rem 0;
+		font-size: var(--fs-subtitle);
+		font-weight: var(--fw-medium);
+		text-transform: lowercase;
+		color: var(--color-white-80);
+	}
+	.site-header__drawer-link:hover {
+		color: var(--color-lavender);
+	}
+	.site-header__phone--drawer {
+		align-self: flex-start;
+	}
+
+	@media (min-width: 1201px) {
+		.site-header__drawer {
+			display: none !important;
+		}
+	}
+</style>
+
+<script>
+	const header = document.currentScript?.previousElementSibling;
+	const toggle = document.querySelector<HTMLButtonElement>('.site-header__toggle');
+	const drawer = document.querySelector<HTMLElement>('.site-header__drawer');
+
+	toggle?.addEventListener('click', () => {
+		const open = drawer?.hasAttribute('data-open');
+		if (open) {
+			drawer?.removeAttribute('data-open');
+			drawer?.setAttribute('hidden', '');
+			toggle.setAttribute('aria-expanded', 'false');
+			toggle.setAttribute('aria-label', 'Open menu');
+		} else {
+			drawer?.setAttribute('data-open', '');
+			drawer?.removeAttribute('hidden');
+			toggle.setAttribute('aria-expanded', 'true');
+			toggle.setAttribute('aria-label', 'Close menu');
+		}
+	});
+</script>

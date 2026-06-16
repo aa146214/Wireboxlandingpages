@@ -1,0 +1,24 @@
+---
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+const body = (blok.body ?? []) as Array<{ component: string; _uid?: string }>;
+
+// Split into landmark regions so the page has correct <header>/<main>/<footer> structure
+const headerBloks = body.filter((b) => b.component === 'header');
+const footerBloks = body.filter((b) => b.component === 'footer');
+const mainBloks = body.filter(
+	(b) => b.component !== 'header' && b.component !== 'footer'
+);
+---
+
+<div {...storyblokEditable(blok)}>
+	{headerBloks.map((b) => <StoryblokComponent blok={b} />)}
+
+	<main id="main">
+		{mainBloks.map((b) => <StoryblokComponent blok={b} />)}
+	</main>
+
+	{footerBloks.map((b) => <StoryblokComponent blok={b} />)}
+</div>

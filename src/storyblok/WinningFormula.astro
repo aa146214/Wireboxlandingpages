@@ -1,0 +1,167 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Button from '../components/Button.astro';
+
+const { blok } = Astro.props;
+
+interface Step {
+	label: string;
+	text: string;
+}
+
+const heading: string = blok?.heading || 'Our winning formula_';
+const intro: string =
+	blok?.intro ||
+	"Over the years, we’ve distilled the web development agency process down to a few key steps guaranteed to create successful digital interventions.";
+const steps: Step[] = blok?.steps ?? [];
+const formHeading: string = blok?.form_heading || 'Do you have a project in mind?';
+const ctaLabel: string = blok?.cta_label || 'view all services';
+const ctaLink =
+	(typeof blok?.cta_link === 'string' ? blok.cta_link : blok?.cta_link?.cached_url) ||
+	'/services';
+---
+
+<section class="formula" {...storyblokEditable(blok)}>
+	<div class="formula__inner container">
+		<h2 class="formula__heading section-heading">{heading}</h2>
+
+		<div class="formula__grid">
+			<div class="formula__left">
+				<p class="formula__intro">{intro}</p>
+				<dl class="formula__steps">
+					{
+						steps.map((s) => (
+							<div class="formula__step">
+								<dt class="formula__step-label">{s.label}:</dt>
+								<dd class="formula__step-text">{s.text}</dd>
+							</div>
+						))
+					}
+				</dl>
+			</div>
+
+			<div class="formula__form-wrap">
+				<form class="formula__form" novalidate>
+					<h3 class="formula__form-heading">{formHeading}</h3>
+					<div class="field">
+						<label class="visually-hidden" for="cf-name">Name</label>
+						<input id="cf-name" name="name" type="text" placeholder="Name" autocomplete="name" />
+					</div>
+					<div class="field">
+						<label class="visually-hidden" for="cf-company">Company</label>
+						<input id="cf-company" name="company" type="text" placeholder="Company" autocomplete="organization" />
+					</div>
+					<div class="field">
+						<label class="visually-hidden" for="cf-email">Email</label>
+						<input id="cf-email" name="email" type="email" placeholder="Email" autocomplete="email" />
+					</div>
+					<div class="field">
+						<label class="visually-hidden" for="cf-phone">Phone</label>
+						<input id="cf-phone" name="phone" type="tel" placeholder="Phone" autocomplete="tel" />
+					</div>
+					<div class="field">
+						<label class="visually-hidden" for="cf-message">Message</label>
+						<textarea id="cf-message" name="message" rows="4" placeholder="Message"></textarea>
+					</div>
+					<Button label={ctaLabel} link={ctaLink} variant="primary" icon="arrow-right" />
+				</form>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	.formula {
+		background: var(--surface-brand-deep);
+		color: var(--color-white);
+		padding-block: var(--section-py);
+	}
+	.formula__heading {
+		color: var(--color-white);
+		margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+	}
+	.formula__grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: clamp(2rem, 5vw, 5rem);
+		align-items: start;
+	}
+	.formula__intro {
+		max-width: 40ch;
+		font-size: var(--fs-paragraph-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-body);
+		margin-bottom: clamp(2rem, 4vw, 3rem);
+	}
+	.formula__steps {
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+	.formula__step-label {
+		font-weight: var(--fw-semibold);
+		text-transform: uppercase;
+		letter-spacing: var(--ls-category);
+		color: var(--color-light-yellow);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+		margin-bottom: 0.35rem;
+	}
+	.formula__step-text {
+		margin: 0;
+		max-width: 42ch;
+		color: var(--color-white-80);
+		line-height: var(--lh-body);
+	}
+
+	.formula__form-wrap {
+		background: var(--surface-glass);
+		border-radius: var(--radius-md);
+		padding: clamp(1.5rem, 3vw, 2.5rem);
+	}
+	.formula__form-heading {
+		font-size: var(--fs-h4-fluid);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--ls-h4);
+		color: var(--color-light-yellow);
+		margin-bottom: 2rem;
+	}
+	.field {
+		margin-bottom: 1.25rem;
+	}
+	.field input,
+	.field textarea {
+		width: 100%;
+		padding: 0.9rem 1rem;
+		background: var(--surface-input);
+		border: none;
+		border-bottom: 1px solid var(--border-on-dark-strong);
+		border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+		color: var(--color-white);
+		font-size: var(--fs-paragraph);
+		transition: border-color var(--dur-fast) var(--ease-out);
+	}
+	.field textarea {
+		resize: vertical;
+		min-height: 8rem;
+	}
+	.field input::placeholder,
+	.field textarea::placeholder {
+		color: var(--text-on-dark-placeholder);
+	}
+	.field input:focus-visible,
+	.field textarea:focus-visible {
+		outline: none;
+		border-bottom-color: var(--color-light-yellow);
+	}
+	.formula__form :global(.btn) {
+		margin-top: 0.5rem;
+	}
+
+	@media (max-width: 860px) {
+		.formula__grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

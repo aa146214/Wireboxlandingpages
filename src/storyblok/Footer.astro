@@ -1,0 +1,390 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import type { IconName } from '../lib/icons';
+
+const { blok } = Astro.props;
+
+interface Office {
+	name: string;
+	address: string;
+	phone: string;
+	email: string;
+}
+interface NavItem {
+	label: string;
+	link?: string;
+	expanded?: boolean;
+	children?: { label: string; link?: string }[];
+}
+
+const offices: Office[] = blok?.offices ?? [
+	{
+		name: 'Milton Keynes',
+		address: 'Witan Studio, Milton Keynes\nBucks, MK9 1EJ',
+		phone: '+44 (0) 1908 25 24 23',
+		email: 'hi@wiredbox',
+	},
+	{
+		name: 'Watford',
+		address:
+			'Leavesden Lodge,\nUnit 1 Copsewood Lodge,\n1A Copsewood Road, Watford\nHertfordshire, WD24 5DY',
+		phone: '+44 (0) 207 993 5485',
+		email: 'hello@wirebox.co.uk',
+	},
+];
+const services: NavItem[] = blok?.services ?? [
+	{
+		label: 'Strategy',
+		link: '/services/strategy',
+		children: [
+			{ label: 'Digital Transformation', link: '/services/digital-transformation' },
+			{ label: 'AWS Planning', link: '/services/aws-planning' },
+			{ label: 'Research & Innovation', link: '/services/research-innovation' },
+		],
+	},
+	{
+		label: 'Digital Consultancy',
+		link: '/services/digital-consultancy',
+		children: [
+			{ label: 'AWS Consultancy', link: '/services/aws-consultancy' },
+			{ label: 'Technology Deployments', link: '/services/technology-deployments' },
+			{ label: 'AWS Healthcheck', link: '/services/aws-healthcheck' },
+		],
+	},
+	{
+		label: 'CMS and ERP applications',
+		link: '/services/cms-erp',
+		children: [
+			{ label: 'WordPress', link: '/services/wordpress' },
+			{ label: 'Contentful', link: '/services/contentful' },
+			{ label: 'Odoo', link: '/services/odoo' },
+		],
+	},
+	{
+		label: 'Application Development',
+		link: '/services/application-development',
+		expanded: true,
+		children: [
+			{ label: 'Web Development', link: '/services/web-development' },
+			{ label: 'Laravel Development', link: '/services/laravel-development' },
+			{ label: 'Mobile App Development', link: '/services/mobile-app-development' },
+			{ label: 'Bespoke Booking System', link: '/services/bespoke-booking-system' },
+			{ label: 'eCommerce', link: '/services/ecommerce' },
+			{ label: 'Database Development', link: '/services/database-development' },
+			{ label: 'Bespoke Software Development', link: '/services/bespoke-software-development' },
+		],
+	},
+	{
+		label: 'Support and Maintenance',
+		link: '/services/support-and-maintenance',
+		children: [
+			{ label: 'Accessibility Consulting', link: '/services/accessibility' },
+			{ label: 'Website & Systems Maintenance', link: '/services/maintenance' },
+			{ label: 'Optimisation', link: '/services/optimisation' },
+		],
+	},
+];
+const links: { label: string; link?: string }[] = blok?.links ?? [
+	{ label: 'Our Partners', link: '/our-partners' },
+	{ label: 'About Us', link: '/about-us' },
+	{ label: 'Contact Us', link: '/contact' },
+	{ label: 'Services', link: '/services' },
+	{ label: 'Blog', link: '/blog' },
+	{ label: 'Case Studies', link: '/case-studies' },
+	{ label: 'Clutch', link: 'https://clutch.co' },
+];
+const credentials = blok?.credentials ?? [
+	{ filename: 'https://a.storyblok.com/f/293147646055661/21d5b6561a/biz4biz.png', alt: 'biz4Biz Awards 2023 Winner' },
+	{ filename: 'https://a.storyblok.com/f/293147646055661/ee403ac740/sme.png', alt: 'SME Hertfordshire Business Awards' },
+];
+const socials: { platform: IconName; url: string }[] = blok?.socials ?? [
+	{ platform: 'facebook', url: '#' },
+	{ platform: 'twitter', url: '#' },
+	{ platform: 'vimeo', url: '#' },
+	{ platform: 'linkedin', url: '#' },
+	{ platform: 'github', url: '#' },
+	{ platform: 'instagram', url: '#' },
+	{ platform: 'tiktok', url: '#' },
+	{ platform: 'youtube', url: '#' },
+];
+const socialLabels: Record<string, string> = {
+	facebook: 'Facebook', twitter: 'Twitter / X', vimeo: 'Vimeo', linkedin: 'LinkedIn',
+	github: 'GitHub', instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube',
+};
+const year = new Date().getFullYear();
+const privacyLabel = blok?.privacy_label || 'Cookie / Privacy Policy';
+const copyright = blok?.copyright || `© Wiredbox Ltd.`;
+---
+
+<footer class="footer" {...storyblokEditable(blok)}>
+	<div class="footer__inner container">
+		<!-- Get in touch -->
+		<div class="footer__col">
+			<h2 class="footer__heading">get in touch_</h2>
+			{
+				offices.map((o, i) => (
+					<div class:list={['footer__office', { 'footer__office--yellow': i % 2 === 1 }]}>
+						<h3 class="footer__office-name">{o.name}</h3>
+						<p class="footer__address">{o.address}</p>
+						<a class="footer__phone" href={`tel:${o.phone.replace(/[^\d+]/g, '')}`}>{o.phone}</a>
+						<a class="footer__email" href={`mailto:${o.email}`}>{o.email}</a>
+					</div>
+				))
+			}
+			<ul class="footer__socials" role="list">
+				{
+					socials.map((s) => (
+						<li>
+							<a href={s.url} aria-label={socialLabels[s.platform] ?? s.platform}>
+								<img src={`/social/${s.platform}.svg`} alt="" width="22" height="22" loading="lazy" />
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+
+		<!-- Services -->
+		<nav class="footer__col" aria-label="Services">
+			<h2 class="footer__heading">services_</h2>
+			<ul class="footer__list" role="list">
+				{
+					services.map((cat) => (
+						<li>
+							{cat.children && cat.children.length ? (
+								<details class="footer__acc" open={cat.expanded}>
+									<summary class="footer__acc-head">
+										<span class="footer__link">{cat.label}</span>
+										<svg class="footer__chevron" width="12" height="8" viewBox="0 0 12 8" aria-hidden="true">
+											<path d="M1 1.5 6 6.5 11 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+										</svg>
+									</summary>
+									<ul class="footer__sublist" role="list">
+										{cat.children.map((c) => (
+											<li>
+												<a class="footer__sublink" href={c.link}>{c.label}</a>
+											</li>
+										))}
+									</ul>
+								</details>
+							) : (
+								<a class="footer__link" href={cat.link}>{cat.label}</a>
+							)}
+						</li>
+					))
+				}
+			</ul>
+		</nav>
+
+		<!-- Links -->
+		<nav class="footer__col" aria-label="Company">
+			<h2 class="footer__heading">links_</h2>
+			<ul class="footer__list" role="list">
+				{links.map((l) => <li><a class="footer__link" href={l.link}>{l.label}</a></li>)}
+			</ul>
+		</nav>
+
+		<!-- Credentials -->
+		<div class="footer__col">
+			<h2 class="footer__heading">credentials you can trust_</h2>
+			<div class="footer__credentials">
+				{credentials.map((c) => <img src={c.filename} alt={c.alt} loading="lazy" />)}
+			</div>
+		</div>
+	</div>
+
+	<div class="footer__bar">
+		<div class="container footer__bar-inner">
+			<a class="footer__legal" href="/privacy">{privacyLabel}</a>
+			<p class="footer__copyright">{copyright}</p>
+		</div>
+	</div>
+</footer>
+
+<style>
+	.footer {
+		background: var(--surface-invert);
+		color: var(--surface-muted);
+		padding-top: clamp(2.5rem, 5vw, 4rem);
+	}
+	.footer__inner {
+		display: grid;
+		grid-template-columns: 1.3fr 1fr 0.8fr 1fr;
+		gap: clamp(1.5rem, 3vw, 3rem);
+		padding-bottom: clamp(2.5rem, 5vw, 4rem);
+	}
+	.footer__heading {
+		font-size: var(--fs-subtitle);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--ls-subtitle);
+		color: var(--color-white);
+		margin-bottom: 1.75rem;
+	}
+	.footer__office {
+		padding-bottom: 1.25rem;
+		margin-bottom: 1.25rem;
+		border-bottom: 1px dashed var(--border-on-dark);
+	}
+	.footer__office-name {
+		font-size: var(--fs-paragraph);
+		font-weight: var(--fw-semibold);
+		color: var(--color-light-green);
+		margin-bottom: 0.6rem;
+	}
+	.footer__address {
+		white-space: pre-line;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark-muted);
+		margin-bottom: 0.6rem;
+	}
+	.footer__phone {
+		display: block;
+		font-size: var(--fs-paragraph);
+		font-weight: var(--fw-semibold);
+		color: var(--color-white);
+	}
+	.footer__email {
+		display: block;
+		font-size: var(--fs-small);
+		color: var(--color-light-green);
+		margin-top: 0.2rem;
+	}
+	.footer__email:hover,
+	.footer__phone:hover {
+		text-decoration: underline;
+	}
+	/* Offices alternate accent: 1st green, 2nd yellow (per design). */
+	.footer__office--yellow .footer__office-name,
+	.footer__office--yellow .footer__email {
+		color: var(--color-light-yellow);
+	}
+	.footer__socials {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12px;
+		margin: 1.5rem 0 0;
+		padding: 0;
+	}
+	.footer__socials a {
+		display: grid;
+		place-items: center;
+		transition: opacity var(--dur-fast) var(--ease-out);
+	}
+	.footer__socials a:hover {
+		opacity: 0.75;
+	}
+
+	.footer__list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+		margin: 0;
+		padding: 0;
+	}
+	.footer__link {
+		font-size: var(--fs-small);
+		color: var(--text-on-dark-muted);
+		transition: color var(--dur-fast) var(--ease-out);
+	}
+	.footer__link:hover {
+		color: var(--color-white);
+	}
+
+	/* Services accordion */
+	.footer__acc {
+		border: 0;
+	}
+	.footer__acc-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		cursor: pointer;
+		list-style: none;
+		color: var(--text-on-dark-muted);
+		transition: color var(--dur-fast) var(--ease-out);
+	}
+	.footer__acc-head::-webkit-details-marker {
+		display: none;
+	}
+	/* The summary drives both label and chevron colour. */
+	.footer__acc-head .footer__link {
+		color: inherit;
+	}
+	.footer__acc-head:hover {
+		color: var(--color-white);
+	}
+	.footer__chevron {
+		flex-shrink: 0;
+		transition: transform var(--dur-fast) var(--ease-out);
+	}
+	.footer__acc[open] > .footer__acc-head {
+		color: var(--color-light-yellow);
+	}
+	.footer__acc[open] > .footer__acc-head .footer__chevron {
+		transform: rotate(180deg);
+	}
+	.footer__sublist {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+		margin: 0.85rem 0 0;
+		padding: 0 0 0 1rem;
+		border-left: 1px solid var(--border-on-dark-faint);
+	}
+	.footer__sublink {
+		font-size: var(--fs-small);
+		color: var(--text-on-dark-subtle);
+		transition: color var(--dur-fast) var(--ease-out);
+	}
+	.footer__sublink:hover {
+		color: var(--color-light-green);
+	}
+
+	.footer__credentials {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+	}
+	.footer__credentials img {
+		height: 96px;
+		width: auto;
+		object-fit: contain;
+	}
+
+	.footer__bar {
+		background: var(--surface-footer-bar);
+		padding-block: 1.25rem;
+	}
+	.footer__bar-inner {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+	.footer__legal,
+	.footer__copyright {
+		font-size: var(--fs-small);
+		color: var(--text-on-dark-subtle);
+		margin: 0;
+	}
+	.footer__legal:hover {
+		color: var(--color-white);
+	}
+
+	@media (max-width: 900px) {
+		.footer__inner {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+	@media (max-width: 560px) {
+		.footer__inner {
+			grid-template-columns: 1fr;
+		}
+		.footer__bar-inner {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+	}
+</style>

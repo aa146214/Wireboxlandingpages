@@ -1,0 +1,148 @@
+---
+import type { IconName } from '../lib/icons';
+import type { ButtonVariant } from '../lib/ui';
+
+interface LinkObj {
+	url?: string;
+	cached_url?: string;
+}
+
+interface Props {
+	label: string;
+	link?: LinkObj | string;
+	variant?: ButtonVariant;
+	icon?: IconName | null;
+	type?: 'button' | 'submit';
+	class?: string;
+}
+
+const {
+	label,
+	link,
+	variant = 'primary',
+	icon = null,
+	type = 'button',
+	class: className,
+} = Astro.props;
+
+const href =
+	typeof link === 'string' ? link : link?.url || link?.cached_url || undefined;
+const Tag = href ? 'a' : 'button';
+const tagProps = href ? { href } : { type };
+---
+
+<Tag
+	class:list={['btn', `btn--${variant}`, { 'btn--has-icon': icon }, className]}
+	data-variant={variant}
+	{...tagProps}
+>
+	<span>{label}</span>
+	{
+		icon && (
+			<svg
+				class="btn__arrow"
+				width="22"
+				height="10"
+				viewBox="0 0 23 10"
+				fill="none"
+				aria-hidden="true"
+			>
+				<path d="M0 5H20" stroke="currentColor" stroke-width="2" />
+				<path
+					d="M17 1L21 5L17 9"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				/>
+			</svg>
+		)
+	}
+</Tag>
+
+<style>
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 24px;
+		height: 54px;
+		max-width: 100%;
+		padding-inline: 48px;
+		border: 1px solid transparent;
+		border-radius: var(--radius-pill);
+		font-size: var(--fs-paragraph);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--ls-button);
+		line-height: 1;
+		white-space: nowrap;
+		cursor: pointer;
+		transition:
+			background var(--dur-base) var(--ease-out),
+			color var(--dur-base) var(--ease-out),
+			border-color var(--dur-base) var(--ease-out),
+			transform var(--dur-fast) var(--ease-out);
+	}
+	.btn:hover {
+		transform: translateY(-2px);
+	}
+	.btn:active {
+		transform: translateY(0);
+	}
+
+	/* Icon-bearing buttons use the design's asymmetric padding */
+	.btn--has-icon {
+		padding-inline: 36px 30px;
+	}
+
+	/* On very narrow screens let buttons shrink/wrap instead of forcing overflow */
+	@media (max-width: 400px) {
+		.btn {
+			height: auto;
+			min-height: 54px;
+			padding-block: 0.75rem;
+			padding-inline: 1.5rem;
+			white-space: normal;
+			text-align: center;
+		}
+		.btn--has-icon {
+			padding-inline: 1.5rem;
+		}
+	}
+
+	.btn--primary {
+		background: var(--color-light-yellow);
+		color: var(--color-primary-blue);
+	}
+	.btn--primary:hover {
+		background: var(--color-primary-hover);
+	}
+
+	.btn--outline {
+		background: transparent;
+		border-color: var(--color-light-yellow);
+		color: var(--color-light-yellow);
+	}
+	.btn--outline:hover {
+		background: var(--color-light-yellow);
+		color: var(--color-primary-blue);
+	}
+
+	.btn--outline-dark {
+		background: transparent;
+		border-color: var(--color-headings-dark);
+		color: var(--color-headings-dark);
+	}
+	.btn--outline-dark:hover {
+		background: var(--color-headings-dark);
+		color: var(--color-white);
+	}
+
+	.btn--solid {
+		background: var(--color-primary-blue);
+		color: var(--color-white);
+	}
+	.btn--solid:hover {
+		background: var(--color-dark-blue);
+	}
+</style>

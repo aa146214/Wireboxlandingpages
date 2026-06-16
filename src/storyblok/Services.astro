@@ -1,0 +1,167 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+interface ServiceItem {
+	name: string;
+	description: string;
+	link?: { cached_url?: string; url?: string } | string;
+}
+interface Category {
+	title: string;
+	items: ServiceItem[];
+}
+
+const heading: string = blok?.heading || 'Powering your success';
+const intro: string =
+	blok?.intro ||
+	'We provide tailored solutions that help organisations operate smarter, grow faster, and connect more effectively with their audiences. From strategy and design to implementation and ongoing support, we deliver measurable results across every project.';
+const categories: Category[] = blok?.categories ?? [];
+
+const resolveLink = (link: ServiceItem['link']): string => {
+	if (!link) return '#';
+	if (typeof link === 'string') return link;
+	return link.cached_url || link.url || '#';
+};
+const pad = (n: number) => String(n + 1).padStart(2, '0');
+---
+
+<section class="services" {...storyblokEditable(blok)}>
+	<div class="services__inner container">
+		<h2 class="services__heading h3">{heading}</h2>
+		<p class="services__intro">{intro}</p>
+
+		<div class="services__list">
+			{
+				categories.map((cat, i) => (
+					<div class="services__cat">
+						<div class="services__cat-head">
+							<span class="services__num">{pad(i)}.</span>
+							<h3 class="services__cat-title">{cat.title}</h3>
+						</div>
+						<ul class="services__items" role="list">
+							{cat.items.map((item) => (
+								<li class="service-item">
+									<a class="service-item__name" href={resolveLink(item.link)}>
+										{item.name}
+									</a>
+									<p class="service-item__desc">{item.description}</p>
+								</li>
+							))}
+						</ul>
+					</div>
+				))
+			}
+		</div>
+	</div>
+</section>
+
+<style>
+	.services {
+		background: var(--surface-muted);
+		padding-block: var(--section-py-lg);
+		overflow-x: clip;
+	}
+	.services__heading {
+		margin-bottom: 1.5rem;
+	}
+	.services__intro {
+		max-width: 60rem;
+		color: var(--color-paragraph);
+		font-size: var(--fs-paragraph-fluid);
+		line-height: var(--lh-body);
+		margin-bottom: clamp(2.5rem, 4vw, 4rem);
+	}
+
+	.services__cat {
+		position: relative;
+		padding-block: clamp(2.25rem, 3.5vw, 3.5rem);
+	}
+	/* Category separators run full-bleed (screen to screen); the head underline
+	   below each title stays within the content column. */
+	.services__cat::before,
+	.services__cat:last-child::after {
+		content: '';
+		position: absolute;
+		left: 50%;
+		width: 100vw;
+		transform: translateX(-50%);
+		border-top: 1px dashed var(--color-divider);
+	}
+	.services__cat::before {
+		top: 0;
+	}
+	.services__cat:last-child::after {
+		bottom: 0;
+	}
+	.services__cat-head {
+		display: grid;
+		grid-template-columns: 228px 1fr;
+		align-items: baseline;
+		padding-bottom: clamp(1.5rem, 2.5vw, 2.25rem);
+		margin-bottom: clamp(1.75rem, 3vw, 2.75rem);
+		border-bottom: 1px dashed var(--color-divider);
+	}
+	.services__num {
+		font-size: var(--fs-paragraph);
+		font-weight: var(--fw-semibold);
+		color: var(--color-headings-dark);
+	}
+	.services__cat-title {
+		font-size: var(--fs-h4-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-heading);
+		letter-spacing: var(--ls-h4);
+		color: var(--color-fuchsia);
+	}
+
+	.services__items {
+		margin: 0 0 0 228px;
+		padding: 0;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		column-gap: clamp(2rem, 5vw, 100px);
+		row-gap: clamp(1.75rem, 3vw, 2.5rem);
+	}
+	.service-item__name {
+		display: inline-block;
+		font-size: var(--fs-h5-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-headings-dark);
+		margin-bottom: 0.5rem;
+		text-decoration: underline;
+		text-decoration-color: transparent;
+		text-underline-offset: 4px;
+		transition:
+			color var(--dur-fast) var(--ease-out),
+			text-decoration-color var(--dur-fast) var(--ease-out);
+	}
+	.service-item__name:hover {
+		color: var(--color-primary-blue);
+		text-decoration-color: currentColor;
+	}
+	.service-item__desc {
+		max-width: 30ch;
+		font-size: var(--fs-paragraph-fluid);
+		font-weight: var(--fw-medium);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+	.service-item__name:hover + .service-item__desc {
+		color: var(--color-primary-blue);
+	}
+
+	@media (max-width: 768px) {
+		.services__cat-head {
+			grid-template-columns: 56px 1fr;
+			column-gap: 0.5rem;
+		}
+		.services__items {
+			margin-left: 0;
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
