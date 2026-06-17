@@ -51,7 +51,7 @@ const h = splitHighlight(heading, accent);
 
 <style>
 	.risk {
-		background: var(--surface-page);
+		background: var(--surface-muted); /* Figma: Light BG 2 #f8f7fa */
 		padding-block: var(--section-py);
 	}
 	.risk__eyebrow {
@@ -79,15 +79,16 @@ const h = splitHighlight(heading, accent);
 	}
 	.risk__value {
 		display: block;
-		font-size: clamp(2.2rem, 1.6rem + 2vw, 3.4rem);
-		font-weight: var(--fw-semibold);
-		line-height: 1.05;
-		letter-spacing: var(--ls-h2);
+		/* Figma: Inter Regular 72px, line-height 1.25, tracking -5% */
+		font-size: clamp(2.25rem, 1.3rem + 3vw, 4.5rem);
+		font-weight: var(--fw-regular);
+		line-height: var(--lh-tight);
+		letter-spacing: -0.05em;
 		color: var(--color-fuchsia);
 		margin-bottom: 1rem;
 	}
 	.risk__desc {
-		font-size: var(--fs-small);
+		font-size: var(--fs-paragraph-fluid); /* Figma: Paragraph 21px */
 		line-height: var(--lh-body);
 		color: var(--color-paragraph);
 	}

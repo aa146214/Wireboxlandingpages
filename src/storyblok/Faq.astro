@@ -96,9 +96,11 @@ const h = splitHighlight(heading, accent);
 		padding: 1.25rem 0;
 		cursor: pointer;
 		list-style: none;
-		font-size: var(--fs-subtitle);
+		/* Figma: H5 — Inter Semi Bold 30.24px, line-height 1.35, tracking -2% */
+		font-size: var(--fs-h5-fluid);
 		font-weight: var(--fw-semibold);
-		letter-spacing: var(--ls-subtitle);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
 		color: var(--color-primary-blue);
 		transition: color var(--dur-fast) var(--ease-out);
 	}
@@ -106,7 +108,7 @@ const h = splitHighlight(heading, accent);
 		display: none;
 	}
 	.faq__item[open] > .faq__q {
-		color: var(--color-headings-dark);
+		color: var(--color-dark-blue); /* Figma: Dark Blue #2a0c67 */
 	}
 
 	/* + icon that rotates into × when open */

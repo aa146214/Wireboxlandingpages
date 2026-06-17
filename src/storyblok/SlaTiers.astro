@@ -22,7 +22,7 @@ const tiers: Tier[] = blok?.tiers?.length
 	: [
 			{ value: '1 hour', label: 'critical issues', description: "Site down, major security breach, checkout broken. We're on it within the hour, any day of the week.", tone: 'pink' },
 			{ value: '4 hours', label: 'high priority issues', description: 'Broken features, performance degradation, failed integrations. Responded to and triaged same day.', tone: 'yellow' },
-			{ value: '1 day', label: 'standard issues', description: "Content updates, minor bugs, configuration changes. You'll have a response with a clear timeline by next working day.", tone: 'green' },
+			{ value: '1 day', label: 'standard requests', description: "Content updates, minor bugs, configuration changes. You'll have a response with a clear timeline by next working day.", tone: 'green' },
 			{ value: 'Monthly', label: 'proactive reports', description: 'Every month you receive a full report: uptime, security status, updates applied, and recommendations for next steps.', tone: 'cyan' },
 		];
 
@@ -88,22 +88,26 @@ const h = splitHighlight(heading, accent);
 	}
 	.sla__value {
 		display: block;
-		font-size: clamp(1.9rem, 1.4rem + 1.8vw, 2.7rem);
-		font-weight: var(--fw-semibold);
-		line-height: 1.1;
-		letter-spacing: var(--ls-h3);
-		margin-bottom: 0.5rem;
+		/* Figma: Inter Regular 72px, line-height 1.25, tracking -4% */
+		font-size: clamp(2.25rem, 1.3rem + 3vw, 4.5rem);
+		font-weight: var(--fw-regular);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h1);
+		margin-bottom: 0.75rem;
 	}
 	.sla__label {
 		display: block;
-		font-size: var(--fs-paragraph);
+		/* Figma: Inter Semi Bold 30.24px (H5), tracking -2% */
+		font-size: var(--fs-h5-fluid);
 		font-weight: var(--fw-semibold);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
 		margin-bottom: 1rem;
 	}
 	.sla__desc {
-		font-size: var(--fs-small);
+		font-size: var(--fs-paragraph-fluid); /* Figma: Paragraph 21px */
 		line-height: var(--lh-body);
-		color: var(--text-on-dark-muted);
+		color: var(--text-on-dark); /* Figma: 80% White #f1f0f7 */
 	}
 	.sla__tier.is-pink .sla__value,
 	.sla__tier.is-pink .sla__label {

@@ -118,16 +118,19 @@ const h = splitHighlight(heading, accent === heading ? '' : accent);
 		transform: scale(1.04);
 	}
 	.case-card__title {
-		font-size: var(--fs-h5);
+		/* Figma: Inter Semi Bold 28px, line-height 1.35, tracking -2% */
+		font-size: clamp(1.5rem, 1.3rem + 0.6vw, 1.75rem);
+		font-weight: var(--fw-semibold);
 		line-height: var(--lh-h5);
 		letter-spacing: var(--ls-h5);
-		color: var(--color-headings-dark);
+		color: var(--color-paragraph-strong);
 		margin-bottom: 0.25rem;
 	}
 	.case-card__duration {
+		/* Figma: Small text strong 17.5px, Primary Blue */
 		font-size: var(--fs-small);
 		font-weight: var(--fw-semibold);
-		color: var(--color-fuchsia);
+		color: var(--color-primary-blue);
 		margin-bottom: 0.75rem;
 	}
 	.case-card__desc {
@@ -145,11 +148,12 @@ const h = splitHighlight(heading, accent === heading ? '' : accent);
 		border-bottom: 1px solid var(--border-subtle);
 	}
 	.case-card__tags li {
+		/* Figma: Inter Medium 14px, uppercase, Dark Blue */
 		font-size: var(--fs-category);
-		font-weight: var(--fw-semibold);
-		letter-spacing: var(--ls-category);
+		font-weight: var(--fw-medium);
+		line-height: var(--lh-category);
 		text-transform: uppercase;
-		color: var(--color-primary-blue);
+		color: var(--color-dark-blue);
 	}
 	.case-card__more {
 		font-size: var(--fs-small);
