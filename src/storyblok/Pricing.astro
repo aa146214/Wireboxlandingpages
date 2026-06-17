@@ -1,0 +1,294 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Button from '../components/Button.astro';
+import { splitHighlight } from '../lib/text';
+import type { ButtonVariant } from '../lib/ui';
+
+const { blok } = Astro.props;
+
+interface Plan {
+	tier: string;
+	name: string;
+	badge?: string;
+	price_prefix?: string;
+	price: string;
+	meta?: string;
+	features: string[] | string;
+	cta_label: string;
+	cta_link?: string;
+	cta_variant?: ButtonVariant;
+	featured?: boolean;
+}
+
+const eyebrow: string = blok?.eyebrow || 'Transparent pricing';
+const heading: string = blok?.heading || 'Plans that grow with your business';
+const accent: string = blok?.heading_accent || 'your business';
+const subtitle: string =
+	blok?.subtitle ||
+	'All plans include 24/7 monitoring, monthly reporting, and a dedicated account manager. No hidden fees, no lock-in contracts.';
+const footnote: string = blok?.footnote || 'Not sure which plan is right?';
+const footLinkLabel: string = blok?.foot_link_label || 'Get a free site review';
+const footLink: string = blok?.foot_link || '#contact';
+const footTrail: string = blok?.foot_trail || "and we'll recommend the right fit.";
+
+const plans: Plan[] = blok?.plans?.length
+	? blok.plans
+	: [
+			{
+				tier: 'Starter',
+				name: 'Essential',
+				price_prefix: 'Plans from',
+				price: '£299/mo',
+				meta: 'Single site · Cancel anytime',
+				features: [
+					'24/7 uptime monitoring',
+					'Monthly plugin & CMS updates',
+					'4-hour critical response SLA',
+					'Monthly health report',
+					'SSL certificate management',
+					'2 hours/month development time',
+				],
+				cta_label: 'get a quote',
+				cta_variant: 'outline-lavender',
+			},
+			{
+				tier: 'Growth',
+				name: 'Professional',
+				badge: 'Most popular',
+				price_prefix: 'Plans from',
+				price: '£699/mo',
+				meta: 'Up to 3 sites · Cancel anytime',
+				features: [
+					'Everything in Essential',
+					'1-hour critical response SLA',
+					'Performance & SEO monitoring (SEMrush)',
+					'Penetration testing (quarterly)',
+					'Staging environment for all changes',
+					'5 hours/month development time',
+					'Dedicated account manager',
+				],
+				cta_label: 'get a quote',
+				cta_variant: 'solid',
+				featured: true,
+			},
+			{
+				tier: 'Scale',
+				name: 'Enterprise',
+				price_prefix: 'Custom pricing',
+				price: "Let's talk",
+				meta: 'Multi-site · Bespoke SLA · AWS hosting',
+				features: [
+					'Everything in Professional',
+					'AWS CloudWatch monitoring',
+					'Custom SLA & response targets',
+					'Multi-site & multi-database coverage',
+					'Monthly strategy calls',
+					'Priority development queue',
+					'Dedicated development team access',
+				],
+				cta_label: 'book a call',
+				cta_variant: 'outline-lavender',
+			},
+		];
+
+const toList = (f: Plan['features']): string[] =>
+	Array.isArray(f) ? f : typeof f === 'string' ? f.split(/\r?\n/).map((s) => s.trim()).filter(Boolean) : [];
+const h = splitHighlight(heading, accent);
+---
+
+<section class="pricing" id="pricing" {...storyblokEditable(blok)}>
+	<div class="pricing__inner container">
+		<header class="pricing__head">
+			<p class="pricing__eyebrow category">{eyebrow}</p>
+			<h2 class="pricing__heading section-heading">{h.pre}<span class="pricing__hl">{h.mid}</span>{h.post}</h2>
+			<p class="pricing__subtitle">{subtitle}</p>
+		</header>
+
+		<ul class="pricing__grid" role="list">
+			{
+				plans.map((p) => (
+					<li class:list={['plan', { 'plan--featured': p.featured }]}>
+						{p.badge && <span class="plan__badge">{p.badge}</span>}
+						<p class="plan__tier category">{p.tier}</p>
+						<h3 class="plan__name">{p.name}</h3>
+						<p class="plan__price-prefix">{p.price_prefix}</p>
+						<p class="plan__price">{p.price}</p>
+						{p.meta && <p class="plan__meta">{p.meta}</p>}
+						<ul class="plan__features" role="list">
+							{toList(p.features).map((f) => (
+								<li class="plan__feature">
+									<svg class="plan__check" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+										<path d="M3 8.5 6.5 12 13 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+									</svg>
+									<span>{f}</span>
+								</li>
+							))}
+						</ul>
+						<div class="plan__cta">
+							<Button
+								label={p.cta_label}
+								link={p.cta_link ?? '#contact'}
+								variant={p.cta_variant ?? 'outline-lavender'}
+								icon="arrow-right"
+							/>
+						</div>
+					</li>
+				))
+			}
+		</ul>
+
+		<p class="pricing__foot">
+			{footnote} <a class="pricing__foot-link" href={footLink}>{footLinkLabel}</a> {footTrail}
+		</p>
+	</div>
+</section>
+
+<style>
+	.pricing {
+		background: var(--surface-lavender-tint);
+		padding-block: var(--section-py);
+	}
+	.pricing__head {
+		text-align: center;
+		margin-bottom: clamp(2.5rem, 5vw, 4rem);
+	}
+	.pricing__eyebrow {
+		color: var(--color-primary-blue);
+		margin-bottom: 1rem;
+	}
+	.pricing__heading {
+		color: var(--color-dark-blue);
+		margin-bottom: 1rem;
+	}
+	.pricing__hl {
+		color: var(--color-fuchsia);
+	}
+	.pricing__subtitle {
+		max-width: 60ch;
+		margin: 0 auto;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+
+	.pricing__grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: clamp(1.25rem, 2.5vw, 2rem);
+		align-items: start;
+		margin: 0;
+		padding: 0;
+	}
+	.plan {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		padding: clamp(1.75rem, 2.5vw, 2.5rem) clamp(1.5rem, 2vw, 2rem);
+		background: var(--surface-card);
+		border: 1px solid var(--color-light-lavender);
+		border-radius: var(--radius-card);
+	}
+	.plan--featured {
+		border: 2px solid var(--color-primary-blue);
+		box-shadow: var(--shadow-card);
+	}
+	.plan__badge {
+		position: absolute;
+		top: 0;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		padding: 0.35rem 1.1rem;
+		background: var(--color-fuchsia);
+		color: var(--color-white);
+		border-radius: var(--radius-pill);
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+		text-transform: uppercase;
+		letter-spacing: var(--ls-category);
+		white-space: nowrap;
+	}
+	.plan__tier {
+		color: var(--color-paragraph);
+		text-align: center;
+		margin-bottom: 0.5rem;
+	}
+	.plan__name {
+		font-size: var(--fs-h5);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-primary-blue);
+		text-align: center;
+		margin-bottom: 1.25rem;
+	}
+	.plan__price-prefix {
+		font-size: var(--fs-small);
+		color: var(--color-paragraph);
+	}
+	.plan__price {
+		font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.5rem);
+		font-weight: var(--fw-semibold);
+		line-height: 1.1;
+		letter-spacing: var(--ls-h3);
+		color: var(--color-dark-blue);
+		margin: 0.15rem 0 0.5rem;
+	}
+	.plan__meta {
+		font-size: var(--fs-small);
+		color: var(--color-paragraph);
+		padding-bottom: 1.5rem;
+		margin-bottom: 1.5rem;
+		border-bottom: 1px solid var(--border-subtle);
+	}
+	.plan__features {
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+		margin: 0 0 2rem;
+		padding: 0;
+		flex: 1 1 auto;
+	}
+	.plan__feature {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.65rem;
+		font-size: var(--fs-small);
+		line-height: 1.4;
+		color: var(--color-headings-dark);
+	}
+	.plan__check {
+		flex-shrink: 0;
+		margin-top: 0.15rem;
+		color: var(--color-primary-blue);
+	}
+	.plan__cta {
+		display: flex;
+	}
+	.plan__cta :global(.btn) {
+		width: 100%;
+	}
+
+	.pricing__foot {
+		text-align: center;
+		margin-top: clamp(2rem, 4vw, 3rem);
+		font-size: var(--fs-small);
+		color: var(--color-paragraph);
+	}
+	.pricing__foot-link {
+		font-weight: var(--fw-semibold);
+		color: var(--color-primary-blue);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+	.pricing__foot-link:hover {
+		color: var(--color-fuchsia);
+	}
+
+	@media (max-width: 900px) {
+		.pricing__grid {
+			grid-template-columns: 1fr;
+			max-width: 440px;
+			margin-inline: auto;
+		}
+	}
+</style>

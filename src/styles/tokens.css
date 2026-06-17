@@ -21,8 +21,10 @@
 	--color-fuchsia: #cf1993;
 	--color-light-pink: #e78cc9;
 	--color-lavender: #aa8ce7;
+	--color-light-lavender: #cabbe7;
 	--color-light-green: #8ce7aa;
 	--color-light-yellow: #e7e78c;
+	--color-cyan: #40e0f0;
 
 	/* Vivid accents (used for bullet markers / small highlights) */
 	--color-pink-vivid: #e60775;
@@ -36,6 +38,7 @@
 	--surface-page: var(--color-white);
 	--surface-subtle: var(--color-light-bg-1); /* lavender-tint panels & chips */
 	--surface-muted: var(--color-light-bg-2); /* off-white section background */
+	--surface-lavender-tint: #eae2f9; /* lavender @25% over white — pricing/testimonials bg */
 	--surface-card: var(--color-white);
 	--surface-brand: var(--color-primary-blue);
 	--surface-brand-deep: var(--color-dark-blue);
@@ -153,6 +156,8 @@
 	--radius-md: 0;
 	--radius-lg: 0;
 	--radius-pill: 999px;
+	/* The support-page design rounds cards/panels by a soft 8px (Figma). */
+	--radius-card: 8px;
 
 	/* --- Motion --------------------------------------------------------- */
 	--ease-out: cubic-bezier(0.16, 1, 0.3, 1);

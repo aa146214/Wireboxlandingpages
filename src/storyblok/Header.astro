@@ -21,7 +21,9 @@ const resolveLink = (link: NavItem['link']): string => {
 	return link.url || link.cached_url || '#';
 };
 
-const nav: NavItem[] = blok?.nav?.length
+// An explicitly-provided (even empty) array is honoured, so the support page can
+// opt out of the nav/socials and show a minimal logo + call-pill header.
+const nav: NavItem[] = Array.isArray(blok?.nav)
 	? blok.nav
 	: [
 			{ label: 'what we do', link: '/what-we-do' },
@@ -32,7 +34,7 @@ const nav: NavItem[] = blok?.nav?.length
 			{ label: 'contact', link: '/contact', highlight: true },
 		];
 
-const socials: Social[] = blok?.socials?.length
+const socials: Social[] = Array.isArray(blok?.socials)
 	? blok.socials
 	: [
 			{ platform: 'facebook', url: '#' },
@@ -44,6 +46,9 @@ const socials: Social[] = blok?.socials?.length
 			{ platform: 'tiktok', url: '#' },
 			{ platform: 'youtube', url: '#' },
 		];
+
+// Whether the secondary cluster (nav + search + socials) has anything to show.
+const hasCluster = nav.length > 0 || socials.length > 0;
 
 const phoneLabel = blok?.phone_label || 'Call us on:';
 const phoneNumber = blok?.phone_number || '0207 993 5485';
@@ -67,61 +72,71 @@ const socialLabels: Record<string, string> = {
 			<img src={logoSrc} alt="Wirebox" width="149" height="38" />
 		</a>
 
-		<div class="site-header__cluster">
-			<nav class="site-header__nav" aria-label="Primary">
-				<ul role="list">
-					{
-						nav.map((item) => (
-							<li>
-								<a
-									href={resolveLink(item.link)}
-									class:list={['site-header__link', { 'is-highlight': item.highlight }]}
-								>
-									{item.label}
-								</a>
-							</li>
-						))
-					}
-				</ul>
-			</nav>
+		<div class:list={['site-header__cluster', { 'is-minimal': !hasCluster }]}>
+			{
+				nav.length > 0 && (
+					<nav class="site-header__nav" aria-label="Primary">
+						<ul role="list">
+							{nav.map((item) => (
+								<li>
+									<a
+										href={resolveLink(item.link)}
+										class:list={['site-header__link', { 'is-highlight': item.highlight }]}
+									>
+										{item.label}
+									</a>
+								</li>
+							))}
+						</ul>
+					</nav>
+				)
+			}
 
 			<div class="site-header__actions">
 				<a class="site-header__phone" href={phoneHref}>
 					<span class="site-header__phone-label">{phoneLabel}</span>
 					<span class="site-header__phone-number">{phoneNumber}</span>
 				</a>
-				<button class="site-header__search" type="button" aria-label="Search">
-					<Icon name="search" size={22} />
-				</button>
-				<ul class="site-header__socials" role="list">
-					{
-						socials.map((s) => (
-							<li>
-								<a href={s.url} aria-label={socialLabels[s.platform] ?? s.platform}>
-									<img
-										src={`/social/${s.platform}.svg`}
-										alt=""
-										width="22"
-										height="22"
-										loading="lazy"
-									/>
-								</a>
-							</li>
-						))
-					}
-				</ul>
+				{
+					socials.length > 0 && (
+						<>
+							<button class="site-header__search" type="button" aria-label="Search">
+								<Icon name="search" size={22} />
+							</button>
+							<ul class="site-header__socials" role="list">
+								{socials.map((s) => (
+									<li>
+										<a href={s.url} aria-label={socialLabels[s.platform] ?? s.platform}>
+											<img
+												src={`/social/${s.platform}.svg`}
+												alt=""
+												width="22"
+												height="22"
+												loading="lazy"
+											/>
+										</a>
+									</li>
+								))}
+							</ul>
+						</>
+					)
+				}
 			</div>
 		</div>
 
-		<button
-			class="site-header__toggle"
-			type="button"
-			aria-label="Open menu"
-			aria-expanded="false"
-			aria-controls="mobile-menu"
-		>
-			<Icon name="menu" size={28} />
-		</button>
+		{
+			nav.length > 0 && (
+				<button
+					class="site-header__toggle"
+					type="button"
+					aria-label="Open menu"
+					aria-expanded="false"
+					aria-controls="mobile-menu"
+				>
+					<Icon name="menu" size={28} />
+				</button>
+			)
+		}
 	</div>
 
 	<!-- Mobile drawer -->
@@ -325,6 +340,16 @@ const socialLabels: Record<string, string> = {
 		.site-header__toggle {
 			display: grid;
 			place-items: center;
+		}
+	}
+	/* The minimal header (logo + call pill only) keeps its cluster at every
+	   breakpoint — there is no nav to collapse into a drawer. */
+	.site-header__cluster.is-minimal {
+		display: flex !important;
+	}
+	@media (max-width: 520px) {
+		.site-header__cluster.is-minimal .site-header__phone-label {
+			display: none;
 		}
 	}
 

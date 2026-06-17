@@ -27,3 +27,5 @@ npm-debug.log*
 
 # raw manually-exported Figma assets (staging; used copies live in /public)
 public/manually-exported-assets/
+.vercel
+.env*

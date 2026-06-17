@@ -1,6 +1,7 @@
 ---
 import { storyblokEditable } from '@storyblok/astro';
 import Icon from '../components/Icon.astro';
+import { splitHighlight } from '../lib/text';
 
 const { blok } = Astro.props;
 
@@ -11,15 +12,19 @@ interface Testimonial {
 	video?: { filename?: string } | string;
 }
 
+const eyebrow: string = blok?.eyebrow || '';
 const heading: string = blok?.heading || 'What our clients say_';
+const accent: string = blok?.heading_accent || '';
 const items: Testimonial[] = blok?.items ?? [];
 const videoSrc = (v: Testimonial['video']) =>
 	typeof v === 'string' ? v : v?.filename;
+const h = splitHighlight(heading, accent);
 ---
 
 <section class="testimonials" {...storyblokEditable(blok)}>
-	<div class="container">
-		<h2 class="testimonials__heading section-heading">{heading}</h2>
+	<div class="container testimonials__head">
+		{eyebrow && <p class="testimonials__eyebrow category">{eyebrow}</p>}
+		<h2 class="testimonials__heading section-heading">{h.pre}<span class="testimonials__hl">{h.mid}</span>{h.post}</h2>
 	</div>
 
 	<div class="testimonials__viewport" data-carousel>
@@ -67,14 +72,23 @@ const videoSrc = (v: Testimonial['video']) =>
 <style>
 	.testimonials {
 		--t-card-w: clamp(280px, 82vw, 404px);
-		background: var(--surface-subtle);
+		background: var(--surface-lavender-tint);
 		padding-block: var(--section-py-sm);
 		overflow: hidden;
 	}
-	.testimonials__heading {
+	.testimonials__head {
 		text-align: center;
-		color: var(--color-dark-blue);
 		margin-bottom: clamp(2rem, 4vw, 3rem);
+	}
+	.testimonials__eyebrow {
+		color: var(--color-primary-blue);
+		margin-bottom: 1rem;
+	}
+	.testimonials__heading {
+		color: var(--color-dark-blue);
+	}
+	.testimonials__hl {
+		color: var(--color-fuchsia);
 	}
 
 	.testimonials__viewport {

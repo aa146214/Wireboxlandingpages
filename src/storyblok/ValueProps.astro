@@ -1,0 +1,184 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Button from '../components/Button.astro';
+
+const { blok } = Astro.props;
+
+interface Feature {
+	title: string;
+	description: string;
+	tone?: 'dark' | 'fuchsia' | 'purple';
+}
+
+const eyebrow: string = blok?.eyebrow || 'Why Wirebox';
+const heading: string = blok?.heading || 'More than just a support ticket';
+const body: string =
+	blok?.body ||
+	"We're not an hourly-rate helpdesk. We're your proactive digital partner – actively seeking improvements, spotting risks before they become problems, and helping your site grow alongside your business.";
+const ctaLabel: string = blok?.cta_label || 'get a free site review';
+const ctaLink: string = blok?.cta_link || '#contact';
+const image = blok?.image?.filename || '/seed-assets/support/support-team.png';
+const imageAlt: string =
+	blok?.image?.alt || 'A Wirebox support specialist working with a client';
+const toolkitTitle: string = blok?.toolkit_title || 'Our monitoring toolkit';
+const toolkit: string[] = blok?.toolkit?.length
+	? blok.toolkit
+	: ['Pingdom', 'Airbrake', 'SEMrush', 'AWS CloudWatch', 'Sentry', 'Cloudflare'];
+
+const features: Feature[] = blok?.features?.length
+	? blok.features
+	: [
+			{ title: 'Security & penetration testing', description: 'We run regular penetration tests and vulnerability scans to find weaknesses before attackers do – then fix them.', tone: 'dark' },
+			{ title: 'Performance optimisation', description: 'Slow sites lose customers. We actively monitor and improve load times, keeping Google happy and users engaged.', tone: 'fuchsia' },
+			{ title: 'Plugin & platform updates', description: 'We keep WordPress, Magento, Laravel and PHP on supported, secure versions – tested in staging before going live.', tone: 'dark' },
+			{ title: 'Proactive improvement recommendations', description: "We're your advocate – regularly suggesting improvements to grow your business online, not just keeping the lights on.", tone: 'fuchsia' },
+			{ title: 'Staging environment for all changes', description: 'Every update is tested and signed off in a secure staging environment before it ever touches your live site.', tone: 'purple' },
+		];
+---
+
+<section class="vp" {...storyblokEditable(blok)}>
+	<div class="vp__inner container">
+		<div class="vp__intro">
+			<div class="vp__media">
+				<img src={image} alt={imageAlt} width="512" height="342" loading="lazy" />
+			</div>
+			<p class="vp__eyebrow category">{eyebrow}</p>
+			<h2 class="vp__heading section-heading">{heading}</h2>
+			<p class="vp__body">{body}</p>
+			<Button label={ctaLabel} link={ctaLink} variant="fuchsia" icon="arrow-right" />
+
+			<div class="vp__toolkit">
+				<p class="vp__toolkit-title">{toolkitTitle}</p>
+				<ul class="vp__chips" role="list">
+					{toolkit.map((t, i) => (
+						<li class:list={['vp__chip', i % 4 === 3 ? 'is-lavender' : 'is-pink']}>{t}</li>
+					))}
+				</ul>
+			</div>
+		</div>
+
+		<ul class="vp__features" role="list">
+			{
+				features.map((f) => (
+					<li class="vp__feature">
+						<h3 class:list={['vp__feature-title', `is-${f.tone ?? 'dark'}`]}>{f.title}</h3>
+						<p class="vp__feature-desc">{f.description}</p>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.vp {
+		background: var(--surface-page);
+		padding-block: var(--section-py);
+	}
+	.vp__inner {
+		display: grid;
+		grid-template-columns: 1fr 1.05fr;
+		gap: clamp(2rem, 5vw, 5rem);
+		align-items: start;
+	}
+
+	.vp__media {
+		border-radius: var(--radius-card);
+		overflow: hidden;
+		margin-bottom: 1.75rem;
+		max-width: 420px;
+	}
+	.vp__media img {
+		width: 100%;
+		height: auto;
+		object-fit: cover;
+	}
+	.vp__eyebrow {
+		color: var(--color-primary-blue);
+		margin-bottom: 0.85rem;
+	}
+	.vp__heading {
+		color: var(--color-fuchsia);
+		margin-bottom: 1.25rem;
+	}
+	.vp__body {
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+		max-width: 44ch;
+		margin-bottom: 1.75rem;
+	}
+
+	.vp__toolkit {
+		margin-top: 2rem;
+		padding: 1.25rem 1.5rem;
+		background: var(--surface-subtle);
+		border-radius: var(--radius-card);
+		max-width: 460px;
+	}
+	.vp__toolkit-title {
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		color: var(--color-headings-dark);
+		margin-bottom: 0.85rem;
+	}
+	.vp__chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin: 0;
+		padding: 0;
+	}
+	.vp__chip {
+		padding: 0.3rem 0.75rem;
+		border-radius: var(--radius-pill);
+		font-size: var(--fs-category);
+		font-weight: var(--fw-medium);
+		color: var(--color-dark-blue);
+	}
+	.vp__chip.is-pink {
+		background: var(--color-light-pink);
+	}
+	.vp__chip.is-lavender {
+		background: var(--color-lavender);
+	}
+
+	.vp__features {
+		margin: 0;
+		padding: 0;
+	}
+	.vp__feature {
+		padding: 1.5rem 0;
+		border-bottom: 1px solid var(--border-subtle);
+	}
+	.vp__feature:first-child {
+		border-top: 1px solid var(--border-subtle);
+	}
+	.vp__feature-title {
+		font-size: var(--fs-h5);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		margin-bottom: 0.6rem;
+	}
+	.vp__feature-title.is-dark {
+		color: var(--color-dark-blue);
+	}
+	.vp__feature-title.is-fuchsia {
+		color: var(--color-fuchsia);
+	}
+	.vp__feature-title.is-purple {
+		color: var(--color-primary-blue);
+	}
+	.vp__feature-desc {
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+		max-width: 52ch;
+	}
+
+	@media (max-width: 900px) {
+		.vp__inner {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

@@ -1,0 +1,61 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+const { blok } = Astro.props;
+
+interface Item {
+	text: string;
+}
+
+const items: Item[] = blok?.items?.length
+	? blok.items
+	: [
+			{ text: '1-hour critical response' },
+			{ text: 'No long-term contracts' },
+			{ text: 'Award-winning team' },
+			{ text: '5★ Google rated' },
+			{ text: 'Laravel certified' },
+		];
+---
+
+<section class="trust-bar" {...storyblokEditable(blok)}>
+	<ul class="trust-bar__inner container" role="list">
+		{
+			items.map((it) => (
+				<li class="trust-bar__item">
+					<span class="trust-bar__dot" aria-hidden="true" />
+					{it.text}
+				</li>
+			))
+		}
+	</ul>
+</section>
+
+<style>
+	.trust-bar {
+		background: var(--surface-invert);
+		color: var(--text-on-dark);
+	}
+	.trust-bar__inner {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 0.75rem clamp(1.5rem, 4vw, 3.5rem);
+		padding-block: 1.1rem;
+	}
+	.trust-bar__item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.6rem;
+		font-size: var(--fs-small);
+		font-weight: var(--fw-medium);
+		white-space: nowrap;
+	}
+	.trust-bar__dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: var(--color-light-green);
+	}
+</style>

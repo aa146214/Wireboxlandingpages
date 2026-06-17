@@ -1,0 +1,149 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import { splitHighlight } from '../lib/text';
+
+const { blok } = Astro.props;
+
+interface Item {
+	question: string;
+	answer: string;
+	open?: boolean;
+}
+
+const eyebrow: string = blok?.eyebrow || 'FAQ';
+const heading: string = blok?.heading || 'Questions we get asked every week';
+const accent: string = blok?.heading_accent || 'every week';
+const items: Item[] = blok?.items?.length
+	? blok.items
+	: [
+			{ question: 'What platforms do you support?', answer: "WordPress, Magento, Laravel, PHP, Shopify and most modern stacks. If it runs on the web, we can almost certainly support it – and we'll tell you honestly if we can't." },
+			{ question: 'Do you lock clients into long-term contracts?', answer: "No. All our support plans are rolling monthly. We earn your business every month by delivering value – not by trapping you in a contract. You can upgrade, downgrade, or cancel with 30 days' notice.", open: true },
+			{ question: 'Do you offer one-off fixes, or only monthly plans?', answer: "Both. Monthly plans give you the best response times and rates, but we're happy to quote for one-off fixes and projects too." },
+			{ question: 'How quickly do you respond when my site goes down?', answer: 'Critical issues are picked up within 1 hour on Professional and Enterprise plans (4 hours on Essential), 24/7, 365 days a year.' },
+			{ question: 'Can I migrate from my current support agency?', answer: "Yes – we do this regularly. We'll audit your current setup, document everything, and take over with zero downtime." },
+			{ question: "What's included in the monthly development hours?", answer: "Anything from content updates and new features to performance work. Unused hours roll over for one month, and we'll always tell you before extra work is billed." },
+			{ question: 'Do you handle hosting as well?', answer: "We do. We manage hosting on AWS and other providers, or we'll happily work alongside your existing host." },
+			{ question: 'Is there a setup or onboarding fee?', answer: "No setup fee on standard plans. Complex migrations may need a small scoped onboarding – we'll agree it with you up front." },
+		];
+
+const h = splitHighlight(heading, accent);
+---
+
+<section class="faq" {...storyblokEditable(blok)}>
+	<div class="faq__inner container">
+		<header class="faq__head">
+			<p class="faq__eyebrow category">{eyebrow}</p>
+			<h2 class="faq__heading section-heading">{h.pre}<span class="faq__hl">{h.mid}</span>{h.post}</h2>
+		</header>
+
+		<ul class="faq__list" role="list">
+			{
+				items.map((it) => (
+					<li>
+						<details class="faq__item" open={it.open}>
+							<summary class="faq__q">
+								<span>{it.question}</span>
+								<span class="faq__icon" aria-hidden="true" />
+							</summary>
+							<p class="faq__a">{it.answer}</p>
+						</details>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.faq {
+		background: var(--surface-muted);
+		padding-block: var(--section-py);
+	}
+	.faq__inner {
+		max-width: 880px;
+	}
+	.faq__head {
+		text-align: center;
+		margin-bottom: clamp(2rem, 4vw, 3.5rem);
+	}
+	.faq__eyebrow {
+		color: var(--color-headings-dark);
+		margin-bottom: 1rem;
+	}
+	.faq__heading {
+		color: var(--color-primary-blue);
+	}
+	.faq__hl {
+		color: var(--color-fuchsia);
+	}
+
+	.faq__list {
+		margin: 0;
+		padding: 0;
+	}
+	.faq__item {
+		border-top: 1px solid var(--border-subtle);
+		padding: 0.4rem 0;
+	}
+	.faq__list li:last-child .faq__item {
+		border-bottom: 1px solid var(--border-subtle);
+	}
+	.faq__q {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.5rem;
+		padding: 1.25rem 0;
+		cursor: pointer;
+		list-style: none;
+		font-size: var(--fs-subtitle);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--ls-subtitle);
+		color: var(--color-primary-blue);
+		transition: color var(--dur-fast) var(--ease-out);
+	}
+	.faq__q::-webkit-details-marker {
+		display: none;
+	}
+	.faq__item[open] > .faq__q {
+		color: var(--color-headings-dark);
+	}
+
+	/* + icon that rotates into × when open */
+	.faq__icon {
+		position: relative;
+		flex-shrink: 0;
+		width: 22px;
+		height: 22px;
+	}
+	.faq__icon::before,
+	.faq__icon::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		margin: auto;
+		background: currentColor;
+		transition: transform var(--dur-fast) var(--ease-out);
+	}
+	.faq__icon::before {
+		width: 22px;
+		height: 2px;
+	}
+	.faq__icon::after {
+		width: 2px;
+		height: 22px;
+	}
+	.faq__item[open] .faq__icon::before {
+		transform: rotate(45deg);
+	}
+	.faq__item[open] .faq__icon::after {
+		transform: rotate(45deg);
+	}
+	.faq__a {
+		max-width: 70ch;
+		padding-bottom: 1.5rem;
+		font-size: var(--fs-paragraph);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+</style>

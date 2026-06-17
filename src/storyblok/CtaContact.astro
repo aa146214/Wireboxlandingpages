@@ -1,0 +1,155 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Button from '../components/Button.astro';
+import { splitHighlight } from '../lib/text';
+
+const { blok } = Astro.props;
+
+interface Phone {
+	number: string;
+	label: string;
+}
+
+const eyebrow: string = blok?.eyebrow || 'Get started';
+const heading: string =
+	blok?.heading || 'Your site deserves better than hoping for the best';
+const accent: string = blok?.heading_accent || 'hoping for the best';
+const body: string =
+	blok?.body ||
+	"Get a free, no-obligation review of your site's security, performance, and maintenance risks. We'll tell you exactly what we'd do and what it costs.";
+const phones: Phone[] = blok?.phones?.length
+	? blok.phones
+	: [
+			{ number: '0207 993 5485', label: 'Call us: Watford & London' },
+			{ number: '01908 110 420', label: 'Call us: Milton Keynes' },
+		];
+const formCtaLabel: string = blok?.form_cta_label || 'Get My Free Review';
+
+const h = splitHighlight(heading, accent);
+---
+
+<section class="cta" id="contact" {...storyblokEditable(blok)}>
+	<div class="cta__inner container">
+		<div class="cta__content">
+			<p class="cta__eyebrow category">{eyebrow}</p>
+			<h2 class="cta__heading">{h.pre}<span class="cta__hl">{h.mid}</span>{h.post}</h2>
+			<p class="cta__body">{body}</p>
+
+			<ul class="cta__phones" role="list">
+				{
+					phones.map((p) => (
+						<li class="cta__phone">
+							<a class="cta__phone-number" href={`tel:${p.number.replace(/[^\d+]/g, '')}`}>{p.number}</a>
+							<span class="cta__phone-label">{p.label}</span>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+
+		<form class="cta__form" novalidate>
+			<label class="visually-hidden" for="contact-name">Name</label>
+			<input class="cta__input" id="contact-name" name="name" type="text" placeholder="Name" autocomplete="name" />
+			<label class="visually-hidden" for="contact-email">Email</label>
+			<input class="cta__input" id="contact-email" name="email" type="email" placeholder="Email" autocomplete="email" />
+			<label class="visually-hidden" for="contact-phone">Phone</label>
+			<input class="cta__input" id="contact-phone" name="phone" type="tel" placeholder="Phone" autocomplete="tel" />
+			<Button label={formCtaLabel} variant="deep" icon="arrow-right" type="submit" />
+		</form>
+	</div>
+</section>
+
+<style>
+	.cta {
+		position: relative;
+		color: var(--color-white);
+		background:
+			repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.05) 0 90px, transparent 90px 220px),
+			linear-gradient(100deg, #5a1474 0%, #a3147f 45%, var(--color-fuchsia) 78%, #e0249f 100%);
+		overflow: hidden;
+	}
+	.cta__inner {
+		display: grid;
+		grid-template-columns: 1.05fr 0.95fr;
+		gap: clamp(2rem, 4vw, 4rem);
+		align-items: center;
+		padding-block: clamp(3rem, 6vw, 5.5rem);
+	}
+
+	.cta__eyebrow {
+		color: var(--text-on-dark);
+		margin-bottom: 1rem;
+	}
+	.cta__heading {
+		color: var(--color-white);
+		font-size: var(--fs-h2-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h2);
+		max-width: 16ch;
+	}
+	.cta__hl {
+		color: var(--color-cyan);
+	}
+	.cta__body {
+		max-width: 46ch;
+		margin-top: 1.25rem;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark);
+	}
+	.cta__phones {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1.5rem 3rem;
+		margin: 2rem 0 0;
+		padding: 0;
+	}
+	.cta__phone-number {
+		display: block;
+		font-size: var(--fs-h5);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-white);
+	}
+	.cta__phone-label {
+		font-size: var(--fs-small);
+		color: var(--text-on-dark-muted);
+	}
+
+	.cta__form {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		padding: clamp(1.5rem, 2.5vw, 2.25rem);
+		background: rgba(22, 16, 38, 0.28);
+		border: 1px solid rgba(255, 255, 255, 0.25);
+		border-radius: var(--radius-card);
+	}
+	.cta__input {
+		height: 54px;
+		padding-inline: 1.25rem;
+		border: 1px solid rgba(255, 255, 255, 0.3);
+		border-radius: var(--radius-card);
+		background: rgba(22, 16, 38, 0.3);
+		color: var(--color-white);
+		font-size: var(--fs-small);
+	}
+	.cta__input::placeholder {
+		color: var(--text-on-dark-placeholder);
+	}
+	.cta__input:focus-visible {
+		outline: 2px solid var(--color-cyan);
+		outline-offset: 1px;
+	}
+	.cta__form :global(.btn) {
+		width: 100%;
+		margin-top: 0.25rem;
+	}
+
+	@media (max-width: 880px) {
+		.cta__inner {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

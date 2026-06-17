@@ -1,0 +1,135 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import { splitHighlight } from '../lib/text';
+
+const { blok } = Astro.props;
+
+interface Tier {
+	value: string;
+	label: string;
+	description: string;
+	tone?: 'pink' | 'yellow' | 'green' | 'cyan';
+}
+
+const eyebrow: string = blok?.eyebrow || 'Response times & SLA';
+const heading: string = blok?.heading || "You'll never wonder where we are";
+const accent: string = blok?.heading_accent || 'where we are';
+const subtitle: string =
+	blok?.subtitle ||
+	"When something goes wrong, speed matters. Here's exactly what to expect from us – in writing, not just promises.";
+const tiers: Tier[] = blok?.tiers?.length
+	? blok.tiers
+	: [
+			{ value: '1 hour', label: 'critical issues', description: "Site down, major security breach, checkout broken. We're on it within the hour, any day of the week.", tone: 'pink' },
+			{ value: '4 hours', label: 'high priority issues', description: 'Broken features, performance degradation, failed integrations. Responded to and triaged same day.', tone: 'yellow' },
+			{ value: '1 day', label: 'standard issues', description: "Content updates, minor bugs, configuration changes. You'll have a response with a clear timeline by next working day.", tone: 'green' },
+			{ value: 'Monthly', label: 'proactive reports', description: 'Every month you receive a full report: uptime, security status, updates applied, and recommendations for next steps.', tone: 'cyan' },
+		];
+
+const h = splitHighlight(heading, accent);
+---
+
+<section class="sla" {...storyblokEditable(blok)}>
+	<div class="sla__inner container">
+		<p class="sla__eyebrow category">{eyebrow}</p>
+		<h2 class="sla__heading section-heading">{h.pre}<span class="sla__hl">{h.mid}</span>{h.post}</h2>
+		<p class="sla__subtitle">{subtitle}</p>
+
+		<ul class="sla__grid" role="list">
+			{
+				tiers.map((t) => (
+					<li class:list={['sla__tier', `is-${t.tone ?? 'pink'}`]}>
+						<span class="sla__value">{t.value}</span>
+						<span class="sla__label">{t.label}</span>
+						<p class="sla__desc">{t.description}</p>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.sla {
+		background: var(--color-dark-blue);
+		color: var(--text-on-dark);
+		padding-block: var(--section-py);
+		text-align: center;
+	}
+	.sla__eyebrow {
+		color: var(--color-light-pink);
+		margin-bottom: 1rem;
+	}
+	.sla__heading {
+		color: var(--color-white);
+		margin-bottom: 1rem;
+	}
+	.sla__hl {
+		color: var(--color-cyan);
+	}
+	.sla__subtitle {
+		max-width: 60ch;
+		margin: 0 auto clamp(2.5rem, 5vw, 4rem);
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark-muted);
+	}
+	.sla__grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: clamp(1.5rem, 3vw, 2.5rem);
+		margin: 0;
+		padding: 0;
+		text-align: left;
+	}
+	.sla__tier {
+		padding-left: 1.5rem;
+		border-left: 1px solid var(--border-on-dark);
+	}
+	.sla__value {
+		display: block;
+		font-size: clamp(1.9rem, 1.4rem + 1.8vw, 2.7rem);
+		font-weight: var(--fw-semibold);
+		line-height: 1.1;
+		letter-spacing: var(--ls-h3);
+		margin-bottom: 0.5rem;
+	}
+	.sla__label {
+		display: block;
+		font-size: var(--fs-paragraph);
+		font-weight: var(--fw-semibold);
+		margin-bottom: 1rem;
+	}
+	.sla__desc {
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark-muted);
+	}
+	.sla__tier.is-pink .sla__value,
+	.sla__tier.is-pink .sla__label {
+		color: var(--color-light-pink);
+	}
+	.sla__tier.is-yellow .sla__value,
+	.sla__tier.is-yellow .sla__label {
+		color: var(--color-light-yellow);
+	}
+	.sla__tier.is-green .sla__value,
+	.sla__tier.is-green .sla__label {
+		color: var(--color-light-green);
+	}
+	.sla__tier.is-cyan .sla__value,
+	.sla__tier.is-cyan .sla__label {
+		color: var(--color-cyan);
+	}
+
+	@media (max-width: 860px) {
+		.sla__grid {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+	@media (max-width: 460px) {
+		.sla__grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

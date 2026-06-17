@@ -1,0 +1,174 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import { splitHighlight } from '../lib/text';
+
+const { blok } = Astro.props;
+
+interface Case {
+	title: string;
+	duration: string;
+	description: string;
+	tags: string[] | string;
+	image?: { filename?: string; alt?: string } | string;
+	link?: { cached_url?: string; url?: string } | string;
+}
+
+const eyebrow: string = blok?.eyebrow || 'Client relationships, not just projects';
+const heading: string = blok?.heading || '245 businesses supported, and counting_';
+const accent: string = blok?.heading_accent || heading;
+const subtitle: string =
+	blok?.subtitle ||
+	"These aren't one-off builds. These are long-term partnerships – we're still actively supporting every client below.";
+
+const base = '/seed-assets/support/';
+const items: Case[] = blok?.items?.length
+	? blok.items
+	: [
+			{ title: 'Mr Clutch', duration: '5+ years', description: 'Ongoing support and database maintenance across a vast multi-location estate – keeping critical booking and operational systems running flawlessly.', tags: ['Database', 'Performance', 'Multi-site'], image: { filename: base + 'support-mrclutch.png' }, link: '#' },
+			{ title: 'Bulgin', duration: '5+ years', description: 'Tailored support and monitoring covering their entire global operation – from Asia to the Americas – with custom SLAs for business-critical uptime.', tags: ['Global', '24/7 monitor', 'Custom SLA'], image: { filename: base + 'support-bulgin.png' }, link: '#' },
+			{ title: 'Penguin Cold Caps', duration: 'Ongoing', description: '24/7 monitoring for a medical device company where site availability directly impacts cancer patients. Zero tolerance for downtime.', tags: ['Healthcare', '24/7', 'Multi-country'], image: { filename: base + 'support-penguin.png' }, link: '#' },
+			{ title: 'Pennies', duration: '3+ years', description: 'Trusted partner for a fintech charity processing millions in donations. We maintain their Magento platform and custom integrations so every gift gets through.', tags: ['Fintech', 'Magento', 'Charity'], image: { filename: base + 'support-pennies.png' }, link: '#' },
+			{ title: 'Middlesex University', duration: 'Ongoing', description: 'We maintain their graduate showcase portal – an arts site where students present their work to the world – keeping it secure, current, and performing.', tags: ['Education', 'WordPress', 'Portal'], image: { filename: base + 'support-middlesex.png' }, link: '#' },
+			{ title: 'Sapphire Gymnastics', duration: 'Ongoing', description: 'We built and continue to manage their bespoke booking and payments database – allocating children to classes and managing live capacity in real time.', tags: ['Bespoke DB', 'Payments', 'Laravel'], image: { filename: base + 'support-sapphire.png' }, link: '#' },
+		];
+
+const img = (i: Case['image']) => (typeof i === 'string' ? i : i?.filename);
+const toTags = (t: Case['tags']): string[] =>
+	Array.isArray(t) ? t : typeof t === 'string' ? t.split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean) : [];
+const resolveLink = (l: Case['link']) =>
+	!l ? '#' : typeof l === 'string' ? l : l.cached_url || l.url || '#';
+const h = splitHighlight(heading, accent === heading ? '' : accent);
+---
+
+<section class="cases" {...storyblokEditable(blok)}>
+	<div class="cases__inner container">
+		<header class="cases__head">
+			<p class="cases__eyebrow category">{eyebrow}</p>
+			<h2 class="cases__heading section-heading">{accent === heading ? heading : (<>{h.pre}<span class="cases__hl">{h.mid}</span>{h.post}</>)}</h2>
+			<p class="cases__subtitle">{subtitle}</p>
+		</header>
+
+		<ul class="cases__grid" role="list">
+			{
+				items.map((cs) => (
+					<li class="case-card">
+						<a class="case-card__link" href={resolveLink(cs.link)}>
+							<div class="case-card__media">
+								<img src={img(cs.image)} alt={`${cs.title} – Wirebox client`} width="420" height="260" loading="lazy" />
+							</div>
+							<h3 class="case-card__title">{cs.title}</h3>
+							<p class="case-card__duration">{cs.duration}</p>
+							<p class="case-card__desc">{cs.description}</p>
+							<ul class="case-card__tags" role="list">
+								{toTags(cs.tags).map((t) => <li>{t}</li>)}
+							</ul>
+							<span class="case-card__more">Read the story →</span>
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.cases {
+		background: var(--surface-page);
+		padding-block: var(--section-py);
+	}
+	.cases__head {
+		margin-bottom: clamp(2rem, 4vw, 3.5rem);
+	}
+	.cases__eyebrow {
+		color: var(--color-primary-blue);
+		margin-bottom: 1rem;
+	}
+	.cases__heading {
+		color: var(--color-fuchsia);
+		margin-bottom: 1rem;
+	}
+	.cases__subtitle {
+		max-width: 64ch;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+
+	.cases__grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 3vw, 2rem);
+		margin: 0;
+		padding: 0;
+	}
+	.case-card__media {
+		aspect-ratio: 16 / 10;
+		border-radius: var(--radius-card);
+		overflow: hidden;
+		margin-bottom: 1.1rem;
+		background: var(--surface-placeholder);
+	}
+	.case-card__media img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform var(--dur-base) var(--ease-out);
+	}
+	.case-card__link:hover .case-card__media img {
+		transform: scale(1.04);
+	}
+	.case-card__title {
+		font-size: var(--fs-h5);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-headings-dark);
+		margin-bottom: 0.25rem;
+	}
+	.case-card__duration {
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		color: var(--color-fuchsia);
+		margin-bottom: 0.75rem;
+	}
+	.case-card__desc {
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+		margin-bottom: 1rem;
+	}
+	.case-card__tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 0.85rem;
+		margin: 0 0 1rem;
+		padding: 0 0 1rem;
+		border-bottom: 1px solid var(--border-subtle);
+	}
+	.case-card__tags li {
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--ls-category);
+		text-transform: uppercase;
+		color: var(--color-primary-blue);
+	}
+	.case-card__more {
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		color: var(--color-fuchsia);
+	}
+	.case-card__link:hover .case-card__more {
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+
+	@media (max-width: 900px) {
+		.cases__grid {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+	@media (max-width: 560px) {
+		.cases__grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
