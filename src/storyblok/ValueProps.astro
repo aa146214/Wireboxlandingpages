@@ -83,7 +83,7 @@ const features: Feature[] = blok?.features?.length
 	}
 
 	.vp__media {
-		border-radius: var(--radius-card);
+		border-radius: 0; /* Figma: images are sharp */
 		overflow: hidden;
 		margin-bottom: 1.75rem;
 		max-width: 420px;
@@ -131,7 +131,7 @@ const features: Feature[] = blok?.features?.length
 	}
 	.vp__chip {
 		padding: 0.3rem 0.75rem;
-		border-radius: var(--radius-pill);
+		border-radius: 0; /* Figma: toolkit tags are sharp */
 		font-size: var(--fs-category);
 		font-weight: var(--fw-medium);
 		color: var(--color-dark-blue);

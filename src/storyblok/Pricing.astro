@@ -153,11 +153,11 @@ const h = splitHighlight(heading, accent);
 		margin-bottom: clamp(2.5rem, 5vw, 4rem);
 	}
 	.pricing__eyebrow {
-		color: var(--color-primary-blue);
+		color: var(--color-dark-blue); /* Figma: Dark Blue eyebrow */
 		margin-bottom: 1rem;
 	}
 	.pricing__heading {
-		color: var(--color-dark-blue);
+		color: var(--color-primary-blue); /* Figma: Primary Blue base */
 		margin-bottom: 1rem;
 	}
 	.pricing__hl {
@@ -185,13 +185,15 @@ const h = splitHighlight(heading, accent);
 		flex-direction: column;
 		height: 100%;
 		padding: clamp(1.75rem, 2.5vw, 2.5rem) clamp(1.5rem, 2vw, 2rem);
-		background: var(--surface-card);
-		border: 1px solid var(--color-light-lavender);
+		/* Figma: non-featured cards = Light BG 1 with a Lavender border */
+		background: var(--color-light-bg-1);
+		border: 1px solid var(--color-lavender);
 		border-radius: var(--radius-card);
 	}
 	.plan--featured {
+		/* Figma: featured = white, 2px Primary Blue border, no shadow */
+		background: var(--surface-card);
 		border: 2px solid var(--color-primary-blue);
-		box-shadow: var(--shadow-card);
 	}
 	.plan__badge {
 		position: absolute;
@@ -199,7 +201,7 @@ const h = splitHighlight(heading, accent);
 		left: 50%;
 		transform: translate(-50%, -50%);
 		padding: 0.35rem 1.1rem;
-		background: var(--color-fuchsia);
+		background: var(--color-primary-blue); /* Figma: Primary Blue badge */
 		color: var(--color-white);
 		border-radius: var(--radius-pill);
 		font-size: var(--fs-category);

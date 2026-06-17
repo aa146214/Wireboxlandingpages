@@ -103,7 +103,7 @@ const h = splitHighlight(heading, accent === heading ? '' : accent);
 	}
 	.case-card__media {
 		aspect-ratio: 16 / 10;
-		border-radius: var(--radius-card);
+		border-radius: 0; /* Figma: images are sharp */
 		overflow: hidden;
 		margin-bottom: 1.1rem;
 		background: var(--surface-placeholder);

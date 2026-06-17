@@ -34,9 +34,9 @@ const h = splitHighlight(heading, accent);
 
 		<ul class="risk__grid" role="list">
 			{
-				stats.map((s) => (
+				stats.map((s, i) => (
 					<li class="risk__stat">
-						<span class="risk__value">{s.value}</span>
+						<span class:list={['risk__value', i < 2 ? 'is-fuchsia' : 'is-blue']}>{s.value}</span>
 						<p class="risk__desc">{s.description}</p>
 					</li>
 				))
@@ -55,16 +55,16 @@ const h = splitHighlight(heading, accent);
 		padding-block: var(--section-py);
 	}
 	.risk__eyebrow {
-		color: var(--color-primary-blue);
+		color: var(--color-dark-blue); /* Figma: Dark Blue eyebrow */
 		margin-bottom: 1rem;
 	}
 	.risk__heading {
-		color: var(--color-dark-blue);
+		color: var(--color-fuchsia); /* Figma: heading is fuchsia… */
 		max-width: 22ch;
 		margin-bottom: clamp(2rem, 4vw, 3.5rem);
 	}
 	.risk__hl {
-		color: var(--color-fuchsia);
+		color: var(--color-primary-blue); /* …with "real" in Primary Blue */
 	}
 	.risk__grid {
 		display: grid;
@@ -84,8 +84,14 @@ const h = splitHighlight(heading, accent);
 		font-weight: var(--fw-regular);
 		line-height: var(--lh-tight);
 		letter-spacing: -0.05em;
-		color: var(--color-fuchsia);
 		margin-bottom: 1rem;
+	}
+	/* Figma: first two stats fuchsia, last two Primary Blue */
+	.risk__value.is-fuchsia {
+		color: var(--color-fuchsia);
+	}
+	.risk__value.is-blue {
+		color: var(--color-primary-blue);
 	}
 	.risk__desc {
 		font-size: var(--fs-paragraph-fluid); /* Figma: Paragraph 21px */
