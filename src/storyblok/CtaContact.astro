@@ -47,14 +47,20 @@ const h = splitHighlight(heading, accent);
 			</ul>
 		</div>
 
-		<form class="cta__form" novalidate>
-			<label class="visually-hidden" for="contact-name">Name</label>
-			<input class="cta__input" id="contact-name" name="name" type="text" placeholder="Name" autocomplete="name" />
-			<label class="visually-hidden" for="contact-email">Email</label>
-			<input class="cta__input" id="contact-email" name="email" type="email" placeholder="Email" autocomplete="email" />
-			<label class="visually-hidden" for="contact-phone">Phone</label>
-			<input class="cta__input" id="contact-phone" name="phone" type="tel" placeholder="Phone" autocomplete="tel" />
-			<Button label={formCtaLabel} variant="deep" icon="arrow-right" type="submit" />
+		<form class="cta__form" action="/api/lead" method="post" data-lead novalidate>
+			<input type="hidden" name="source" value="cta" />
+			<input type="hidden" name="page" value="" />
+			<input class="lead-hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+			<div class="cta__fields" data-lead-fields>
+				<label class="visually-hidden" for="contact-name">Name</label>
+				<input class="cta__input" id="contact-name" name="name" type="text" placeholder="Name" autocomplete="name" />
+				<label class="visually-hidden" for="contact-email">Email</label>
+				<input class="cta__input" id="contact-email" name="email" type="email" placeholder="Email" autocomplete="email" required />
+				<label class="visually-hidden" for="contact-phone">Phone</label>
+				<input class="cta__input" id="contact-phone" name="phone" type="tel" placeholder="Phone" autocomplete="tel" />
+				<Button label={formCtaLabel} variant="deep" icon="arrow-right" type="submit" />
+			</div>
+			<p class="cta__status" data-lead-status aria-live="polite"></p>
 		</form>
 	</div>
 </section>
@@ -118,13 +124,29 @@ const h = splitHighlight(heading, accent);
 	}
 
 	.cta__form {
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
 		padding: clamp(1.5rem, 2.5vw, 2.25rem);
 		background: rgba(22, 16, 38, 0.28);
 		border: 1px solid rgba(255, 255, 255, 0.25);
 		border-radius: var(--radius-card);
+	}
+	.cta__fields {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+	.cta__status {
+		margin-top: 1rem;
+		font-size: var(--fs-small);
+		color: var(--text-on-dark);
+	}
+	.cta__status:empty {
+		display: none;
+	}
+	.cta__status[data-state='ok'] {
+		color: var(--color-light-green);
+	}
+	.cta__status[data-state='error'] {
+		color: var(--color-light-pink);
 	}
 	.cta__input {
 		height: 54px;
@@ -153,3 +175,7 @@ const h = splitHighlight(heading, accent);
 		}
 	}
 </style>
+
+<script>
+	import '../scripts/lead-form';
+</script>

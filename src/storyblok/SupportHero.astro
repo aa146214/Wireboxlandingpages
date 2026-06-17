@@ -84,9 +84,19 @@ const h = splitHighlight(heading, accent);
 				}
 			</ul>
 
-			<form class="s-hero__form" id="hero-review" novalidate>
+			<form class="s-hero__form" id="hero-review" action="/api/lead" method="post" data-lead novalidate>
 				<p class="s-hero__form-title category">{formTitle}</p>
-				<div class="s-hero__form-row">
+				<input type="hidden" name="source" value="hero" />
+				<input type="hidden" name="page" value="" />
+				<input
+					class="lead-hp"
+					type="text"
+					name="company"
+					tabindex="-1"
+					autocomplete="off"
+					aria-hidden="true"
+				/>
+				<div class="s-hero__form-row" data-lead-fields>
 					<label class="visually-hidden" for="hero-email">Your email address</label>
 					<input
 						class="s-hero__input"
@@ -95,10 +105,11 @@ const h = splitHighlight(heading, accent);
 						name="email"
 						placeholder="your@email.com"
 						autocomplete="email"
+						required
 					/>
 					<Button label={formCtaLabel} variant="fuchsia" icon="arrow-right" type="submit" />
 				</div>
-				<p class="s-hero__form-note">
+				<p class="s-hero__form-note" data-lead-status aria-live="polite">
 					<span aria-hidden="true">🔒</span> {formNote}
 				</p>
 			</form>
@@ -251,6 +262,12 @@ const h = splitHighlight(heading, accent);
 		font-size: var(--fs-small);
 		color: var(--text-on-dark-muted);
 	}
+	.s-hero__form-note[data-state='ok'] {
+		color: var(--color-light-green);
+	}
+	.s-hero__form-note[data-state='error'] {
+		color: var(--color-light-pink);
+	}
 
 	@media (max-width: 960px) {
 		.s-hero__inner {
@@ -258,3 +275,7 @@ const h = splitHighlight(heading, accent);
 		}
 	}
 </style>
+
+<script>
+	import '../scripts/lead-form';
+</script>

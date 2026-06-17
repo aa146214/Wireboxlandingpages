@@ -182,6 +182,16 @@ h5 {
 	white-space: nowrap;
 }
 
+/* Honeypot field for the lead forms — hidden from users, bait for bots. */
+.lead-hp {
+	position: absolute !important;
+	left: -9999px;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+	pointer-events: none;
+}
+
 .skip-link {
 	position: absolute;
 	top: 0;
