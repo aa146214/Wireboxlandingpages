@@ -18,6 +18,11 @@
  */
 
 import { randomUUID } from 'node:crypto';
+import { readFileSync, existsSync } from 'node:fs';
+import { basename, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const SEED_ASSETS = fileURLToPath(new URL('../public/seed-assets/support', import.meta.url));
 
 const TOKEN = process.env.SB_MANAGEMENT_TOKEN;
 const SPACE = process.env.SB_SPACE_ID || '293147646055661';
@@ -46,6 +51,73 @@ async function mapi(method, path, body) {
 		return text ? JSON.parse(text) : {};
 	}
 	throw new Error(`${method} ${path} -> rate limited after retries`);
+}
+
+/* ------------------------------------------------------------------ *
+ * Asset upload — push the support-page imagery to the Asset Manager so
+ * the live site serves it from the Storyblok CDN (not /public). Reuses
+ * any asset already in the space, matched by basename.
+ * ------------------------------------------------------------------ */
+
+const ASSET_DEFS = {
+	'support-mrclutch.png': 'Mr Clutch – Wirebox client',
+	'support-bulgin.png': 'Bulgin – Wirebox client',
+	'support-penguin.png': 'Penguin Cold Caps – Wirebox client',
+	'support-pennies.png': 'Pennies – Wirebox client',
+	'support-middlesex.png': 'Middlesex University – Wirebox client',
+	'support-sapphire.png': 'Sapphire Gymnastics – Wirebox client',
+	'support-team.png': 'A Wirebox support specialist working with a client',
+};
+const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', svg: 'image/svg+xml' };
+const mimeOf = (f) => MIME[f.split('.').pop().toLowerCase()] || 'application/octet-stream';
+
+/** basename -> { id, filename(cdn url), alt } */
+const assets = {};
+
+async function uploadAssets() {
+	console.log('\n=== Assets ===');
+	const existingByBase = new Map();
+	let page = 1;
+	for (;;) {
+		const res = await mapi('GET', `/assets/?per_page=100&page=${page}`);
+		const list = res.assets || [];
+		for (const a of list) existingByBase.set(basename(a.filename.split('?')[0]), a);
+		if (list.length < 100) break;
+		page++;
+	}
+	for (const [name, alt] of Object.entries(ASSET_DEFS)) {
+		const reuse = existingByBase.get(name);
+		if (reuse) {
+			assets[name] = { id: reuse.id, filename: reuse.filename, alt };
+			console.log(`  reused   ${name}`);
+			continue;
+		}
+		const file = join(SEED_ASSETS, name);
+		if (!existsSync(file)) {
+			console.warn(`  MISSING  ${name} (not in space and not in seed-assets/support — skipped)`);
+			continue;
+		}
+		const buf = readFileSync(file);
+		const sign = await mapi('POST', '/assets/', { filename: name });
+		const form = new FormData();
+		for (const [k, v] of Object.entries(sign.fields)) form.append(k, String(v));
+		form.append('file', new Blob([buf], { type: mimeOf(name) }), name);
+		const up = await fetch(sign.post_url, { method: 'POST', body: form });
+		if (!up.ok && up.status !== 204) throw new Error(`S3 ${name} -> ${up.status} ${await up.text()}`);
+		const got = await mapi('GET', `/assets/${sign.id}`);
+		const filename = got.filename || got.asset?.filename || sign.pretty_url;
+		assets[name] = { id: sign.id, filename, alt };
+		existingByBase.set(name, { id: sign.id, filename });
+		console.log(`  uploaded ${name}`);
+		await sleep(150);
+	}
+}
+
+/** Build a Storyblok asset field object from an uploaded basename. */
+function A(name) {
+	const a = assets[name];
+	if (!a) return { fieldtype: 'asset', filename: `/seed-assets/support/${name}`, alt: '' };
+	return { id: a.id, filename: a.filename, alt: a.alt ?? '', fieldtype: 'asset', is_external_url: false };
 }
 
 /* ------------------------------------------------------------------ *
@@ -118,6 +190,7 @@ async function syncComponents() {
 }
 
 const sb = (component, fields = {}) => ({ _uid: randomUUID(), component, ...fields });
+const mlink = (url) => ({ id: '', url, linktype: 'url', fieldtype: 'multilink', cached_url: url });
 
 const header = sb('header', {
 	nav: [],
@@ -139,30 +212,57 @@ const testimonials = sb('testimonials', {
 	],
 });
 
-const content = sb('page', {
-	seo_title: 'Wirebox — Website support & maintenance that keeps you online',
-	seo_description:
-		"Wirebox is your dedicated website support partner — monitoring, protecting, and improving your site 24/7. 1-hour critical response, no long-term contracts.",
-	body: [
-		header,
-		sb('support_hero'),
-		sb('trust_bar'),
-		sb('risk_stats'),
-		sb('value_props'),
-		sb('sla_tiers'),
-		sb('pricing'),
-		sb('support_cases'),
-		testimonials,
-		sb('faq'),
-		sb('cta_contact'),
-		sb('locations'),
-		sb('footer'),
-	],
-});
+// value_props: only the image is overridden (other fields use component defaults).
+function valueProps() {
+	return sb('value_props', { image: A('support-team.png') });
+}
+
+// support_cases: items is all-or-nothing, so seed the full set (matches the
+// component defaults) with CDN images so the CMS drives the imagery.
+function supportCases() {
+	const items = [
+		['Mr Clutch', '5+ years', 'Ongoing support and database maintenance across a vast multi-location estate – keeping critical booking and operational systems running flawlessly.', ['Database', 'Performance', 'Multi-site'], 'support-mrclutch.png'],
+		['Bulgin', '5+ years', 'Tailored support and monitoring covering their entire global operation – from Asia to the Americas – with custom SLAs for business-critical uptime.', ['Global', '24/7 monitor', 'Custom SLA'], 'support-bulgin.png'],
+		['Penguin Cold Caps', 'Ongoing', '24/7 monitoring for a medical device company where site availability directly impacts cancer patients. Zero tolerance for downtime.', ['Healthcare', '24/7', 'Multi-country'], 'support-penguin.png'],
+		['Pennies', '3+ years', 'Trusted partner for a fintech charity processing millions in donations. We maintain their Magento platform and custom integrations so every gift gets through.', ['Fintech', 'Magento', 'Charity'], 'support-pennies.png'],
+		['Middlesex University', 'Ongoing', 'We maintain their graduate showcase portal – an arts site where students present their work to the world – keeping it secure, current, and performing.', ['Education', 'WordPress', 'Portal'], 'support-middlesex.png'],
+		['Sapphire Gymnastics', 'Ongoing', 'We built and continue to manage their bespoke booking and payments database – allocating children to classes and managing live capacity in real time.', ['Bespoke DB', 'Payments', 'Laravel'], 'support-sapphire.png'],
+	];
+	return sb('support_cases', {
+		items: items.map(([title, duration, description, tags, img]) =>
+			sb('support_case', { title, duration, description, tags: tags.join('\n'), image: A(img), link: mlink('#') })
+		),
+	});
+}
+
+function buildContent() {
+	return sb('page', {
+		seo_title: 'Wirebox — Website support & maintenance that keeps you online',
+		seo_description:
+			"Wirebox is your dedicated website support partner — monitoring, protecting, and improving your site 24/7. 1-hour critical response, no long-term contracts.",
+		body: [
+			header,
+			sb('support_hero'),
+			sb('trust_bar'),
+			sb('risk_stats'),
+			valueProps(),
+			sb('sla_tiers'),
+			sb('pricing'),
+			supportCases(),
+			testimonials,
+			sb('faq'),
+			sb('cta_contact'),
+			sb('locations'),
+			sb('footer'),
+		],
+	});
+}
 
 async function main() {
 	console.log('=== Components ===');
 	await syncComponents();
+	await uploadAssets();
+	const content = buildContent();
 	console.log('\n=== Story ===');
 	const { story } = await mapi('GET', `/stories/${HOME_STORY_ID}`);
 	await mapi('PUT', `/stories/${HOME_STORY_ID}`, {

@@ -17,7 +17,9 @@ const body: string =
 	"We're not an hourly-rate helpdesk. We're your proactive digital partner – actively seeking improvements, spotting risks before they become problems, and helping your site grow alongside your business.";
 const ctaLabel: string = blok?.cta_label || 'get a free site review';
 const ctaLink: string = blok?.cta_link || '#contact';
-const image = blok?.image?.filename || '/seed-assets/support/support-team.png';
+const image =
+	blok?.image?.filename ||
+	'https://a.storyblok.com/f/293147646055661/8b3f14a4cd/support-team.png';
 const imageAlt: string =
 	blok?.image?.alt || 'A Wirebox support specialist working with a client';
 const toolkitTitle: string = blok?.toolkit_title || 'Our monitoring toolkit';

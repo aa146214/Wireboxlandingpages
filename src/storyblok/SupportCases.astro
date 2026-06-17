@@ -20,16 +20,16 @@ const subtitle: string =
 	blok?.subtitle ||
 	"These aren't one-off builds. These are long-term partnerships – we're still actively supporting every client below.";
 
-const base = '/seed-assets/support/';
+const cdn = 'https://a.storyblok.com/f/293147646055661';
 const items: Case[] = blok?.items?.length
 	? blok.items
 	: [
-			{ title: 'Mr Clutch', duration: '5+ years', description: 'Ongoing support and database maintenance across a vast multi-location estate – keeping critical booking and operational systems running flawlessly.', tags: ['Database', 'Performance', 'Multi-site'], image: { filename: base + 'support-mrclutch.png' }, link: '#' },
-			{ title: 'Bulgin', duration: '5+ years', description: 'Tailored support and monitoring covering their entire global operation – from Asia to the Americas – with custom SLAs for business-critical uptime.', tags: ['Global', '24/7 monitor', 'Custom SLA'], image: { filename: base + 'support-bulgin.png' }, link: '#' },
-			{ title: 'Penguin Cold Caps', duration: 'Ongoing', description: '24/7 monitoring for a medical device company where site availability directly impacts cancer patients. Zero tolerance for downtime.', tags: ['Healthcare', '24/7', 'Multi-country'], image: { filename: base + 'support-penguin.png' }, link: '#' },
-			{ title: 'Pennies', duration: '3+ years', description: 'Trusted partner for a fintech charity processing millions in donations. We maintain their Magento platform and custom integrations so every gift gets through.', tags: ['Fintech', 'Magento', 'Charity'], image: { filename: base + 'support-pennies.png' }, link: '#' },
-			{ title: 'Middlesex University', duration: 'Ongoing', description: 'We maintain their graduate showcase portal – an arts site where students present their work to the world – keeping it secure, current, and performing.', tags: ['Education', 'WordPress', 'Portal'], image: { filename: base + 'support-middlesex.png' }, link: '#' },
-			{ title: 'Sapphire Gymnastics', duration: 'Ongoing', description: 'We built and continue to manage their bespoke booking and payments database – allocating children to classes and managing live capacity in real time.', tags: ['Bespoke DB', 'Payments', 'Laravel'], image: { filename: base + 'support-sapphire.png' }, link: '#' },
+			{ title: 'Mr Clutch', duration: '5+ years', description: 'Ongoing support and database maintenance across a vast multi-location estate – keeping critical booking and operational systems running flawlessly.', tags: ['Database', 'Performance', 'Multi-site'], image: { filename: `${cdn}/72a9707854/support-mrclutch.png` }, link: '#' },
+			{ title: 'Bulgin', duration: '5+ years', description: 'Tailored support and monitoring covering their entire global operation – from Asia to the Americas – with custom SLAs for business-critical uptime.', tags: ['Global', '24/7 monitor', 'Custom SLA'], image: { filename: `${cdn}/d71514d174/support-bulgin.png` }, link: '#' },
+			{ title: 'Penguin Cold Caps', duration: 'Ongoing', description: '24/7 monitoring for a medical device company where site availability directly impacts cancer patients. Zero tolerance for downtime.', tags: ['Healthcare', '24/7', 'Multi-country'], image: { filename: `${cdn}/520d322908/support-penguin.png` }, link: '#' },
+			{ title: 'Pennies', duration: '3+ years', description: 'Trusted partner for a fintech charity processing millions in donations. We maintain their Magento platform and custom integrations so every gift gets through.', tags: ['Fintech', 'Magento', 'Charity'], image: { filename: `${cdn}/8452d2faf7/support-pennies.png` }, link: '#' },
+			{ title: 'Middlesex University', duration: 'Ongoing', description: 'We maintain their graduate showcase portal – an arts site where students present their work to the world – keeping it secure, current, and performing.', tags: ['Education', 'WordPress', 'Portal'], image: { filename: `${cdn}/f500fed553/support-middlesex.png` }, link: '#' },
+			{ title: 'Sapphire Gymnastics', duration: 'Ongoing', description: 'We built and continue to manage their bespoke booking and payments database – allocating children to classes and managing live capacity in real time.', tags: ['Bespoke DB', 'Payments', 'Laravel'], image: { filename: `${cdn}/128b555125/support-sapphire.png` }, link: '#' },
 		];
 
 const img = (i: Case['image']) => (typeof i === 'string' ? i : i?.filename);
