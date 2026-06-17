@@ -44,6 +44,43 @@ STORYBLOK_REGION=eu
 The **Management token** used for seeding is **not** stored in `.env` — it's
 passed inline only when you run the seed script (see [section 6](#6-seed-storyblok)).
 
+### Lead forms (email via Mailgun)
+
+The two lead forms — the hero "Get your free site review" capture and the
+bottom "Get My Free Review" form — POST to the [`/api/lead`](src/pages/api/lead.ts)
+endpoint, which emails the enquiry via **Mailgun**.
+
+> **These are environment variables, not Storyblok content.** A Mailgun API key
+> is a secret — it must never go in the CMS. Set them in `.env` for local dev and
+> in Vercel for production (see below). Until they're set, submitting a form
+> returns a friendly "Email service is not configured" message instead of sending.
+
+```sh
+MAILGUN_API_KEY=<your Mailgun private API key>
+MAILGUN_DOMAIN=<your verified Mailgun sending domain, e.g. mg.wirebox.co.uk>
+MAILGUN_REGION=us            # us | eu — match your Mailgun account region
+LEAD_EMAIL_TO=hello@wirebox.co.uk
+# Optional — defaults to "Wirebox Website <postmaster@MAILGUN_DOMAIN>"
+# LEAD_EMAIL_FROM=Wirebox Website <postmaster@mg.wirebox.co.uk>
+```
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `MAILGUN_API_KEY` | **yes** | Mailgun private API key — Mailgun → **Send → API keys** |
+| `MAILGUN_DOMAIN` | **yes** | a verified sending domain in your Mailgun account |
+| `MAILGUN_REGION` | no (default `us`) | `eu` if your Mailgun domain is in the EU region |
+| `LEAD_EMAIL_TO` | no (default `hello@wirebox.co.uk`) | where enquiries are delivered |
+| `LEAD_EMAIL_FROM` | no | overrides the default `From` address |
+
+**One-time Mailgun setup:** add a sending domain in Mailgun (e.g.
+`mg.wirebox.co.uk`), verify it via the DNS records Mailgun gives you, then copy
+the API key.
+
+**Set them in production (Vercel):** Vercel → **Project → Settings →
+Environment Variables** → add each of the above (Production scope) → then
+**redeploy** so the serverless function picks them up. Changing env vars in the
+dashboard does **not** take effect until the next deployment.
+
 ## 4. Run the dev server
 
 ```sh
@@ -77,24 +114,30 @@ src/pages/index.astro ──► Page.astro ──► splits body[] into <header>
 
 ## 6. Seed Storyblok
 
-All schema + content setup is automated by one idempotent script:
-[`scripts/storyblok-setup.mjs`](scripts/storyblok-setup.mjs). Re-running it is
-safe — it updates existing components in place and reuses already-uploaded
-assets (matched by filename).
+Seeding is done with a **single command** — there is no manual setup in the
+Storyblok UI. One idempotent script,
+[`scripts/storyblok-setup.mjs`](scripts/storyblok-setup.mjs), creates the block
+schemas, uploads the images, and publishes the Home story through the Management
+API. Re-running it is safe: it updates existing components in place and reuses
+already-uploaded assets (matched by filename).
 
-### What it does
+### What it does (three phases)
 
-1. **Components** — creates/updates all 28 block schemas (mirrors
+1. **`components`** — creates/updates all 28 block schemas (mirrors
    `src/storyblok/*.astro`: `page`, `header`, `hero`, `services` →
    `service_category` → `service_item`, `testimonials` → `testimonial`, …).
-2. **Assets** — uploads the source images from `public/seed-assets/` to the
+2. **`assets`** — uploads the source images from `public/seed-assets/` to the
    Asset Manager, reusing any already in the space (matched by filename). The
    live site serves these from the CMS; `public/seed-assets/` is the seed
    source only and is never referenced by the site. The rest of `public/`
    holds just theme assets (logo, social icons, favicons).
-3. **Story** — builds the `home` story `body[]` (same content as the local
+3. **`story`** — builds the `home` story `body[]` (same content as the local
    fixture, but with CDN asset references + proper link fields) and
    **publishes** it.
+
+Running with no argument does all three in order. The `story` phase resolves
+assets first, so running it alone still picks up the image URLs — you rarely
+need the `assets` phase on its own.
 
 ### Requirements
 
@@ -140,9 +183,31 @@ SB_MANAGEMENT_TOKEN=sb_pat_xxx node scripts/storyblok-setup.mjs story
 $env:SB_MANAGEMENT_TOKEN = "sb_pat_xxx"; node scripts/storyblok-setup.mjs
 ```
 
-On success you'll see each component created/updated, each asset uploaded (or
-`reused`), and `published "home" with 14 sections`. Reload the dev server and
-the page now renders entirely from Storyblok.
+Expected output (abridged):
+
+```text
+=== Components ===
+  created  hero
+  ...
+=== Assets ===
+  uploaded hero-pacman.png
+  reused   intro-office.png
+  ...
+=== Story ===
+  published "home" with 14 sections
+Done.
+```
+
+Reload the dev server and the page renders entirely from Storyblok.
+
+### First-time vs re-seed
+
+- **This project's space** is already seeded — re-running reuses the CMS assets,
+  so the files in `public/seed-assets/` aren't even read.
+- **A brand-new, empty space** needs the source images present in
+  `public/seed-assets/` (they are, in this repo) so the `assets` phase can
+  upload them. Confirm the space has an empty `home` story, then run the full
+  command once.
 
 ---
 
