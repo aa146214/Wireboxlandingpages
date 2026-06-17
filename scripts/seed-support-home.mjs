@@ -158,7 +158,7 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'support_hero', schema: { eyebrow: text(0), heading: area(1), heading_accent: text(2), body: area(3), ctas: bloks(4, ['cta']), card_title: text(5), stats: bloks(6, ['hero_stat']), form_title: text(7), form_cta_label: text(8), form_note: text(9) } },
 	{ name: 'trust_bar', schema: { items: bloks(0, ['trust_item']) } },
 	{ name: 'risk_stats', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), stats: bloks(3, ['risk_stat']), footnote: text(4), cta_label: text(5), cta_link: text(6) } },
-	{ name: 'value_props', schema: { eyebrow: text(0), heading: text(1), body: area(2), cta_label: text(3), cta_link: text(4), image: asset(5), toolkit_title: text(6), toolkit: bloks(7, ['vp_chip']), features: bloks(8, ['vp_feature']) } },
+	{ name: 'value_props', schema: { eyebrow: text(0), heading: text(1), body: area(2), cta_label: text(3), cta_link: text(4), image: asset(5), toolkit_title: text(6), toolkit: area(7, { description: 'One tool per line' }), features: bloks(8, ['vp_feature']) } },
 	{ name: 'sla_tiers', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), tiers: bloks(4, ['sla_tier']) } },
 	{ name: 'pricing', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), plans: bloks(4, ['pricing_plan']), footnote: text(5), foot_link_label: text(6), foot_link: text(7), foot_trail: text(8) } },
 	{ name: 'support_cases', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), items: bloks(4, ['support_case']) } },
@@ -212,13 +212,111 @@ const testimonials = sb('testimonials', {
 	],
 });
 
-// value_props: only the image is overridden (other fields use component defaults).
-function valueProps() {
-	return sb('value_props', { image: A('support-team.png') });
+const CDN = 'https://a.storyblok.com/f/293147646055661';
+const cdnAsset = (filename, alt = '') => ({ fieldtype: 'asset', filename, alt });
+
+function supportHero() {
+	return sb('support_hero', {
+		eyebrow: '245 sites protected & monitored',
+		heading: 'Never lose a sale to a\nbroken website again',
+		heading_accent: 'broken website',
+		body: 'Wirebox is your dedicated website support partner – monitoring, protecting, and improving your site 24/7 so you can focus on running your business.',
+		ctas: [
+			sb('cta', { label: 'get a free site review', link: mlink('#contact'), variant: 'primary', icon: 'arrow-right' }),
+			sb('cta', { label: 'see plans & pricing', link: mlink('#pricing'), variant: 'outline', icon: 'arrow-right' }),
+		],
+		card_title: 'Our response commitments',
+		stats: [
+			['1hr', 'critical issue response', 'pink'],
+			['4hrs', 'standard issue response', 'green'],
+			['24/7', 'uptime monitoring', 'pink'],
+			['99.9%', 'target uptime', 'green'],
+		].map(([value, label, tone]) => sb('hero_stat', { value, label, tone })),
+		form_title: 'Get your free site review',
+		form_cta_label: 'review my site',
+		form_note: "No obligation · We'll respond within 1 business day",
+	});
 }
 
-// support_cases: items is all-or-nothing, so seed the full set (matches the
-// component defaults) with CDN images so the CMS drives the imagery.
+function trustBar() {
+	return sb('trust_bar', {
+		items: ['1-hour critical response', 'No long-term contracts', 'Award-winning team', '5★ Google rated', 'Laravel certified'].map((t) => sb('trust_item', { text: t })),
+	});
+}
+
+function riskStats() {
+	return sb('risk_stats', {
+		eyebrow: 'The risk of doing nothing',
+		heading: 'The threats are real – is your site ready?',
+		heading_accent: 'real',
+		stats: [
+			['7.78m', 'Cyber attacks recorded in the UK last year alone – up 77% year on year'],
+			['84%', 'of UK businesses reported a phishing attack – the most common entry point'],
+			['94%', 'of organisations experienced an email-borne security incident in the last year'],
+			['£17.5m', 'Maximum GDPR fine for a data breach – or 4% of global annual turnover'],
+		].map(([value, description]) => sb('risk_stat', { value, description })),
+		footnote: "Don't leave your site unprotected.",
+		cta_label: 'Get a free security review',
+		cta_link: '#contact',
+	});
+}
+
+function valueProps() {
+	return sb('value_props', {
+		eyebrow: 'Why Wirebox',
+		heading: 'More than just a support ticket',
+		body: "We're not an hourly-rate helpdesk. We're your proactive digital partner – actively seeking improvements, spotting risks before they become problems, and helping your site grow alongside your business.",
+		cta_label: 'get a free site review',
+		cta_link: '#contact',
+		image: A('support-team.png'),
+		toolkit_title: 'Our monitoring toolkit',
+		toolkit: ['Pingdom', 'Airbrake', 'SEMrush', 'AWS CloudWatch', 'Sentry', 'Cloudflare'].join('\n'),
+		features: [
+			['Security & penetration testing', 'We run regular penetration tests and vulnerability scans to find weaknesses before attackers do – then fix them.', 'dark'],
+			['Performance optimisation', 'Slow sites lose customers. We actively monitor and improve load times, keeping Google happy and users engaged.', 'fuchsia'],
+			['Plugin & platform updates', 'We keep WordPress, Magento, Laravel and PHP on supported, secure versions – tested in staging before going live.', 'dark'],
+			['Proactive improvement recommendations', "We're your advocate – regularly suggesting improvements to grow your business online, not just keeping the lights on.", 'fuchsia'],
+			['Staging environment for all changes', 'Every update is tested and signed off in a secure staging environment before it ever touches your live site.', 'purple'],
+		].map(([title, description, tone]) => sb('vp_feature', { title, description, tone })),
+	});
+}
+
+function slaTiers() {
+	return sb('sla_tiers', {
+		eyebrow: 'Response times & SLA',
+		heading: "You'll never wonder where we are",
+		heading_accent: 'where we are',
+		subtitle: "When something goes wrong, speed matters. Here's exactly what to expect from us – in writing, not just promises.",
+		tiers: [
+			['1 hour', 'critical issues', "Site down, major security breach, checkout broken. We're on it within the hour, any day of the week.", 'pink'],
+			['4 hours', 'high priority issues', 'Broken features, performance degradation, failed integrations. Responded to and triaged same day.', 'yellow'],
+			['1 day', 'standard requests', "Content updates, minor bugs, configuration changes. You'll have a response with a clear timeline by next working day.", 'green'],
+			['Monthly', 'proactive reports', 'Every month you receive a full report: uptime, security status, updates applied, and recommendations for next steps.', 'cyan'],
+		].map(([value, label, description, tone]) => sb('sla_tier', { value, label, description, tone })),
+	});
+}
+
+function pricing() {
+	const plans = [
+		['Starter', 'Essential', '', 'Plans from', '£299/mo', 'Single site · Cancel anytime', ['24/7 uptime monitoring', 'Monthly plugin & CMS updates', '4-hour critical response SLA', 'Monthly health report', 'SSL certificate management', '2 hours/month development time'], 'get a quote', 'outline-lavender', false],
+		['Growth', 'Professional', 'Most popular', 'Plans from', '£699/mo', 'Up to 3 sites · Cancel anytime', ['Everything in Essential', '1-hour critical response SLA', 'Performance & SEO monitoring (SEMrush)', 'Penetration testing (quarterly)', 'Staging environment for all changes', '5 hours/month development time', 'Dedicated account manager'], 'get a quote', 'solid', true],
+		['Scale', 'Enterprise', '', 'Custom pricing', "Let's talk", 'Multi-site · Bespoke SLA · AWS hosting', ['Everything in Professional', 'AWS CloudWatch monitoring', 'Custom SLA & response targets', 'Multi-site & multi-database coverage', 'Monthly strategy calls', 'Priority development queue', 'Dedicated development team access'], 'book a call', 'outline-lavender', false],
+	];
+	return sb('pricing', {
+		eyebrow: 'Transparent pricing',
+		heading: 'Plans that grow with your business',
+		heading_accent: 'your business',
+		subtitle: 'All plans include 24/7 monitoring, monthly reporting, and a dedicated account manager. No hidden fees, no lock-in contracts.',
+		plans: plans.map(([tier, name, badge, price_prefix, price, meta, features, cta_label, cta_variant, featured]) =>
+			sb('pricing_plan', { tier, name, badge, price_prefix, price, meta, features: features.join('\n'), cta_label, cta_variant, cta_link: '#contact', featured })
+		),
+		footnote: 'Not sure which plan is right?',
+		foot_link_label: 'Get a free site review',
+		foot_link: '#contact',
+		foot_trail: "and we'll recommend the right fit.",
+	});
+}
+
 function supportCases() {
 	const items = [
 		['Mr Clutch', '5+ years', 'Ongoing support and database maintenance across a vast multi-location estate – keeping critical booking and operational systems running flawlessly.', ['Database', 'Performance', 'Multi-site'], 'support-mrclutch.png'],
@@ -229,9 +327,80 @@ function supportCases() {
 		['Sapphire Gymnastics', 'Ongoing', 'We built and continue to manage their bespoke booking and payments database – allocating children to classes and managing live capacity in real time.', ['Bespoke DB', 'Payments', 'Laravel'], 'support-sapphire.png'],
 	];
 	return sb('support_cases', {
+		eyebrow: 'Client relationships, not just projects',
+		heading: '245 businesses supported, and counting_',
+		subtitle: "These aren't one-off builds. These are long-term partnerships – we're still actively supporting every client below.",
 		items: items.map(([title, duration, description, tags, img]) =>
 			sb('support_case', { title, duration, description, tags: tags.join('\n'), image: A(img), link: mlink('#') })
 		),
+	});
+}
+
+function faq() {
+	const items = [
+		['What platforms do you support?', "WordPress, Magento, Laravel, PHP, Shopify and most modern stacks. If it runs on the web, we can almost certainly support it – and we'll tell you honestly if we can't.", false],
+		['Do you lock clients into long-term contracts?', "No. All our support plans are rolling monthly. We earn your business every month by delivering value – not by trapping you in a contract. You can upgrade, downgrade, or cancel with 30 days' notice.", true],
+		['Do you offer one-off fixes, or only monthly plans?', "Both. Monthly plans give you the best response times and rates, but we're happy to quote for one-off fixes and projects too.", false],
+		['How quickly do you respond when my site goes down?', 'Critical issues are picked up within 1 hour on Professional and Enterprise plans (4 hours on Essential), 24/7, 365 days a year.', false],
+		['Can I migrate from my current support agency?', "Yes – we do this regularly. We'll audit your current setup, document everything, and take over with zero downtime.", false],
+		["What's included in the monthly development hours?", "Anything from content updates and new features to performance work. Unused hours roll over for one month, and we'll always tell you before extra work is billed.", false],
+		['Do you handle hosting as well?', "We do. We manage hosting on AWS and other providers, or we'll happily work alongside your existing host.", false],
+		['Is there a setup or onboarding fee?', "No setup fee on standard plans. Complex migrations may need a small scoped onboarding – we'll agree it with you up front.", false],
+	];
+	return sb('faq', {
+		eyebrow: 'FAQ',
+		heading: 'Questions we get asked every week',
+		heading_accent: 'every week',
+		items: items.map(([question, answer, open]) => sb('faq_item', { question, answer, open })),
+	});
+}
+
+function ctaContact() {
+	return sb('cta_contact', {
+		eyebrow: 'Get started',
+		heading: 'Your site deserves better than hoping for the best',
+		heading_accent: 'hoping for the best',
+		body: "Get a free, no-obligation review of your site's security, performance, and maintenance risks. We'll tell you exactly what we'd do and what it costs.",
+		phones: [
+			['0207 993 5485', 'Call us: Watford & London'],
+			['01908 110 420', 'Call us: Milton Keynes'],
+		].map(([number, label]) => sb('cta_phone', { number, label })),
+		form_cta_label: 'Get My Free Review',
+	});
+}
+
+function locations() {
+	return sb('locations', {
+		maps: [
+			cdnAsset(`${CDN}/9ad800e8c0/map-1.png`, 'Map of the Milton Keynes studio location'),
+			cdnAsset(`${CDN}/c6c18caced/map-2.png`, 'Map of the Watford office location'),
+		],
+	});
+}
+
+function footer() {
+	const svc = (label, link, children) =>
+		sb('footer_service', { label, link, children: children.map(([l, ln]) => sb('footer_link', { label: l, link: ln })) });
+	return sb('footer', {
+		offices: [
+			sb('footer_office', { name: 'Milton Keynes', address: 'Witan Studio, Milton Keynes\nBucks, MK9 1EJ', phone: '+44 (0) 1908 25 24 23', email: 'hi@wiredbox' }),
+			sb('footer_office', { name: 'Watford', address: 'Leavesden Lodge,\nUnit 1 Copsewood Lodge,\n1A Copsewood Road, Watford\nHertfordshire, WD24 5DY', phone: '+44 (0) 207 993 5485', email: 'hello@wirebox.co.uk' }),
+		],
+		services: [
+			svc('Strategy', '/services/strategy', [['Digital Transformation', '/services/digital-transformation'], ['AWS Planning', '/services/aws-planning'], ['Research & Innovation', '/services/research-innovation']]),
+			svc('Digital Consultancy', '/services/digital-consultancy', [['AWS Consultancy', '/services/aws-consultancy'], ['Technology Deployments', '/services/technology-deployments'], ['AWS Healthcheck', '/services/aws-healthcheck']]),
+			svc('CMS and ERP applications', '/services/cms-erp', [['WordPress', '/services/wordpress'], ['Contentful', '/services/contentful'], ['Odoo', '/services/odoo']]),
+			{ ...svc('Application Development', '/services/application-development', [['Web Development', '/services/web-development'], ['Laravel Development', '/services/laravel-development'], ['Mobile App Development', '/services/mobile-app-development'], ['Bespoke Booking System', '/services/bespoke-booking-system'], ['eCommerce', '/services/ecommerce'], ['Database Development', '/services/database-development'], ['Bespoke Software Development', '/services/bespoke-software-development']]), expanded: true },
+			svc('Support and Maintenance', '/services/support-and-maintenance', [['Accessibility Consulting', '/services/accessibility'], ['Website & Systems Maintenance', '/services/maintenance'], ['Optimisation', '/services/optimisation']]),
+		],
+		links: [['Our Partners', '/our-partners'], ['About Us', '/about-us'], ['Contact Us', '/contact'], ['Services', '/services'], ['Blog', '/blog'], ['Case Studies', '/case-studies'], ['Clutch', 'https://clutch.co']].map(([label, link]) => sb('footer_link', { label, link })),
+		credentials: [
+			cdnAsset(`${CDN}/21d5b6561a/biz4biz.png`, 'biz4Biz Awards 2023 Winner'),
+			cdnAsset(`${CDN}/ee403ac740/sme.png`, 'SME Hertfordshire Business Awards'),
+		],
+		socials: [['facebook', 'https://facebook.com'], ['twitter', 'https://twitter.com'], ['vimeo', 'https://vimeo.com'], ['linkedin', 'https://linkedin.com'], ['github', 'https://github.com'], ['instagram', 'https://instagram.com']].map(([platform, url]) => sb('social_link', { platform, url })),
+		privacy_label: 'Cookie / Privacy Policy',
+		copyright: '© Wiredbox Ltd.',
 	});
 }
 
@@ -242,18 +411,18 @@ function buildContent() {
 			"Wirebox is your dedicated website support partner — monitoring, protecting, and improving your site 24/7. 1-hour critical response, no long-term contracts.",
 		body: [
 			header,
-			sb('support_hero'),
-			sb('trust_bar'),
-			sb('risk_stats'),
+			supportHero(),
+			trustBar(),
+			riskStats(),
 			valueProps(),
-			sb('sla_tiers'),
-			sb('pricing'),
+			slaTiers(),
+			pricing(),
 			supportCases(),
 			testimonials,
-			sb('faq'),
-			sb('cta_contact'),
-			sb('locations'),
-			sb('footer'),
+			faq(),
+			ctaContact(),
+			locations(),
+			footer(),
 		],
 	});
 }

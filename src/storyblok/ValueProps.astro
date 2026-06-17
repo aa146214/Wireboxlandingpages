@@ -23,9 +23,12 @@ const image =
 const imageAlt: string =
 	blok?.image?.alt || 'A Wirebox support specialist working with a client';
 const toolkitTitle: string = blok?.toolkit_title || 'Our monitoring toolkit';
-const toolkit: string[] = blok?.toolkit?.length
-	? blok.toolkit
-	: ['Pingdom', 'Airbrake', 'SEMrush', 'AWS CloudWatch', 'Sentry', 'Cloudflare'];
+const rawToolkit = blok?.toolkit;
+const toolkit: string[] = Array.isArray(rawToolkit)
+	? rawToolkit
+	: typeof rawToolkit === 'string' && rawToolkit.trim()
+		? rawToolkit.split(/\r?\n|,/).map((s) => s.trim()).filter(Boolean)
+		: ['Pingdom', 'Airbrake', 'SEMrush', 'AWS CloudWatch', 'Sentry', 'Cloudflare'];
 
 const features: Feature[] = blok?.features?.length
 	? blok.features
