@@ -42,11 +42,15 @@ const testimonials: SbBlok = {
 	heading: 'The kind of partner you keep for years',
 	heading_accent: 'keep for years',
 	items: [
-		{ quote: 'Despite the lack of a formal commitment from us, they always get the job done on time.', name: 'Ben Hallifax', role: 'HR Business Partner, Northgate Industries' },
-		{ quote: 'They are friendly, competent, and most importantly, finish projects within the time frame agreed.', name: 'Melanie Pizzey', role: 'Operations Director, KPF LTD.' },
-		{ quote: 'We have been using Wirebox for a few months now to help improve and maintain our website. The team are easy to deal with and have a great system for ensuring tasks are prioritised and completed on time. Would recommend to anyone!', name: 'Alexander Girvan', role: 'Client Services Lead, Orion Partners' },
-		{ video: { filename: 'https://a.storyblok.com/f/293147646055661/36434ef311/testimonial-video.png' }, name: 'John Smith', role: 'Marketing Manager, Veritas Group' },
-		{ quote: "They understand our business and they're able to put the right suggestions forward that help enhance our operations.", name: 'Jack Stubbs', role: 'Project Manager, Horizon Dynamics' },
+		{ name: 'James Randall', role: 'Co-founder, Kids Party Finder', vimeo: '1127563818' },
+		{ name: 'Stephen Makinde', role: 'Owner, The Oak Practice & Perfect Balance Clinic', vimeo: '1119462004' },
+		{ name: 'Glen Hempenstall', role: 'Communications Manager, Watford Town Centre BID', vimeo: '1125445378' },
+		{ name: 'Alison Hutchinson CBE', role: 'CEO, Pennies', vimeo: '996278084' },
+		{ quote: 'John and his team have been punctual, helpful and supportive showing both excellent knowledge of WordPress as well as a strong creative and design skill set. I would have no reservation in recommending Wirebox for WordPress development.', name: 'Nina Innocenti', role: 'Project Manager, Middlesex University' },
+		{ quote: 'Wirebox went above and beyond, delivering a brilliant website with an attractive design, web governance conformity and smooth functionality – and it all went from brief to finished product within about two months.', name: 'Sweta Rana', role: 'Web Manager, Middlesex University' },
+		{ quote: 'The Wirebox team worked from the initial scope and developed a fantastic solution which is interactive, fast, clear and allows full transparency and consistency across the business. We are delighted with the end result.', name: 'Kathryn Boyd', role: 'Director of HR, Search Consultancy' },
+		{ quote: 'Wirebox were able to analyse reports and offer solutions to improve the site. It took a few weeks, but our score is 95+ which is the best in our industry. Really happy with the work and always will recommend Wirebox.', name: 'Mr Clutch', role: 'Marketing Manager' },
+		{ quote: 'Great service – great knowledge throughout the company, very quick response and always have the solution to our problems in a professional and timely manner.', name: 'Chevin Fleet', role: 'Marketing Manager' },
 	],
 };
 

@@ -19,10 +19,7 @@ interface SendResult {
 	status?: number;
 }
 
-/**
- * Deliver the enquiry email. Isolated so the provider can be swapped without
- * touching the route. Currently uses the Mailgun HTTP API (no SDK needed).
- */
+/** Deliver the enquiry email via the Mailgun HTTP API (no SDK needed). */
 async function sendLeadEmail(fields: Record<string, string>): Promise<SendResult> {
 	const apiKey = env('MAILGUN_API_KEY');
 	const domain = env('MAILGUN_DOMAIN');

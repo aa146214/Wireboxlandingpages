@@ -1,6 +1,5 @@
 ---
 import { storyblokEditable } from '@storyblok/astro';
-import Icon from '../components/Icon.astro';
 import { splitHighlight } from '../lib/text';
 
 const { blok } = Astro.props;
@@ -9,15 +8,15 @@ interface Testimonial {
 	quote?: string;
 	name: string;
 	role: string;
-	video?: { filename?: string } | string;
+	/** Vimeo video id or URL — when set the card embeds a playable Vimeo player. */
+	vimeo?: string;
 }
 
 const eyebrow: string = blok?.eyebrow || '';
 const heading: string = blok?.heading || 'What our clients say_';
 const accent: string = blok?.heading_accent || '';
 const items: Testimonial[] = blok?.items ?? [];
-const videoSrc = (v: Testimonial['video']) =>
-	typeof v === 'string' ? v : v?.filename;
+const vimeoId = (v?: string) => (v ? (String(v).match(/\d{6,}/)?.[0] ?? '') : '');
 const h = splitHighlight(heading, accent);
 ---
 
@@ -31,15 +30,19 @@ const h = splitHighlight(heading, accent);
 		<ul class="testimonials__track" role="list">
 			{
 				items.map((t) => {
-					const src = videoSrc(t.video);
-					return src ? (
+					const id = vimeoId(t.vimeo);
+					return id ? (
 						<li class="t-card t-card--video">
-							<a class="t-card__video" href="#" aria-label={`Play video testimonial from ${t.name}`}>
-								<img src={src} alt="" width="404" height="228" loading="lazy" />
-								<span class="t-card__play play-button play-button--solid" aria-hidden="true">
-									<Icon name="play" size={24} />
-								</span>
-							</a>
+							<div class="t-card__video">
+								<iframe
+									src={`https://player.vimeo.com/video/${id}`}
+									title={`Video review from ${t.name}`}
+									loading="lazy"
+									frameborder="0"
+									allow="autoplay; fullscreen; picture-in-picture"
+									allowfullscreen
+								/>
+							</div>
 							<footer class="t-card__author">
 								<p class="t-card__name">{t.name}</p>
 								<p class="t-card__role">{t.role}</p>
@@ -140,20 +143,17 @@ const h = splitHighlight(heading, accent);
 	}
 	.t-card__video {
 		position: relative;
-		display: block;
 		align-self: stretch;
+		aspect-ratio: 16 / 9;
+		background: var(--color-dark-blue);
 	}
-	.t-card__video img {
-		width: 100%;
-		height: auto;
-		display: block;
-	}
-	.t-card__play {
+	.t-card__video iframe {
 		position: absolute;
 		inset: 0;
-		margin: auto;
-		width: 56px;
-		height: 56px;
+		width: 100%;
+		height: 100%;
+		border: 0;
+		display: block;
 	}
 	.t-card--video .t-card__author {
 		padding-inline: 2rem;
