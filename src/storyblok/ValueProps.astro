@@ -90,6 +90,12 @@ const h = splitHighlight(heading, accent);
 		gap: clamp(2rem, 5vw, 5rem);
 		align-items: stretch;
 	}
+	/* Allow the columns to shrink below their content so the single-row,
+	   horizontally-scrolling toolkit chips never widen the page. */
+	.vp__intro,
+	.vp__features {
+		min-width: 0;
+	}
 
 	.vp__media {
 		border-radius: 0; /* Figma: images are sharp */
