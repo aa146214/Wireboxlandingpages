@@ -68,6 +68,10 @@ const ASSET_DEFS = {
 	'support-sapphire.png': 'Sapphire Gymnastics – Wirebox client',
 	'support-team.png': 'A Wirebox support specialist working with a client',
 	'hero-building.png': 'The Wirebox building',
+	'map-1.png': 'Map of the Milton Keynes studio location',
+	'map-2.png': 'Map of the Watford office location',
+	'biz4biz.png': 'biz4Biz Awards 2023 Winner',
+	'sme.png': 'SME Hertfordshire Business Awards',
 };
 const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', svg: 'image/svg+xml' };
 const mimeOf = (f) => MIME[f.split('.').pop().toLowerCase()] || 'application/octet-stream';
@@ -381,10 +385,7 @@ function ctaContact() {
 
 function locations() {
 	return sb('locations', {
-		maps: [
-			cdnAsset(`${CDN}/9ad800e8c0/map-1.png`, 'Map of the Milton Keynes studio location'),
-			cdnAsset(`${CDN}/c6c18caced/map-2.png`, 'Map of the Watford office location'),
-		],
+		maps: [A('map-1.png'), A('map-2.png')],
 	});
 }
 
@@ -404,10 +405,7 @@ function footer() {
 			svc('Support and Maintenance', '/services/support-and-maintenance', [['Accessibility Consulting', '/services/accessibility'], ['Website & Systems Maintenance', '/services/maintenance'], ['Optimisation', '/services/optimisation']]),
 		],
 		links: [['Our Partners', '/our-partners'], ['About Us', '/about-us'], ['Contact Us', '/contact'], ['Services', '/services'], ['Blog', '/blog'], ['Case Studies', '/case-studies'], ['Clutch', 'https://clutch.co']].map(([label, link]) => sb('footer_link', { label, link })),
-		credentials: [
-			cdnAsset(`${CDN}/21d5b6561a/biz4biz.png`, 'biz4Biz Awards 2023 Winner'),
-			cdnAsset(`${CDN}/ee403ac740/sme.png`, 'SME Hertfordshire Business Awards'),
-		],
+		credentials: [A('biz4biz.png'), A('sme.png')],
 		socials: [['facebook', 'https://facebook.com'], ['twitter', 'https://twitter.com'], ['vimeo', 'https://vimeo.com'], ['linkedin', 'https://linkedin.com'], ['github', 'https://github.com'], ['instagram', 'https://instagram.com']].map(([platform, url]) => sb('social_link', { platform, url })),
 		privacy_label: 'Cookie / Privacy Policy',
 		copyright: '© Wiredbox Ltd.',
