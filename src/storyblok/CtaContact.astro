@@ -69,9 +69,7 @@ const h = splitHighlight(heading, accent);
 	.cta {
 		position: relative;
 		color: var(--color-white);
-		background:
-			repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.05) 0 90px, transparent 90px 220px),
-			linear-gradient(100deg, #5a1474 0%, #a3147f 45%, var(--color-fuchsia) 78%, #e0249f 100%);
+		background: var(--color-fuchsia); /* Figma node 364:700: solid #cf1993 */
 		overflow: hidden;
 	}
 	.cta__inner {
@@ -150,17 +148,19 @@ const h = splitHighlight(heading, accent);
 	.cta__status[data-state='error'] {
 		color: var(--color-light-pink);
 	}
+	/* Figma node 364:707: dark fill, bottom border only, 21px text. */
 	.cta__input {
 		height: 54px;
-		padding-inline: 1.25rem;
-		border: 1px solid rgba(255, 255, 255, 0.3);
-		border-radius: var(--radius-card);
-		background: rgba(22, 16, 38, 0.3);
+		padding: 8px 8px;
+		border: 0;
+		border-bottom: 1px solid var(--color-white-80);
+		border-radius: 0;
+		background: rgba(22, 16, 38, 0.4);
 		color: var(--color-white);
-		font-size: var(--fs-small);
+		font-size: var(--fs-paragraph);
 	}
 	.cta__input::placeholder {
-		color: var(--text-on-dark-placeholder);
+		color: rgba(255, 255, 255, 0.5);
 	}
 	.cta__input:focus-visible {
 		outline: 2px solid var(--color-cyan);

@@ -72,11 +72,6 @@ const h = splitHighlight(heading, accent);
 			text-wrap: balance;
 		}
 	}
-	/* Keep the accordion itself at a comfortable reading width, centred. */
-	.faq__list {
-		max-width: 880px;
-		margin-inline: auto;
-	}
 	.faq__eyebrow {
 		color: var(--color-dark-blue); /* Figma: Dark Blue eyebrow */
 		margin-bottom: 1rem;
@@ -88,8 +83,10 @@ const h = splitHighlight(heading, accent);
 		color: var(--color-fuchsia);
 	}
 
+	/* Accordion at the design's reading width (856px), centred under the heading. */
 	.faq__list {
-		margin: 0;
+		max-width: 856px;
+		margin-inline: auto;
 		padding: 0;
 	}
 	.faq__item {

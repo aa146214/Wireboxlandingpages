@@ -120,8 +120,15 @@ const h = splitHighlight(heading, accent);
 		padding: 2rem;
 		background: var(--surface-card);
 		border-radius: 0;
-		box-shadow: var(--shadow-card);
+		box-shadow: var(--shadow-card-magenta);
 		scroll-snap-align: center;
+	}
+	/* Figma: cards cycle three offset-shadow tints. */
+	.t-card:nth-child(3n + 2) {
+		box-shadow: var(--shadow-card-pink);
+	}
+	.t-card:nth-child(3n) {
+		box-shadow: var(--shadow-card-blue);
 	}
 	.t-card--video {
 		padding: 0 0 1.75rem;
@@ -180,13 +187,11 @@ const h = splitHighlight(heading, accent);
 		width: 12px;
 		height: 12px;
 		border-radius: 50%;
-		background: var(--color-lavender);
-		opacity: 0.4;
-		transition: opacity var(--dur-fast) var(--ease-out);
+		background: var(--color-white); /* Figma: unselected dots are white */
+		transition: background var(--dur-fast) var(--ease-out);
 	}
 	.testimonials__dot.is-active {
-		opacity: 1;
-		background: var(--color-primary-blue);
+		background: var(--color-lavender); /* Figma: active dot is lavender #aa8ce7 */
 	}
 </style>
 

@@ -273,7 +273,7 @@ function valueProps() {
 	return sb('value_props', {
 		eyebrow: 'Why Wirebox',
 		heading: 'More than just a support ticket',
-		heading_accent: 'a support ticket',
+		heading_accent: 'support ticket',
 		body: "We're not an hourly-rate helpdesk. We're your proactive digital partner – actively seeking improvements, spotting risks before they become problems, and helping your site grow alongside your business.",
 		cta_label: 'get a free site review',
 		cta_link: '#contact',

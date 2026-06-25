@@ -13,7 +13,7 @@ interface Feature {
 
 const eyebrow: string = blok?.eyebrow || 'Why Wirebox';
 const heading: string = blok?.heading || 'More than just a support ticket';
-const accent: string = blok?.heading_accent || 'a support ticket';
+const accent: string = blok?.heading_accent || 'support ticket';
 const body: string =
 	blok?.body ||
 	"We're not an hourly-rate helpdesk. We're your proactive digital partner – actively seeking improvements, spotting risks before they become problems, and helping your site grow alongside your business.";
@@ -95,7 +95,7 @@ const h = splitHighlight(heading, accent);
 		border-radius: 0; /* Figma: images are sharp */
 		overflow: hidden;
 		margin-bottom: 1.75rem;
-		max-width: 420px;
+		/* Figma: image fills the full column width (630px). */
 	}
 	.vp__media img {
 		width: 100%;
@@ -109,10 +109,16 @@ const h = splitHighlight(heading, accent);
 	.vp__heading {
 		color: var(--color-fuchsia);
 		margin-bottom: 1.25rem;
+		/* Figma node 356:185: H3 43.55px, single line. */
+		font-size: var(--fs-h3-fluid);
+	}
+	@media (min-width: 901px) {
+		.vp__heading {
+			white-space: nowrap;
+		}
 	}
 	.vp__hl {
-		color: var(--color-primary-blue); /* Figma: "purple" accent #5418d0 */
-		white-space: nowrap; /* keep "a support ticket" on one line */
+		color: var(--color-primary-blue); /* Figma: "support ticket" #5418d0 */
 	}
 	.vp__body {
 		font-size: var(--fs-paragraph-fluid); /* Figma: Paragraph 21px */
@@ -126,7 +132,7 @@ const h = splitHighlight(heading, accent);
 		margin-top: 2rem;
 		padding: 1.25rem 1.5rem;
 		background: var(--surface-subtle);
-		border-radius: var(--radius-card);
+		border-radius: 0; /* Figma: container has sharp corners */
 	}
 	.vp__toolkit-title {
 		font-size: var(--fs-small);

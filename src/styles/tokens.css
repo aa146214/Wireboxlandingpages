@@ -145,6 +145,10 @@
 	   an offset border, per the Figma design. */
 	--shadow-card: 6px 6px 0 0 rgba(84, 24, 208, 0.16);
 	--shadow-soft: 0 2px 16px rgba(22, 16, 38, 0.04);
+	/* Testimonial cards cycle three offset-shadow tints (Figma). */
+	--shadow-card-pink: 6px 6px 0 0 rgba(231, 140, 201, 0.5);
+	--shadow-card-magenta: 6px 6px 0 0 rgba(103, 12, 73, 0.2);
+	--shadow-card-blue: 6px 6px 0 0 rgba(84, 24, 208, 0.16);
 
 	/* --- Stacking order ------------------------------------------------- */
 	--z-header: 100;

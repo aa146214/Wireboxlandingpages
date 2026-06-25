@@ -16,20 +16,15 @@ const maps: MapItem[] = blok?.maps?.length
 			{ filename: 'https://a.storyblok.com/f/293147646055661/9ad800e8c0/map-1.png', alt: 'Map of the Milton Keynes studio location', link: 'https://maps.google.com/?q=Witan+Studio+Milton+Keynes' },
 			{ filename: 'https://a.storyblok.com/f/293147646055661/c6c18caced/map-2.png', alt: 'Map of the Watford office location', link: 'https://maps.google.com/?q=Leavesden+Lodge+Watford' },
 		];
-const fallbackLabels = ['Milton Keynes', 'Watford'];
-// Derive a short office name: explicit label → from alt ("Map of the X …") → fallback.
-const labelFor = (m: MapItem, i: number) =>
-	m.label || m.alt?.match(/Map of the (.+?) (?:studio|office)/i)?.[1] || fallbackLabels[i] || '';
 ---
 
 <section class="locations" {...storyblokEditable(blok)} aria-label="Our office locations">
 	<ul class="locations__grid" role="list">
 		{
-			maps.map((m, i) => (
+			maps.map((m) => (
 				<li class="locations__item">
 					<a href={m.link || '#'} target="_blank" rel="noopener noreferrer">
 						<img src={m.filename} alt={m.alt} loading="lazy" />
-						{labelFor(m, i) && <span class="locations__label">{labelFor(m, i)}</span>}
 					</a>
 				</li>
 			))
@@ -38,14 +33,14 @@ const labelFor = (m: MapItem, i: number) =>
 </section>
 
 <style>
-	/* Two clearly-separated location maps (per feedback). */
+	/* Two location maps split by a white divider (per design). */
 	.locations__grid {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: 4px;
 		margin: 0;
 		padding: 0;
-		background: var(--surface-invert);
+		background: var(--color-white);
 	}
 	.locations__item {
 		position: relative;
@@ -56,16 +51,6 @@ const labelFor = (m: MapItem, i: number) =>
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-	}
-	.locations__label {
-		position: absolute;
-		left: 1rem;
-		top: 1rem;
-		padding: 0.4rem 1rem;
-		background: var(--color-primary-blue);
-		color: var(--color-white);
-		font-size: var(--fs-small);
-		font-weight: var(--fw-semibold);
 	}
 
 	@media (max-width: 700px) {
