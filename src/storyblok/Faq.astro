@@ -59,12 +59,23 @@ const h = splitHighlight(heading, accent);
 		background: var(--surface-muted);
 		padding-block: var(--section-py);
 	}
-	.faq__inner {
-		max-width: 880px;
-	}
 	.faq__head {
 		text-align: center;
 		margin-bottom: clamp(2rem, 4vw, 3.5rem);
+	}
+	/* Wide enough for the heading to stay on one line (per feedback). */
+	.faq__heading {
+		text-wrap: nowrap;
+	}
+	@media (max-width: 760px) {
+		.faq__heading {
+			text-wrap: balance;
+		}
+	}
+	/* Keep the accordion itself at a comfortable reading width, centred. */
+	.faq__list {
+		max-width: 880px;
+		margin-inline: auto;
 	}
 	.faq__eyebrow {
 		color: var(--color-dark-blue); /* Figma: Dark Blue eyebrow */
@@ -149,3 +160,15 @@ const h = splitHighlight(heading, accent);
 		color: var(--color-paragraph);
 	}
 </style>
+
+<script>
+	// Accordion: opening one item closes any other open item.
+	document.querySelectorAll<HTMLDetailsElement>('.faq__item').forEach((item) => {
+		item.addEventListener('toggle', () => {
+			if (!item.open) return;
+			document.querySelectorAll<HTMLDetailsElement>('.faq__item[open]').forEach((other) => {
+				if (other !== item) other.open = false;
+			});
+		});
+	});
+</script>

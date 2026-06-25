@@ -92,7 +92,7 @@ const h = splitHighlight(heading, accent);
 		font-weight: var(--fw-semibold);
 		line-height: var(--lh-tight);
 		letter-spacing: var(--ls-h2);
-		max-width: 16ch;
+		max-width: 22ch;
 	}
 	.cta__hl {
 		color: var(--color-dark-blue); /* Figma: "hoping for the best" is Dark Blue */
@@ -109,7 +109,9 @@ const h = splitHighlight(heading, accent);
 		flex-wrap: wrap;
 		gap: 1.5rem 3rem;
 		margin: 2rem 0 0;
-		padding: 0;
+		padding: 2rem 0 0;
+		/* Divider above the phone numbers (per feedback). */
+		border-top: 1px solid rgba(255, 255, 255, 0.3);
 	}
 	.cta__phone-number {
 		display: block;
@@ -165,7 +167,11 @@ const h = splitHighlight(heading, accent);
 		outline-offset: 1px;
 	}
 	.cta__form :global(.btn) {
-		width: 100%;
+		align-self: flex-start;
+		height: 46px;
+		padding-inline: 28px 22px;
+		font-size: var(--fs-small);
+		gap: 16px;
 		margin-top: 0.25rem;
 	}
 

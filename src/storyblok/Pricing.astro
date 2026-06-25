@@ -232,7 +232,7 @@ const h = splitHighlight(heading, accent);
 		font-weight: var(--fw-semibold);
 		line-height: 1.1;
 		letter-spacing: var(--ls-h3);
-		color: var(--color-dark-blue);
+		color: var(--color-primary-blue); /* Figma: prices are purple #5418d0 */
 		margin: 0.15rem 0 0.5rem;
 	}
 	.plan__meta {
@@ -265,9 +265,14 @@ const h = splitHighlight(heading, accent);
 	}
 	.plan__cta {
 		display: flex;
+		justify-content: center;
 	}
+	/* Smaller, auto-width button (per feedback — not full width). */
 	.plan__cta :global(.btn) {
-		width: 100%;
+		height: 46px;
+		padding-inline: 28px 22px;
+		font-size: var(--fs-small);
+		gap: 16px;
 	}
 
 	.pricing__foot {

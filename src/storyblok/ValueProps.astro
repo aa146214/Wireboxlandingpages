@@ -1,6 +1,7 @@
 ---
 import { storyblokEditable } from '@storyblok/astro';
 import Button from '../components/Button.astro';
+import { splitHighlight } from '../lib/text';
 
 const { blok } = Astro.props;
 
@@ -12,6 +13,7 @@ interface Feature {
 
 const eyebrow: string = blok?.eyebrow || 'Why Wirebox';
 const heading: string = blok?.heading || 'More than just a support ticket';
+const accent: string = blok?.heading_accent || 'a support ticket';
 const body: string =
 	blok?.body ||
 	"We're not an hourly-rate helpdesk. We're your proactive digital partner – actively seeking improvements, spotting risks before they become problems, and helping your site grow alongside your business.";
@@ -39,6 +41,8 @@ const features: Feature[] = blok?.features?.length
 			{ title: 'Proactive improvement recommendations', description: "We're your advocate – regularly suggesting improvements to grow your business online, not just keeping the lights on.", tone: 'fuchsia' },
 			{ title: 'Staging environment for all changes', description: 'Every update is tested and signed off in a secure staging environment before it ever touches your live site.', tone: 'purple' },
 		];
+
+const h = splitHighlight(heading, accent);
 ---
 
 <section class="vp" {...storyblokEditable(blok)}>
@@ -48,7 +52,7 @@ const features: Feature[] = blok?.features?.length
 				<img src={image} alt={imageAlt} width="512" height="342" loading="lazy" />
 			</div>
 			<p class="vp__eyebrow category">{eyebrow}</p>
-			<h2 class="vp__heading section-heading">{heading}</h2>
+			<h2 class="vp__heading section-heading">{h.pre}<span class="vp__hl">{h.mid}</span>{h.post}</h2>
 			<p class="vp__body">{body}</p>
 			<Button label={ctaLabel} link={ctaLink} variant="fuchsia" icon="arrow-right" />
 
@@ -84,7 +88,7 @@ const features: Feature[] = blok?.features?.length
 		display: grid;
 		grid-template-columns: 1fr 1.05fr;
 		gap: clamp(2rem, 5vw, 5rem);
-		align-items: start;
+		align-items: stretch;
 	}
 
 	.vp__media {
@@ -106,6 +110,10 @@ const features: Feature[] = blok?.features?.length
 		color: var(--color-fuchsia);
 		margin-bottom: 1.25rem;
 	}
+	.vp__hl {
+		color: var(--color-primary-blue); /* Figma: "purple" accent #5418d0 */
+		white-space: nowrap; /* keep "a support ticket" on one line */
+	}
 	.vp__body {
 		font-size: var(--fs-paragraph-fluid); /* Figma: Paragraph 21px */
 		line-height: var(--lh-body);
@@ -119,7 +127,6 @@ const features: Feature[] = blok?.features?.length
 		padding: 1.25rem 1.5rem;
 		background: var(--surface-subtle);
 		border-radius: var(--radius-card);
-		max-width: 460px;
 	}
 	.vp__toolkit-title {
 		font-size: var(--fs-small);
@@ -127,14 +134,22 @@ const features: Feature[] = blok?.features?.length
 		color: var(--color-headings-dark);
 		margin-bottom: 0.85rem;
 	}
+	/* Single row of chips (per feedback); scroll if they exceed the width. */
 	.vp__chips {
 		display: flex;
-		flex-wrap: wrap;
+		flex-wrap: nowrap;
 		gap: 0.5rem;
 		margin: 0;
 		padding: 0;
+		overflow-x: auto;
+		scrollbar-width: none;
+	}
+	.vp__chips::-webkit-scrollbar {
+		display: none;
 	}
 	.vp__chip {
+		flex: 0 0 auto;
+		white-space: nowrap;
 		padding: 0.3rem 0.75rem;
 		border-radius: 0; /* Figma: toolkit tags are sharp */
 		font-size: var(--fs-category);
@@ -148,9 +163,14 @@ const features: Feature[] = blok?.features?.length
 		background: var(--color-lavender);
 	}
 
+	/* Distribute the five points so the column matches the left column height. */
 	.vp__features {
 		margin: 0;
 		padding: 0;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		height: 100%;
 	}
 	.vp__feature {
 		padding: 1.5rem 0;

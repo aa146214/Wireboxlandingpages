@@ -15,7 +15,7 @@ interface Case {
 
 const eyebrow: string = blok?.eyebrow || 'Client relationships, not just projects';
 const heading: string = blok?.heading || '245 businesses supported, and counting_';
-const accent: string = blok?.heading_accent || heading;
+const accent: string = blok?.heading_accent || 'and counting_';
 const subtitle: string =
 	blok?.subtitle ||
 	"These aren't one-off builds. These are long-term partnerships – we're still actively supporting every client below.";
@@ -86,6 +86,9 @@ const h = splitHighlight(heading, accent === heading ? '' : accent);
 	.cases__heading {
 		color: var(--color-fuchsia);
 		margin-bottom: 1rem;
+	}
+	.cases__hl {
+		color: var(--color-primary-blue); /* Figma: "and counting" is purple #5418d0 */
 	}
 	.cases__subtitle {
 		max-width: 64ch;

@@ -67,6 +67,7 @@ const ASSET_DEFS = {
 	'support-middlesex.png': 'Middlesex University – Wirebox client',
 	'support-sapphire.png': 'Sapphire Gymnastics – Wirebox client',
 	'support-team.png': 'A Wirebox support specialist working with a client',
+	'hero-building.png': 'The Wirebox building',
 };
 const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', svg: 'image/svg+xml' };
 const mimeOf = (f) => MIME[f.split('.').pop().toLowerCase()] || 'application/octet-stream';
@@ -156,7 +157,7 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'cta_phone', schema: { number: text(0), label: text(1) } },
 	{ name: 'testimonial', schema: { quote: area(0), name: text(1), role: text(2), vimeo: text(3, { description: 'Vimeo video id or URL — set for video reviews' }) } },
 	// sections
-	{ name: 'support_hero', schema: { eyebrow: text(0), heading: area(1), heading_accent: text(2), body: area(3), ctas: bloks(4, ['cta']), card_title: text(5), stats: bloks(6, ['hero_stat']), form_title: text(7), form_cta_label: text(8), form_note: text(9) } },
+	{ name: 'support_hero', schema: { eyebrow: text(0), heading: area(1), heading_accent: text(2), body: area(3), ctas: bloks(4, ['cta']), card_title: text(5), stats: bloks(6, ['hero_stat']), form_title: text(7), form_cta_label: text(8), form_note: text(9), bg_image: asset(10) } },
 	{ name: 'trust_bar', schema: { items: bloks(0, ['trust_item']) } },
 	{ name: 'risk_stats', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), stats: bloks(3, ['risk_stat']), footnote: text(4), cta_label: text(5), cta_link: text(6) } },
 	{ name: 'value_props', schema: { eyebrow: text(0), heading: text(1), body: area(2), cta_label: text(3), cta_link: text(4), image: asset(5), toolkit_title: text(6), toolkit: area(7, { description: 'One tool per line' }), features: bloks(8, ['vp_feature']) } },
@@ -206,10 +207,10 @@ const testimonials = sb('testimonials', {
 	heading: 'The kind of partner you keep for years',
 	heading_accent: 'keep for years',
 	items: [
-		sb('testimonial', { name: 'James Randall', role: 'Co-founder, Kids Party Finder', vimeo: '1127563818' }),
-		sb('testimonial', { name: 'Stephen Makinde', role: 'Owner, The Oak Practice & Perfect Balance Clinic', vimeo: '1119462004' }),
-		sb('testimonial', { name: 'Glen Hempenstall', role: 'Communications Manager, Watford Town Centre BID', vimeo: '1125445378' }),
-		sb('testimonial', { name: 'Alison Hutchinson CBE', role: 'CEO, Pennies', vimeo: '996278084' }),
+		sb('testimonial', { name: 'James Randall', role: 'Co-founder, Kids Party Finder', vimeo: '1119462004' }),
+		sb('testimonial', { name: 'Stephen Makinde', role: 'Owner, The Oak Practice & Perfect Balance Clinic', vimeo: '1127563818' }),
+		sb('testimonial', { name: 'Glen Hempenstall', role: 'Communications Manager, Watford Town Centre BID', vimeo: '996278084' }),
+		sb('testimonial', { name: 'Alison Hutchinson CBE', role: 'CEO, Pennies', vimeo: '1125445378' }),
 		sb('testimonial', { quote: 'John and his team have been punctual, helpful and supportive showing both excellent knowledge of WordPress as well as a strong creative and design skill set. I would have no reservation in recommending Wirebox for WordPress development.', name: 'Nina Innocenti', role: 'Project Manager, Middlesex University' }),
 		sb('testimonial', { quote: 'Wirebox went above and beyond, delivering a brilliant website with an attractive design, web governance conformity and smooth functionality – and it all went from brief to finished product within about two months.', name: 'Sweta Rana', role: 'Web Manager, Middlesex University' }),
 		sb('testimonial', { quote: 'The Wirebox team worked from the initial scope and developed a fantastic solution which is interactive, fast, clear and allows full transparency and consistency across the business. We are delighted with the end result.', name: 'Kathryn Boyd', role: 'Director of HR, Search Consultancy' }),
@@ -232,6 +233,7 @@ function supportHero() {
 			sb('cta', { label: 'see plans & pricing', link: mlink('#pricing'), variant: 'outline', icon: 'arrow-right' }),
 		],
 		card_title: 'Our response commitments',
+		bg_image: A('hero-building.png'),
 		stats: [
 			['1hr', 'critical issue response', 'pink'],
 			['4hrs', 'standard issue response', 'green'],
@@ -271,6 +273,7 @@ function valueProps() {
 	return sb('value_props', {
 		eyebrow: 'Why Wirebox',
 		heading: 'More than just a support ticket',
+		heading_accent: 'a support ticket',
 		body: "We're not an hourly-rate helpdesk. We're your proactive digital partner – actively seeking improvements, spotting risks before they become problems, and helping your site grow alongside your business.",
 		cta_label: 'get a free site review',
 		cta_link: '#contact',
@@ -305,7 +308,7 @@ function slaTiers() {
 function pricing() {
 	const plans = [
 		['Starter', 'Essential', '', 'Plans from', '£299/mo', 'Single site · Cancel anytime', ['24/7 uptime monitoring', 'Monthly plugin & CMS updates', '4-hour critical response SLA', 'Monthly health report', 'SSL certificate management', '2 hours/month development time'], 'get a quote', 'outline-lavender', false],
-		['Growth', 'Professional', 'Most popular', 'Plans from', '£699/mo', 'Up to 3 sites · Cancel anytime', ['Everything in Essential', '1-hour critical response SLA', 'Performance & SEO monitoring (SEMrush)', 'Penetration testing (quarterly)', 'Staging environment for all changes', '5 hours/month development time', 'Dedicated account manager'], 'get a quote', 'solid', true],
+		['Growth', 'Professional', 'Most popular', 'Plans from', '£699/mo', 'Up to 3 sites · Cancel anytime', ['Everything in Essential', '1-hour critical response SLA', 'Performance & SEO monitoring (SEMrush)', 'Error monitoring (Airbrake)', 'Penetration testing (quarterly)', 'Staging environment for all changes', '5 hours/month development time', 'Dedicated account manager'], 'get a quote', 'solid', true],
 		['Scale', 'Enterprise', '', 'Custom pricing', "Let's talk", 'Multi-site · Bespoke SLA · AWS hosting', ['Everything in Professional', 'AWS CloudWatch monitoring', 'Custom SLA & response targets', 'Multi-site & multi-database coverage', 'Monthly strategy calls', 'Priority development queue', 'Dedicated development team access'], 'book a call', 'outline-lavender', false],
 	];
 	return sb('pricing', {
@@ -335,6 +338,7 @@ function supportCases() {
 	return sb('support_cases', {
 		eyebrow: 'Client relationships, not just projects',
 		heading: '245 businesses supported, and counting_',
+		heading_accent: 'and counting_',
 		subtitle: "These aren't one-off builds. These are long-term partnerships – we're still actively supporting every client below.",
 		items: items.map(([title, duration, description, tags, img]) =>
 			sb('support_case', { title, duration, description, tags: tags.join('\n'), image: A(img), link: mlink('#') })

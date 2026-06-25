@@ -65,7 +65,7 @@ const h = splitHighlight(heading, accent);
 		margin-bottom: 1rem;
 	}
 	.sla__hl {
-		color: var(--color-cyan);
+		color: var(--color-light-pink); /* Figma node 356:251: #e78cc9 */
 	}
 	.sla__subtitle {
 		max-width: 60ch;
@@ -85,6 +85,11 @@ const h = splitHighlight(heading, accent);
 	.sla__tier {
 		padding-left: 1.5rem;
 		border-left: 1px solid var(--border-on-dark);
+	}
+	/* Close the row with a trailing bar for consistent dividers. */
+	.sla__tier:last-child {
+		padding-right: 1.5rem;
+		border-right: 1px solid var(--border-on-dark);
 	}
 	.sla__value {
 		display: block;
