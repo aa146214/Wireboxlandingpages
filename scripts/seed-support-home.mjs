@@ -137,6 +137,7 @@ const text = (pos, extra = {}) => ({ type: 'text', pos, ...extra });
 const area = (pos, extra = {}) => ({ type: 'textarea', pos, ...extra });
 const bool = (pos) => ({ type: 'boolean', pos });
 const asset = (pos) => ({ type: 'asset', filetypes: ['images'], pos });
+const multiasset = (pos) => ({ type: 'multiasset', filetypes: ['images'], pos });
 const link = (pos) => ({ type: 'multilink', pos });
 const bloks = (pos, whitelist) => ({ type: 'bloks', restrict_components: true, component_whitelist: whitelist, pos });
 const opt = (pos, values, def) => ({
@@ -160,6 +161,17 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'faq_item', schema: { question: text(0), answer: area(1), open: bool(2) } },
 	{ name: 'cta_phone', schema: { number: text(0), label: text(1) } },
 	{ name: 'testimonial', schema: { quote: area(0), name: text(1), role: text(2), vimeo: text(3, { description: 'Vimeo video id or URL — set for video reviews' }) } },
+	// Shared leaves (header/footer/hero) — created here so a fresh space seeds cleanly.
+	{ name: 'nav_item', schema: { label: text(0), link: link(1), highlight: bool(2) } },
+	{ name: 'social_link', schema: { platform: opt(0, ['facebook', 'twitter', 'vimeo', 'linkedin', 'github', 'instagram', 'tiktok', 'youtube']), url: text(1) } },
+	{ name: 'cta', schema: { label: text(0), link: link(1), variant: opt(2, ['primary', 'outline', 'outline-dark', 'solid', 'fuchsia', 'deep', 'outline-lavender'], 'primary'), icon: opt(3, [{ name: 'None', value: '' }, { name: 'Arrow right', value: 'arrow-right' }], '') } },
+	{ name: 'footer_link', schema: { label: text(0), link: text(1) } },
+	{ name: 'footer_office', schema: { name: text(0), address: area(1), phone: text(2), email: text(3) } },
+	{ name: 'footer_service', schema: { label: text(0), link: text(1), expanded: bool(2), children: bloks(3, ['footer_link']) } },
+	// Shared sections.
+	{ name: 'header', schema: { logo: asset(0), nav: bloks(1, ['nav_item']), phone_label: text(2), phone_number: text(3), socials: bloks(4, ['social_link']) } },
+	{ name: 'testimonials', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), items: bloks(3, ['testimonial']) } },
+	{ name: 'footer', schema: { offices: bloks(0, ['footer_office']), services: bloks(1, ['footer_service']), links: bloks(2, ['footer_link']), credentials: multiasset(3), socials: bloks(4, ['social_link']), privacy_label: text(5), copyright: text(6) } },
 	// sections
 	{ name: 'support_hero', schema: { eyebrow: text(0), heading: area(1), heading_accent: text(2), body: area(3), ctas: bloks(4, ['cta']), card_title: text(5), stats: bloks(6, ['hero_stat']), form_title: text(7), form_cta_label: text(8), form_note: text(9), bg_image: asset(10) } },
 	{ name: 'trust_bar', schema: { items: bloks(0, ['trust_item']) } },
