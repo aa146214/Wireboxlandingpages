@@ -69,7 +69,9 @@ const h = splitHighlight(heading, accent);
 	.cta {
 		position: relative;
 		color: var(--color-white);
-		background: var(--color-fuchsia); /* Figma node 364:700: solid #cf1993 */
+		/* Figma: #cf1993 base with the five diagonal "Subtract" shapes layered
+		   over it (composited exactly in /public/cta-bg.svg). */
+		background: var(--color-fuchsia) url('/cta-bg.svg') center / cover no-repeat;
 		overflow: hidden;
 	}
 	.cta__inner {
