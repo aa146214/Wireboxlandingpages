@@ -403,8 +403,9 @@ function locations() {
 
 function footer() {
 	const WB = 'https://wirebox.co.uk';
-	const svc = (label, link, children) =>
-		sb('footer_service', { label, link, children: children.map(([l, ln]) => sb('footer_link', { label: l, link: ln })) });
+	// Accordion categories are toggles, not links — only their children link out.
+	const svc = (label, _parentLink, children) =>
+		sb('footer_service', { label, link: '', children: children.map(([l, ln]) => sb('footer_link', { label: l, link: ln })) });
 	return sb('footer', {
 		offices: [
 			sb('footer_office', { name: 'Milton Keynes', address: 'Witan Studio, Milton Keynes\nBucks, MK9 1EJ', phone: '+44 (0) 1908 25 24 23', email: 'hi@wiredbox' }),
