@@ -402,6 +402,7 @@ function locations() {
 }
 
 function footer() {
+	const WB = 'https://wirebox.co.uk';
 	const svc = (label, link, children) =>
 		sb('footer_service', { label, link, children: children.map(([l, ln]) => sb('footer_link', { label: l, link: ln })) });
 	return sb('footer', {
@@ -410,13 +411,13 @@ function footer() {
 			sb('footer_office', { name: 'Watford', address: 'Leavesden Lodge,\nUnit 1 Copsewood Lodge,\n1A Copsewood Road, Watford\nHertfordshire, WD24 5DY', phone: '+44 (0) 207 993 5485', email: 'hello@wirebox.co.uk' }),
 		],
 		services: [
-			svc('Strategy', '/services/strategy', [['Digital Transformation', '/services/digital-transformation'], ['AWS Planning', '/services/aws-planning'], ['Research & Innovation', '/services/research-innovation']]),
-			svc('Digital Consultancy', '/services/digital-consultancy', [['AWS Consultancy', '/services/aws-consultancy'], ['Technology Deployments', '/services/technology-deployments'], ['AWS Healthcheck', '/services/aws-healthcheck']]),
-			svc('CMS and ERP applications', '/services/cms-erp', [['WordPress', '/services/wordpress'], ['Contentful', '/services/contentful'], ['Odoo', '/services/odoo']]),
-			{ ...svc('Application Development', '/services/application-development', [['Web Development', '/services/web-development'], ['Laravel Development', '/services/laravel-development'], ['Mobile App Development', '/services/mobile-app-development'], ['Bespoke Booking System', '/services/bespoke-booking-system'], ['eCommerce', '/services/ecommerce'], ['Database Development', '/services/database-development'], ['Bespoke Software Development', '/services/bespoke-software-development']]), expanded: true },
-			svc('Support and Maintenance', '/services/support-and-maintenance', [['Accessibility Consulting', '/services/accessibility'], ['Website & Systems Maintenance', '/services/maintenance'], ['Optimisation', '/services/optimisation']]),
+			svc('Strategy', `${WB}/what-we-do/strategy/`, [['Digital Transformation', `${WB}/what-we-do/strategy/`], ['AWS Planning', `${WB}/what-we-do/technology-build/aws-consultancy/`], ['Research & Innovation', `${WB}/workshop-discovery/`]]),
+			svc('Digital Consultancy', `${WB}/what-we-do/technology-consulting/`, [['AWS Consultancy', `${WB}/what-we-do/technology-build/aws-consultancy/`], ['Technology Deployments', `${WB}/what-we-do/technology-build/`], ['AWS Healthcheck', `${WB}/what-we-do/technology-consulting/`]]),
+			svc('CMS and ERP applications', `${WB}/what-we-do/technology-build/cms-development_/`, [['WordPress', `${WB}/wordpress/`], ['Contentful', `${WB}/what-we-do/technology-build/cms-development_/`], ['Odoo', `${WB}/what-we-do/technology-build/odoo-development/`]]),
+			{ ...svc('Application Development', `${WB}/what-we-do/technology-build/`, [['Web Development', `${WB}/work-categories/web-development/`], ['Laravel Development', `${WB}/laravel-development-agency/`], ['Mobile App Development', `${WB}/what-we-do/technology-build/mobile-app-development/`], ['Bespoke Booking System', `${WB}/what-we-do/technology-build/software-development-london/`], ['eCommerce', `${WB}/what-we-do/technology-build/e-commerce-development/`], ['Database Development', `${WB}/what-we-do/technology-build/database-development/`], ['Bespoke Software Development', `${WB}/what-we-do/technology-build/software-development-london/`]]), expanded: true },
+			svc('Support and Maintenance', `${WB}/website-support-and-maintenance/`, [['Accessibility Consulting', `${WB}/website-support-and-maintenance/`], ['Website & Systems Maintenance', `${WB}/website-support-and-maintenance/`], ['Optimisation', `${WB}/work-categories/speed/`]]),
 		],
-		links: [['Our Partners', '/our-partners'], ['About Us', '/about-us'], ['Contact Us', '/contact'], ['Services', '/services'], ['Blog', '/blog'], ['Case Studies', '/case-studies'], ['Clutch', 'https://clutch.co']].map(([label, link]) => sb('footer_link', { label, link })),
+		links: [['Our Partners', `${WB}/our-partners/`], ['About Us', `${WB}/about-us/`], ['Contact Us', `${WB}/contact-us/`], ['Services', `${WB}/what-we-do/`], ['Blog', `${WB}/blog/`], ['Case Studies', `${WB}/our-work/`], ['Clutch', 'https://clutch.co']].map(([label, link]) => sb('footer_link', { label, link })),
 		credentials: [A('biz4biz.png'), A('sme.png')],
 		socials: [['facebook', 'https://facebook.com'], ['twitter', 'https://twitter.com'], ['vimeo', 'https://vimeo.com'], ['linkedin', 'https://linkedin.com'], ['github', 'https://github.com'], ['instagram', 'https://instagram.com']].map(([platform, url]) => sb('social_link', { platform, url })),
 		privacy_label: 'Cookie / Privacy Policy',
