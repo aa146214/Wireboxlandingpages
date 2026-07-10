@@ -68,8 +68,6 @@ const ASSET_DEFS = {
 	'support-sapphire.png': 'Sapphire Gymnastics – Wirebox client',
 	'support-team.png': 'A Wirebox support specialist working with a client',
 	'hero-building.png': 'The Wirebox building',
-	'map-1.png': 'Map of the Milton Keynes studio location',
-	'map-2.png': 'Map of the Watford office location',
 	'biz4biz.png': 'biz4Biz Awards 2023 Winner',
 	'sme.png': 'SME Hertfordshire Business Awards',
 };
@@ -160,6 +158,7 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'support_case', schema: { title: text(0), duration: text(1), description: area(2), tags: area(3, { description: 'One tag per line' }), image: asset(4), link: link(5) } },
 	{ name: 'faq_item', schema: { question: text(0), answer: area(1), open: bool(2) } },
 	{ name: 'cta_phone', schema: { number: text(0), label: text(1) } },
+	{ name: 'map_place', schema: { label: text(0), query: text(1, { description: 'Address or lat,lng the Google Map centres on' }), link: text(2) } },
 	{ name: 'testimonial', schema: { quote: area(0), name: text(1), role: text(2), vimeo: text(3, { description: 'Vimeo video id or URL — set for video reviews' }) } },
 	// Shared leaves (header/footer/hero) — created here so a fresh space seeds cleanly.
 	{ name: 'nav_item', schema: { label: text(0), link: link(1), highlight: bool(2) } },
@@ -182,7 +181,7 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'support_cases', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), items: bloks(4, ['support_case']) } },
 	{ name: 'faq', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), items: bloks(3, ['faq_item']) } },
 	{ name: 'cta_contact', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), body: area(3), phones: bloks(4, ['cta_phone']), form_cta_label: text(5) } },
-	{ name: 'locations', schema: { maps: { type: 'multiasset', filetypes: ['images'], pos: 0 } } },
+	{ name: 'locations', schema: { places: bloks(0, ['map_place']) } },
 ];
 
 async function syncComponents() {
@@ -397,7 +396,10 @@ function ctaContact() {
 
 function locations() {
 	return sb('locations', {
-		maps: [A('map-1.png'), A('map-2.png')],
+		places: [
+			sb('map_place', { label: 'Milton Keynes', query: 'Witan Studios, Milton Keynes, MK9 1EJ', link: '' }),
+			sb('map_place', { label: 'Watford', query: '1A Copsewood Road, Watford, WD24 5DY', link: '' }),
+		],
 	});
 }
 

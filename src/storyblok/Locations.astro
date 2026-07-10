@@ -3,28 +3,44 @@ import { storyblokEditable } from '@storyblok/astro';
 
 const { blok } = Astro.props;
 
-interface MapItem {
-	filename?: string;
-	alt?: string;
-	link?: string;
+interface Place {
 	label?: string;
+	/** Address or "lat,lng" that Google Maps centres on. */
+	query: string;
+	/** Optional "open in Google Maps" link; derived from the query if omitted. */
+	link?: string;
 }
 
-const maps: MapItem[] = blok?.maps?.length
-	? blok.maps
+// Editable in Storyblok (locations.places); falls back to the two offices.
+const places: Place[] = blok?.places?.length
+	? blok.places
 	: [
-			{ filename: 'https://a.storyblok.com/f/293147646055661/9ad800e8c0/map-1.png', alt: 'Map of the Milton Keynes studio location', link: 'https://maps.google.com/?q=Witan+Studio+Milton+Keynes' },
-			{ filename: 'https://a.storyblok.com/f/293147646055661/c6c18caced/map-2.png', alt: 'Map of the Watford office location', link: 'https://maps.google.com/?q=Leavesden+Lodge+Watford' },
+			{ label: 'Milton Keynes', query: 'Witan Studios, Milton Keynes, MK9 1EJ' },
+			{ label: 'Watford', query: '1A Copsewood Road, Watford, WD24 5DY' },
 		];
+
+// Keyless Google Maps embed (no API key required).
+const embedUrl = (q: string) =>
+	`https://maps.google.com/maps?q=${encodeURIComponent(q)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+const openUrl = (p: Place) =>
+	p.link || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.query)}`;
 ---
 
 <section class="locations" {...storyblokEditable(blok)} aria-label="Our office locations">
 	<ul class="locations__grid" role="list">
 		{
-			maps.map((m) => (
+			places.map((p) => (
 				<li class="locations__item">
-					<a href={m.link || '#'} target="_blank" rel="noopener noreferrer">
-						<img src={m.filename} alt={m.alt} loading="lazy" />
+					<iframe
+						class="locations__map"
+						src={embedUrl(p.query)}
+						title={p.label ? `Map of the ${p.label} office` : 'Office location map'}
+						loading="lazy"
+						referrerpolicy="no-referrer-when-downgrade"
+						allowfullscreen
+					/>
+					<a class="locations__open" href={openUrl(p)} target="_blank" rel="noopener noreferrer">
+						{p.label ? `Open ${p.label} in Google Maps` : 'Open in Google Maps'}
 					</a>
 				</li>
 			))
@@ -33,7 +49,7 @@ const maps: MapItem[] = blok?.maps?.length
 </section>
 
 <style>
-	/* Two location maps split by a white divider (per design). */
+	/* Two live Google Maps split by a white divider. */
 	.locations__grid {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
@@ -47,10 +63,32 @@ const maps: MapItem[] = blok?.maps?.length
 		aspect-ratio: 24 / 7;
 		overflow: hidden;
 	}
-	.locations__item img {
+	.locations__map {
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
+		border: 0;
+		display: block;
+	}
+	/* Keep an accessible "open in maps" affordance without covering the map. */
+	.locations__open {
+		position: absolute;
+		left: 1rem;
+		bottom: 1rem;
+		padding: 0.4rem 0.9rem;
+		background: var(--color-white);
+		color: var(--color-primary-blue);
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+		box-shadow: var(--shadow-soft);
+	}
+	.locations__open:not(:focus) {
+		clip: rect(0 0 0 0);
+		clip-path: inset(50%);
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		white-space: nowrap;
+		padding: 0;
 	}
 
 	@media (max-width: 700px) {
