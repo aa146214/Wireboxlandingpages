@@ -124,6 +124,7 @@
 	--canvas-width: 1920px; /* Figma artboard width */
 	--container-max: 1312px; /* content column (1920 - 2×304 side margins ≈ 1312) */
 	--container-pad: clamp(1.25rem, 5vw, 4rem);
+	--header-height: 100px; /* sticky site header — offsets in-page anchors */
 
 	/* Section vertical rhythm (fluid). Sections pick one of these three. */
 	--section-py-sm: clamp(3rem, 5vw, 5rem);

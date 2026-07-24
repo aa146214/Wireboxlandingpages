@@ -70,6 +70,8 @@ const ASSET_DEFS = {
 	'hero-building.png': 'The Wirebox building',
 	'biz4biz.png': 'biz4Biz Awards 2023 Winner',
 	'sme.png': 'SME Hertfordshire Business Awards',
+	'watford-pledge.png': 'Watford Business Pledge Member',
+	'aws-partner.png': 'AWS Partner',
 };
 const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', svg: 'image/svg+xml' };
 const mimeOf = (f) => MIME[f.split('.').pop().toLowerCase()] || 'application/octet-stream';
@@ -363,8 +365,8 @@ function supportCases() {
 
 function faq() {
 	const items = [
-		['What platforms do you support?', "WordPress, Magento, Laravel, PHP, Shopify and most modern stacks. If it runs on the web, we can almost certainly support it – and we'll tell you honestly if we can't.", false],
-		['Do you lock clients into long-term contracts?', "No. All our support plans are rolling monthly. We earn your business every month by delivering value – not by trapping you in a contract. You can upgrade, downgrade, or cancel with 30 days' notice.", true],
+		['What platforms do you support?', "WordPress, Magento, Laravel, PHP, Shopify and most modern stacks. If it runs on the web, we can almost certainly support it – and we'll tell you honestly if we can't.", true],
+		['Do you lock clients into long-term contracts?', "No. All our support plans are rolling monthly. We earn your business every month by delivering value – not by trapping you in a contract. You can upgrade, downgrade, or cancel with 30 days' notice.", false],
 		['Do you offer one-off fixes, or only monthly plans?', "Both. Monthly plans give you the best response times and rates, but we're happy to quote for one-off fixes and projects too.", false],
 		['How quickly do you respond when my site goes down?', 'Critical issues are picked up within 1 hour on Professional and Enterprise plans (4 hours on Essential), 24/7, 365 days a year.', false],
 		['Can I migrate from my current support agency?', "Yes – we do this regularly. We'll audit your current setup, document everything, and take over with zero downtime.", false],
@@ -397,7 +399,7 @@ function ctaContact() {
 function locations() {
 	return sb('locations', {
 		places: [
-			sb('map_place', { label: 'Milton Keynes', query: 'Witan Studios, Milton Keynes, MK9 1EJ', link: '' }),
+			sb('map_place', { label: 'Milton Keynes', query: 'Elder House West, Elder Gate, Milton Keynes, MK9 1LR', link: '' }),
 			sb('map_place', { label: 'Watford', query: '1A Copsewood Road, Watford, WD24 5DY', link: '' }),
 		],
 	});
@@ -410,8 +412,8 @@ function footer() {
 		sb('footer_service', { label, link: '', children: children.map(([l, ln]) => sb('footer_link', { label: l, link: ln })) });
 	return sb('footer', {
 		offices: [
-			sb('footer_office', { name: 'Milton Keynes', address: 'Witan Studio, Milton Keynes\nBucks, MK9 1EJ', phone: '+44 (0) 1908 25 24 23', email: 'hi@wiredbox' }),
-			sb('footer_office', { name: 'Watford', address: 'Leavesden Lodge,\nUnit 1 Copsewood Lodge,\n1A Copsewood Road, Watford\nHertfordshire, WD24 5DY', phone: '+44 (0) 207 993 5485', email: 'hello@wirebox.co.uk' }),
+			sb('footer_office', { name: 'Milton Keynes', address: '3rd Floor, Elder House West, Elder Gate\nMilton Keynes, MK9 1LR', phone: '01908 110 420', email: 'hello@wirebox.co.uk' }),
+			sb('footer_office', { name: 'Watford', address: 'Leavesden Lodge,\nUnit 1 Copsewood Lodge,\n1A Copsewood Road, Watford\nHertfordshire, WD24 5DY', phone: '0207 993 5485', email: 'hello@wirebox.co.uk' }),
 		],
 		services: [
 			svc('Strategy', `${WB}/what-we-do/strategy/`, [['Digital Transformation', `${WB}/what-we-do/strategy/`], ['AWS Planning', `${WB}/what-we-do/technology-build/aws-consultancy/`], ['Research & Innovation', `${WB}/workshop-discovery/`]]),
@@ -421,8 +423,10 @@ function footer() {
 			svc('Support and Maintenance', `${WB}/website-support-and-maintenance/`, [['Accessibility Consulting', `${WB}/website-support-and-maintenance/`], ['Website & Systems Maintenance', `${WB}/website-support-and-maintenance/`], ['Optimisation', `${WB}/work-categories/speed/`]]),
 		],
 		links: [['Our Partners', `${WB}/our-partners/`], ['About Us', `${WB}/about-us/`], ['Contact Us', `${WB}/contact-us/`], ['Services', `${WB}/what-we-do/`], ['Blog', `${WB}/blog/`], ['Case Studies', `${WB}/our-work/`], ['Clutch', 'https://clutch.co']].map(([label, link]) => sb('footer_link', { label, link })),
-		credentials: [A('biz4biz.png'), A('sme.png')],
-		socials: [['facebook', 'https://facebook.com'], ['twitter', 'https://twitter.com'], ['vimeo', 'https://vimeo.com'], ['linkedin', 'https://linkedin.com'], ['github', 'https://github.com'], ['instagram', 'https://instagram.com']].map(([platform, url]) => sb('social_link', { platform, url })),
+		// Only include badges whose asset actually uploaded (has a CDN id) — a
+		// missing file is skipped rather than rendered as a broken image.
+		credentials: [A('biz4biz.png'), A('sme.png'), A('watford-pledge.png'), A('aws-partner.png')].filter((c) => c.id),
+		socials: [['facebook', 'https://facebook.com/WireboxConsultancy/'], ['twitter', 'https://x.com/wirebox'], ['vimeo', 'https://vimeo.com/wirebox'], ['linkedin', 'https://www.linkedin.com/company/wirebox-consultancy'], ['github', 'https://github.com/Wirebox'], ['instagram', 'https://www.instagram.com/wireboxuk']].map(([platform, url]) => sb('social_link', { platform, url })),
 		privacy_label: 'Cookie / Privacy Policy',
 		copyright: '© Wiredbox Ltd.',
 	});

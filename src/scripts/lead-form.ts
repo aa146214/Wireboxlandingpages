@@ -31,6 +31,13 @@ function initLeadForms() {
 				});
 				const data = await res.json().catch(() => ({ ok: res.ok }));
 				if (res.ok && data.ok) {
+					// GA4 form_success event via GTM dataLayer — tagged hero vs cta
+					// by the form's hidden `source` field.
+					const sourceInput = form.querySelector<HTMLInputElement>('input[name="source"]');
+					const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
+					w.dataLayer = w.dataLayer || [];
+					w.dataLayer.push({ event: 'form_success', formSource: sourceInput?.value ?? '' });
+
 					form.reset();
 					setStatus("Thanks — we'll be in touch within 1 business day.", 'ok');
 					const fields = form.querySelector<HTMLElement>('[data-lead-fields]');

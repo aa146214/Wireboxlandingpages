@@ -6,13 +6,19 @@ import Layout from '../layouts/Layout.astro';
 const { slug } = Astro.params;
 
 const storyblokApi = useStoryblokApi();
+// `cv: Date.now()` forces the latest published content on every request — the
+// Storyblok client otherwise reuses a cached cache-version and serves stale
+// content after an editor publishes.
 const { data } = await storyblokApi.get(`cdn/stories/${slug || 'home'}`, {
-	version: 'draft'
+	version: 'published',
+	cv: Date.now(),
 });
 
 const story = data.story;
+const seoTitle: string | undefined = story?.content?.seo_title || undefined;
+const seoDescription: string | undefined = story?.content?.seo_description || undefined;
 ---
 
-<Layout>
+<Layout title={seoTitle} description={seoDescription}>
 	<StoryblokComponent blok={story.content} />
 </Layout>

@@ -373,14 +373,12 @@ function buildContent() {
 		phone_label: 'Call us on:',
 		phone_number: '0207 993 5485',
 		socials: [
-			['facebook', 'https://facebook.com'],
-			['twitter', 'https://twitter.com'],
-			['vimeo', 'https://vimeo.com'],
-			['linkedin', 'https://linkedin.com'],
-			['github', 'https://github.com'],
-			['instagram', 'https://instagram.com'],
-			['tiktok', 'https://tiktok.com'],
-			['youtube', 'https://youtube.com'],
+			['facebook', 'https://facebook.com/WireboxConsultancy/'],
+			['twitter', 'https://x.com/wirebox'],
+			['vimeo', 'https://vimeo.com/wirebox'],
+			['linkedin', 'https://www.linkedin.com/company/wirebox-consultancy'],
+			['github', 'https://github.com/Wirebox'],
+			['instagram', 'https://www.instagram.com/wireboxuk'],
 		].map(([platform, url]) => sb('social_link', { platform, url })),
 	});
 
@@ -574,8 +572,8 @@ function buildContent() {
 
 	const footer = sb('footer', {
 		offices: [
-			sb('footer_office', { name: 'Milton Keynes', address: 'Witan Studio, Milton Keynes\nBucks, MK9 1EJ', phone: '+44 (0) 1908 25 24 23', email: 'hi@wiredbox' }),
-			sb('footer_office', { name: 'Watford', address: 'Leavesden Lodge,\nUnit 1 Copsewood Lodge,\n1A Copsewood Road, Watford\nHertfordshire, WD24 5DY', phone: '+44 (0) 207 993 5485', email: 'hello@wirebox.co.uk' }),
+			sb('footer_office', { name: 'Milton Keynes', address: '3rd Floor, Elder House West, Elder Gate\nMilton Keynes, MK9 1LR', phone: '01908 110 420', email: 'hello@wirebox.co.uk' }),
+			sb('footer_office', { name: 'Watford', address: 'Leavesden Lodge,\nUnit 1 Copsewood Lodge,\n1A Copsewood Road, Watford\nHertfordshire, WD24 5DY', phone: '0207 993 5485', email: 'hello@wirebox.co.uk' }),
 		],
 		services: [
 			sb('footer_service', {
@@ -643,14 +641,12 @@ function buildContent() {
 			['awards/sme.png', 'SME Hertfordshire Business Awards'],
 		]),
 		socials: [
-			['facebook', 'https://facebook.com'],
-			['twitter', 'https://twitter.com'],
-			['vimeo', 'https://vimeo.com'],
-			['linkedin', 'https://linkedin.com'],
-			['github', 'https://github.com'],
-			['instagram', 'https://instagram.com'],
-			['tiktok', 'https://tiktok.com'],
-			['youtube', 'https://youtube.com'],
+			['facebook', 'https://facebook.com/WireboxConsultancy/'],
+			['twitter', 'https://x.com/wirebox'],
+			['vimeo', 'https://vimeo.com/wirebox'],
+			['linkedin', 'https://www.linkedin.com/company/wirebox-consultancy'],
+			['github', 'https://github.com/Wirebox'],
+			['instagram', 'https://www.instagram.com/wireboxuk'],
 		].map(([platform, url]) => sb('social_link', { platform, url })),
 		privacy_label: 'Cookie / Privacy Policy',
 		copyright: '© Wiredbox Ltd.',

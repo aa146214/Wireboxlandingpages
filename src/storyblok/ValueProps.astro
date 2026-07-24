@@ -146,18 +146,14 @@ const h = splitHighlight(heading, accent);
 		color: var(--color-headings-dark);
 		margin-bottom: 0.85rem;
 	}
-	/* Single row of chips (per feedback); scroll if they exceed the width. */
+	/* Chips wrap onto a second row rather than clipping a label at the
+	   container edge (feedback: no half-cut words). */
 	.vp__chips {
 		display: flex;
-		flex-wrap: nowrap;
+		flex-wrap: wrap;
 		gap: 0.5rem;
 		margin: 0;
 		padding: 0;
-		overflow-x: auto;
-		scrollbar-width: none;
-	}
-	.vp__chips::-webkit-scrollbar {
-		display: none;
 	}
 	.vp__chip {
 		flex: 0 0 auto;
