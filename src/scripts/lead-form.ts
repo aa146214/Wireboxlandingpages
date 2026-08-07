@@ -38,6 +38,12 @@ function initLeadForms() {
 					w.dataLayer = w.dataLayer || [];
 					w.dataLayer.push({ event: 'form_success', formSource: sourceInput?.value ?? '' });
 
+					// Put #thankyou in the URL so conversions can also be tracked by a
+					// GTM History Change trigger. pushState rather than location.hash:
+					// assigning the hash makes the browser jump away from the inline
+					// confirmation the user just triggered.
+					history.pushState(null, '', '#thankyou');
+
 					form.reset();
 					setStatus("Thanks — we'll be in touch within 1 business day.", 'ok');
 					const fields = form.querySelector<HTMLElement>('[data-lead-fields]');
