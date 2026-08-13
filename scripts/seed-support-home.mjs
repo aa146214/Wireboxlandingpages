@@ -18,11 +18,12 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const SEED_ASSETS = fileURLToPath(new URL('../public/seed-assets/support', import.meta.url));
+const BACKUP_DIR = fileURLToPath(new URL('../.storyblok-backups', import.meta.url));
 
 const TOKEN = process.env.SB_MANAGEMENT_TOKEN;
 const SPACE = process.env.SB_SPACE_ID || '293147646055661';
@@ -32,6 +33,44 @@ const MAPI = `https://mapi.storyblok.com/v1/spaces/${SPACE}`;
 if (!TOKEN) {
 	console.error('Missing SB_MANAGEMENT_TOKEN env var.');
 	process.exit(1);
+}
+
+/**
+ * Spaces a client edits in. This script regenerates a story's whole `content`
+ * and PUTs it wholesale, so running it here discards their work — that is how
+ * a manual edit to the Home story was lost on 2026-08-12. Use
+ * scripts/patch-story.mjs for changes to a live space; this stays a
+ * fresh-space bootstrap.
+ */
+const PROTECTED_SPACES = {
+	293434407023515: 'Wirebox Landing Site (client, live)',
+};
+const FORCE = process.argv.includes('--force-overwrite-client-space');
+
+if (PROTECTED_SPACES[SPACE] && !FORCE) {
+	console.error(
+		`REFUSING to seed space ${SPACE} — ${PROTECTED_SPACES[SPACE]}.\n\n` +
+			'This script replaces the entire story content and would discard anything\n' +
+			'edited in Storyblok. For a targeted change to a live space use:\n\n' +
+			'  node scripts/patch-story.mjs --list\n\n' +
+			'If you genuinely need a full reseed here, re-run with\n' +
+			'--force-overwrite-client-space (the current stories are backed up first).'
+	);
+	process.exit(1);
+}
+
+/** Snapshot a story before it is overwritten, so a bad run is recoverable. */
+async function backupStory(id, label) {
+	try {
+		const { story } = await mapi('GET', `/stories/${id}`);
+		if (!existsSync(BACKUP_DIR)) mkdirSync(BACKUP_DIR, { recursive: true });
+		const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+		const file = join(BACKUP_DIR, `${SPACE}-${story.slug || label}-${stamp}.json`);
+		writeFileSync(file, JSON.stringify(story, null, 2));
+		console.log(`  backed up ${story.slug || label} -> ${file}`);
+	} catch {
+		// A story that doesn't exist yet has nothing to lose.
+	}
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -513,6 +552,7 @@ async function seedThankYouStory() {
 	const found = await mapi('GET', '/stories/?with_slug=thankyou');
 	const existing = (found.stories || []).find((s) => s.slug === 'thankyou');
 	const story = { name: 'Thank You', slug: 'thankyou', content };
+	if (existing) await backupStory(existing.id, 'thankyou');
 	if (existing) {
 		await mapi('PUT', `/stories/${existing.id}`, { story, publish: 1 });
 		console.log('Published "thankyou" (updated).');
@@ -529,6 +569,7 @@ async function main() {
 	await uploadAssets();
 	const content = buildContent();
 	console.log('\n=== Story ===');
+	await backupStory(HOME_STORY_ID, 'home');
 	const { story } = await mapi('GET', `/stories/${HOME_STORY_ID}`);
 	await mapi('PUT', `/stories/${HOME_STORY_ID}`, {
 		story: { name: story.name || 'Home', slug: story.slug || 'home', content },
