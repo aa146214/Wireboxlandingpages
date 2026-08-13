@@ -43,6 +43,7 @@ export default defineConfig({
 				faq: 'storyblok/Faq',
 				cta_contact: 'storyblok/CtaContact',
 				locations: 'storyblok/Locations',
+				thank_you: 'storyblok/ThankYou',
 				// --- Legacy marketing landing page (kept for other stories) ---
 				hero: 'storyblok/Hero',
 				podcast_banner: 'storyblok/PodcastBanner',

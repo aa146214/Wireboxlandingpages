@@ -1,0 +1,170 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Button from '../components/Button.astro';
+
+const { blok } = Astro.props;
+
+interface Phone {
+	number: string;
+	label: string;
+}
+
+const eyebrow: string = blok?.eyebrow || 'Message received';
+// Two lines: the second sits under the first and carries the accent colour.
+const heading: string = blok?.heading || 'Thank you';
+const headingLine2: string = blok?.heading_line_2 ?? 'We’ve got your request';
+const body: string =
+	blok?.body ||
+	"One of our support specialists will review your site and get back to you within 1 business day. If it's urgent, call us using the numbers below and we'll pick it up straight away.";
+const ctaLabel: string = blok?.cta_label || 'back to home';
+const ctaLink: string = blok?.cta_link || '/';
+const phonesTitle: string = blok?.phones_title || 'Need us sooner?';
+const phones: Phone[] = blok?.phones?.length
+	? blok.phones
+	: [
+			{ number: '0207 993 5485', label: 'Call us: Watford & London' },
+			{ number: '01908 110 420', label: 'Call us: Milton Keynes' },
+		];
+---
+
+<section class="ty" {...storyblokEditable(blok)}>
+	<div class="ty__inner container">
+		<span class="ty__mark" aria-hidden="true">
+			<svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+				<path d="M4 12.5 9.5 18 20 6.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+			</svg>
+		</span>
+
+		<p class="ty__eyebrow category">{eyebrow}</p>
+		<h1 class="ty__heading">
+			{heading}
+			{headingLine2 && <span class="ty__hl">{headingLine2}</span>}
+		</h1>
+		<p class="ty__body">{body}</p>
+
+		<div class="ty__cta">
+			<Button label={ctaLabel} link={ctaLink} variant="fuchsia" icon="arrow-right" />
+		</div>
+
+		{
+			phones.length > 0 && (
+				<div class="ty__phones-wrap">
+					<p class="ty__phones-title">{phonesTitle}</p>
+					<ul class="ty__phones" role="list">
+						{phones.map((p) => (
+							<li class="ty__phone">
+								<a class="ty__phone-number" href={`tel:${p.number.replace(/[^\d+]/g, '')}`}>{p.number}</a>
+								<span class="ty__phone-label">{p.label}</span>
+							</li>
+						))}
+					</ul>
+				</div>
+			)
+		}
+	</div>
+</section>
+
+<style>
+	.ty {
+		background: var(--surface-page);
+		padding-block: clamp(3.5rem, 9vw, 7rem);
+	}
+	.ty__inner {
+		max-width: 720px;
+		text-align: center;
+	}
+	.ty__mark {
+		display: inline-grid;
+		place-items: center;
+		width: 72px;
+		height: 72px;
+		margin-bottom: 2rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-light-green);
+		color: var(--color-dark-blue);
+	}
+	.ty__eyebrow {
+		color: var(--color-primary-blue);
+		margin-bottom: 1rem;
+	}
+	.ty__heading {
+		font-size: var(--fs-h2-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h2);
+		color: var(--color-fuchsia);
+		margin-bottom: 1.25rem;
+	}
+	.ty__hl {
+		display: block; /* second line sits under the first */
+		color: var(--color-primary-blue);
+	}
+	.ty__body {
+		max-width: 52ch;
+		margin-inline: auto;
+		font-size: var(--fs-paragraph-fluid);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+	.ty__cta {
+		display: flex;
+		justify-content: center;
+		margin-top: 2.25rem;
+	}
+
+	.ty__phones-wrap {
+		margin-top: clamp(2.5rem, 5vw, 3.5rem);
+		padding-top: clamp(2rem, 4vw, 2.5rem);
+		border-top: 1px solid var(--border-subtle);
+	}
+	.ty__phones-title {
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		color: var(--color-headings-dark);
+		margin-bottom: 1.25rem;
+	}
+	.ty__phones {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 1.25rem 3rem;
+		margin: 0;
+		padding: 0;
+	}
+	.ty__phone-number {
+		display: block;
+		font-size: var(--fs-h5-fluid);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-primary-blue);
+	}
+	.ty__phone-number:hover {
+		color: var(--color-fuchsia);
+	}
+	.ty__phone-label {
+		font-size: var(--fs-small);
+		color: var(--color-paragraph);
+	}
+</style>
+
+<script is:inline>
+	/**
+	 * Fire the GA4 form_success event here rather than at submit time: this page
+	 * load is guaranteed to happen, whereas an event pushed immediately before a
+	 * navigation can be cut off before GTM sends it.
+	 *
+	 * The key is set by the lead form and cleared once read, so a refresh or a
+	 * direct visit to /thankyou doesn't report a conversion that never happened.
+	 */
+	(function () {
+		var KEY = 'wb-form-source';
+		var source = null;
+		try {
+			source = sessionStorage.getItem(KEY);
+			if (source !== null) sessionStorage.removeItem(KEY);
+		} catch (e) {}
+		if (source === null) return;
+		window.dataLayer = window.dataLayer || [];
+		window.dataLayer.push({ event: 'form_success', formSource: source });
+	})();
+</script>

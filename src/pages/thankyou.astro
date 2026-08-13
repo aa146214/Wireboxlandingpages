@@ -1,0 +1,47 @@
+---
+import { useStoryblokApi } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import Layout from '../layouts/Layout.astro';
+
+/**
+ * Post-submit confirmation page.
+ *
+ * This has its own route (rather than sharing [...slug].astro) because Google
+ * Ads counts a conversion on this page's load: if the CMS is unreachable or the
+ * story hasn't been seeded, it still has to render 200 rather than error out and
+ * silently drop every conversion. Content comes from the `thankyou` story when
+ * it's there, and the components fall back to their own defaults when it isn't.
+ */
+const FALLBACK = {
+	component: 'page',
+	seo_title: 'Thank you — Wirebox Website Support',
+	seo_description: "Thanks for your enquiry. We'll be in touch within 1 business day.",
+	body: [
+		{ _uid: 'fallback-header', component: 'header' },
+		{ _uid: 'fallback-thankyou', component: 'thank_you' },
+		{ _uid: 'fallback-footer', component: 'footer' },
+	],
+};
+
+let content: Record<string, unknown> = FALLBACK;
+try {
+	const storyblokApi = useStoryblokApi();
+	const { data } = await storyblokApi.get('cdn/stories/thankyou', {
+		version: 'published',
+		cv: Date.now(),
+	});
+	if (data?.story?.content) content = data.story.content;
+} catch (err) {
+	console.warn('[thankyou] Storyblok fetch failed — using defaults:', (err as Error).message);
+}
+
+const seoTitle = (content.seo_title as string) || (FALLBACK.seo_title as string);
+const seoDescription = (content.seo_description as string) || (FALLBACK.seo_description as string);
+// Confirmation pages stay out of search results. Defaults to true here so the
+// page is never indexed just because the CMS field wasn't set.
+const noindex = content.seo_noindex === undefined ? true : Boolean(content.seo_noindex);
+---
+
+<Layout title={seoTitle} description={seoDescription} noindex={noindex}>
+	<StoryblokComponent blok={content} />
+</Layout>

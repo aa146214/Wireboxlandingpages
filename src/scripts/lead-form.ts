@@ -31,23 +31,24 @@ function initLeadForms() {
 				});
 				const data = await res.json().catch(() => ({ ok: res.ok }));
 				if (res.ok && data.ok) {
-					// GA4 form_success event via GTM dataLayer — tagged hero vs cta
-					// by the form's hidden `source` field.
+					// Hand off to the /thankyou page. Google Ads counts a conversion on
+					// that page's load, so this has to be a real navigation — a hash
+					// change or inline message gives its tag nothing to fire on.
+					//
+					// The hero/cta distinction rides in sessionStorage rather than a
+					// query string so the landing URL stays exactly "/thankyou" for the
+					// conversion rule; /thankyou reads it and fires form_success there,
+					// where the event can't be cut short by the navigation.
 					const sourceInput = form.querySelector<HTMLInputElement>('input[name="source"]');
-					const w = window as unknown as { dataLayer?: Record<string, unknown>[] };
-					w.dataLayer = w.dataLayer || [];
-					w.dataLayer.push({ event: 'form_success', formSource: sourceInput?.value ?? '' });
-
-					// Put #thankyou in the URL so conversions can also be tracked by a
-					// GTM History Change trigger. pushState rather than location.hash:
-					// assigning the hash makes the browser jump away from the inline
-					// confirmation the user just triggered.
-					history.pushState(null, '', '#thankyou');
+					try {
+						sessionStorage.setItem('wb-form-source', sourceInput?.value ?? '');
+					} catch {
+						/* private mode — the page just reports an empty source */
+					}
 
 					form.reset();
-					setStatus("Thanks — we'll be in touch within 1 business day.", 'ok');
-					const fields = form.querySelector<HTMLElement>('[data-lead-fields]');
-					if (fields) fields.hidden = true;
+					setStatus('Thanks — redirecting…', 'ok');
+					window.location.assign('/thankyou');
 				} else {
 					setStatus(data.error || 'Something went wrong. Please try again.', 'error');
 					if (submit) submit.disabled = false;

@@ -17,8 +17,10 @@ const { data } = await storyblokApi.get(`cdn/stories/${slug || 'home'}`, {
 const story = data.story;
 const seoTitle: string | undefined = story?.content?.seo_title || undefined;
 const seoDescription: string | undefined = story?.content?.seo_description || undefined;
+// Thank-you/confirmation pages set this so they stay out of search results.
+const noindex = Boolean(story?.content?.seo_noindex);
 ---
 
-<Layout title={seoTitle} description={seoDescription}>
+<Layout title={seoTitle} description={seoDescription} noindex={noindex}>
 	<StoryblokComponent blok={story.content} />
 </Layout>

@@ -184,6 +184,7 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'faq', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), items: bloks(3, ['faq_item']) } },
 	{ name: 'cta_contact', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), body: area(3), phones: bloks(4, ['cta_phone']), form_cta_label: text(5) } },
 	{ name: 'locations', schema: { places: bloks(0, ['map_place']) } },
+	{ name: 'thank_you', schema: { eyebrow: text(0), heading: text(1), heading_line_2: text(2, { description: 'Shown on a second line, in the accent colour' }), body: area(3), cta_label: text(4), cta_link: text(5), phones_title: text(6), phones: bloks(7, ['cta_phone']) } },
 ];
 
 async function syncComponents() {
@@ -206,6 +207,28 @@ async function syncComponents() {
 			console.log(`  created  ${def.name}`);
 		}
 	}
+}
+
+/**
+ * Add `seo_noindex` to the existing `page` component so the flag is editable.
+ * Done separately from syncComponents() because `page` is a root, non-nestable
+ * component — pushing it through that helper would reset those flags and break
+ * story creation.
+ */
+async function ensurePageNoindexField() {
+	const { components } = await mapi('GET', '/components/');
+	const page = components.find((c) => c.name === 'page');
+	if (!page) {
+		console.warn('  MISSING  page component — skipped seo_noindex');
+		return;
+	}
+	if (page.schema?.seo_noindex) {
+		console.log('  ok       page.seo_noindex');
+		return;
+	}
+	const schema = { ...page.schema, seo_noindex: bool(Object.keys(page.schema || {}).length) };
+	await mapi('PUT', `/components/${page.id}`, { component: { ...page, schema } });
+	console.log('  updated  page (+seo_noindex)');
 }
 
 const sb = (component, fields = {}) => ({ _uid: randomUUID(), component, ...fields });
@@ -455,9 +478,54 @@ function buildContent() {
 	});
 }
 
+/**
+ * The post-submit confirmation page. Google Ads counts a conversion when this
+ * page loads, so it has to be a real route — hence its own story rather than a
+ * section on the home page. Kept out of search results via seo_noindex.
+ */
+function buildThankYouContent() {
+	return sb('page', {
+		seo_title: 'Thank you — Wirebox Website Support',
+		seo_description: "Thanks for your enquiry. We'll be in touch within 1 business day.",
+		seo_noindex: true,
+		body: [
+			header,
+			sb('thank_you', {
+				eyebrow: 'Message received',
+				heading: 'Thank you',
+				heading_line_2: 'We’ve got your request',
+				body: "One of our support specialists will review your site and get back to you within 1 business day. If it's urgent, call us using the numbers below and we'll pick it up straight away.",
+				cta_label: 'back to home',
+				cta_link: '/',
+				phones_title: 'Need us sooner?',
+				phones: [
+					['0207 993 5485', 'Call us: Watford & London'],
+					['01908 110 420', 'Call us: Milton Keynes'],
+				].map(([number, label]) => sb('cta_phone', { number, label })),
+			}),
+			footer(),
+		],
+	});
+}
+
+async function seedThankYouStory() {
+	const content = buildThankYouContent();
+	const found = await mapi('GET', '/stories/?with_slug=thankyou');
+	const existing = (found.stories || []).find((s) => s.slug === 'thankyou');
+	const story = { name: 'Thank You', slug: 'thankyou', content };
+	if (existing) {
+		await mapi('PUT', `/stories/${existing.id}`, { story, publish: 1 });
+		console.log('Published "thankyou" (updated).');
+	} else {
+		await mapi('POST', '/stories/', { story, publish: 1 });
+		console.log('Published "thankyou" (created).');
+	}
+}
+
 async function main() {
 	console.log('=== Components ===');
 	await syncComponents();
+	await ensurePageNoindexField();
 	await uploadAssets();
 	const content = buildContent();
 	console.log('\n=== Story ===');
@@ -467,6 +535,7 @@ async function main() {
 		publish: 1,
 	});
 	console.log(`Published "${story.slug}" as the support page (${content.body.length} sections).`);
+	await seedThankYouStory();
 }
 
 main().catch((err) => {
