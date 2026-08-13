@@ -27,5 +27,8 @@ npm-debug.log*
 
 # raw manually-exported Figma assets (staging; used copies live in /public)
 public/manually-exported-assets/
+
+# story snapshots taken before a patch-story.mjs run
+.storyblok-backups/
 .vercel
 .env*
