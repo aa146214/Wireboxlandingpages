@@ -35,14 +35,41 @@ const ctas: CtaBlok[] = blok?.ctas?.length
 		];
 
 const cardTitle: string = blok?.card_title || 'Our response commitments';
+// Figma order: critical → uptime → standard → target (pinks first, then greens).
 const stats: Stat[] = blok?.stats?.length
 	? blok.stats
 	: [
 			{ value: '1hr', label: 'critical issue response', tone: 'pink' },
-			{ value: '4hrs', label: 'standard issue response', tone: 'green' },
 			{ value: '24/7', label: 'uptime monitoring', tone: 'pink' },
+			{ value: '4hrs', label: 'standard issue response', tone: 'green' },
 			{ value: '99.9%', label: 'target uptime', tone: 'green' },
 		];
+
+/**
+ * Hero video, all editable in Storyblok. A YouTube or Vimeo link wins if set;
+ * otherwise a file uploaded to the asset library plays inline; otherwise the
+ * poster image shows on its own.
+ *
+ * YouTube goes through youtube-nocookie.com so the embed doesn't set tracking
+ * cookies before a visitor has actually played anything.
+ */
+function embedUrl(raw?: string): string {
+	if (!raw) return '';
+	const v = String(raw).trim();
+	const yt = v.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/)([A-Za-z0-9_-]{11})/);
+	if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}`;
+	// A bare 11-char id that isn't all digits is a YouTube id.
+	if (/^[A-Za-z0-9_-]{11}$/.test(v) && !/^\d+$/.test(v)) {
+		return `https://www.youtube-nocookie.com/embed/${v}`;
+	}
+	const vimeo = v.match(/\d{6,}/);
+	return vimeo ? `https://player.vimeo.com/video/${vimeo[0]}` : '';
+}
+
+const videoEmbed: string = embedUrl(blok?.video);
+const videoFile: string = blok?.video_file?.filename || '';
+const videoPoster: string = blok?.video_poster?.filename || '';
+const videoTitle: string = blok?.video_title || 'Wirebox website support explained';
 const formTitle: string = blok?.form_title || 'Get your free site review';
 const formNote: string =
 	blok?.form_note || "No obligation · We'll respond within 1 business day";
@@ -73,49 +100,83 @@ const h = splitHighlight(heading, accent);
 			</div>
 		</div>
 
-		<aside class="s-hero__card">
-			<p class="s-hero__card-title">{cardTitle}</p>
-			<ul class="s-hero__stats" role="list">
+		<div class="s-hero__media">
+			{
+				videoEmbed ? (
+					<iframe
+						class="s-hero__video"
+						src={videoEmbed}
+						title={videoTitle}
+						loading="lazy"
+						referrerpolicy="strict-origin-when-cross-origin"
+						allow="autoplay; fullscreen; picture-in-picture"
+						allowfullscreen
+					/>
+				) : videoFile ? (
+					<video
+						class="s-hero__video"
+						src={videoFile}
+						poster={videoPoster || undefined}
+						controls
+						playsinline
+						preload="metadata"
+					/>
+				) : videoPoster ? (
+					<img class="s-hero__video-poster" src={videoPoster} alt={videoTitle} loading="eager" />
+				) : (
+					<div class="s-hero__video-placeholder" aria-hidden="true" />
+				)
+			}
+		</div>
+	</div>
+</section>
+
+<!-- Response commitments + review form: a full-width band under the hero. -->
+<section class="s-commit">
+	<div class="s-commit__inner container">
+		<div class="s-commit__group">
+			<p class="s-commit__title category">{cardTitle}</p>
+			<ul class="s-commit__list" role="list">
 				{
 					stats.map((s) => (
-						<li class:list={['s-hero__stat', `is-${s.tone ?? 'pink'}`]}>
-							<span class="s-hero__stat-value">{s.value}</span>
-							<span class="s-hero__stat-label">{s.label}</span>
+						<li class:list={['s-commit__item', `is-${s.tone ?? 'pink'}`]}>
+							<span class="s-commit__value">{s.value}</span>
+							<span class="s-commit__label">{s.label}</span>
 						</li>
 					))
 				}
 			</ul>
+		</div>
 
-			<form class="s-hero__form" id="hero-review" action="/api/lead" method="post" data-lead novalidate>
-				<p class="s-hero__form-title category">{formTitle}</p>
-				<input type="hidden" name="source" value="hero" />
-				<input type="hidden" name="page" value="" />
+		<form class="s-commit__form" id="hero-review" action="/api/lead" method="post" data-lead novalidate>
+			<p class="s-commit__title category">{formTitle}</p>
+			<input type="hidden" name="source" value="hero" />
+			<input type="hidden" name="page" value="" />
+			<input
+				class="lead-hp"
+				type="text"
+				name="company"
+				tabindex="-1"
+				autocomplete="off"
+				aria-hidden="true"
+			/>
+			<div class="s-commit__form-row" data-lead-fields>
+				<label class="visually-hidden" for="hero-email">Your email address</label>
 				<input
-					class="lead-hp"
-					type="text"
-					name="company"
-					tabindex="-1"
-					autocomplete="off"
-					aria-hidden="true"
+					class="s-commit__input"
+					id="hero-email"
+					type="email"
+					name="email"
+					placeholder="your@email.com"
+					autocomplete="email"
+					required
 				/>
-				<div class="s-hero__form-row" data-lead-fields>
-					<label class="visually-hidden" for="hero-email">Your email address</label>
-					<input
-						class="s-hero__input"
-						id="hero-email"
-						type="email"
-						name="email"
-						placeholder="your@email.com"
-						autocomplete="email"
-						required
-					/>
-					<Button label={formCtaLabel} variant="fuchsia" icon="arrow-right" type="submit" />
-				</div>
-				<p class="s-hero__form-note" data-lead-status aria-live="polite">
-					<span aria-hidden="true">🔒</span> {formNote}
-				</p>
-			</form>
-		</aside>
+				<Button label={formCtaLabel} variant="fuchsia" icon="arrow-right" type="submit" />
+			</div>
+			<p class="s-commit__form-note" data-lead-status aria-live="polite">
+				<span aria-hidden="true">🔒</span> {formNote}
+			</p>
+		</form>
 	</div>
 </section>
 
@@ -197,71 +258,104 @@ const h = splitHighlight(heading, accent);
 		gap: 16px;
 	}
 
-	/* --- Response-commitments card --- */
-	.s-hero__card {
-		padding: clamp(1.5rem, 2vw, 2rem);
-		background: rgba(42, 12, 103, 0.2);
-		border: 1px solid rgba(248, 247, 250, 0.6);
-		border-radius: var(--radius-card);
-		backdrop-filter: blur(2px);
+	/* --- Hero video (replaces the old commitments card) --- */
+	.s-hero__media {
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		border-radius: 0; /* Figma: sharp corners, consistent with other media */
+		background: var(--color-dark-blue);
 	}
-	.s-hero__card-title {
-		font-size: var(--fs-category);
-		font-weight: var(--fw-semibold);
-		letter-spacing: 0.12em;
-		text-transform: uppercase;
-		color: var(--color-light-lavender);
-		margin-bottom: 1rem;
+	.s-hero__video,
+	.s-hero__video-poster,
+	.s-hero__video-placeholder {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border: 0;
 	}
-	.s-hero__stats {
+	.s-hero__video-poster {
+		object-fit: cover;
+	}
+	.s-hero__video-placeholder {
+		background: var(--surface-placeholder);
+	}
+
+	/* --- Response commitments + review form band --- */
+	.s-commit {
+		background: var(--color-dark-blue);
+		color: var(--color-white);
+	}
+	.s-commit__inner {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 0.75rem;
-		margin: 0 0 1.5rem;
+		/* Commitments take the wider share so all four stay on one row. */
+		grid-template-columns: 1.75fr 1fr;
+		gap: clamp(1.5rem, 3vw, 3rem);
+		align-items: start;
+		padding-block: clamp(2.25rem, 4vw, 3.25rem);
+	}
+	/* Let both columns shrink below their content so nothing widens the page. */
+	.s-commit__group,
+	.s-commit__form {
+		min-width: 0;
+	}
+	.s-commit__title {
+		color: var(--text-on-dark);
+		margin-bottom: 1.5rem;
+	}
+	/* Four commitments across, separated by vertical rules (Figma). Sized to
+	   their content rather than equal quarters so the labels stay on one line
+	   in our narrower content column. */
+	.s-commit__list {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: 1.25rem clamp(0.5rem, 1vw, 1rem);
+		margin: 0;
 		padding: 0;
 	}
-	.s-hero__stat {
+	.s-commit__item {
 		display: flex;
 		flex-direction: column;
 		gap: 0.35rem;
-		padding: 1.1rem 1.25rem;
-		background: rgba(42, 12, 103, 0.45);
-		border-radius: 0; /* Figma: inner commitment cells are sharp */
+		padding-left: clamp(0.6rem, 1.2vw, 1.1rem);
+		border-left: 1px solid var(--border-on-dark);
 	}
-	.s-hero__stat-value {
+	@media (min-width: 961px) {
+		/* Single-line labels, as in the design. */
+		.s-commit__label {
+			white-space: nowrap;
+		}
+	}
+	/* Rules sit BETWEEN items only — none before the first. */
+	.s-commit__item:first-child {
+		padding-left: 0;
+		border-left: none;
+	}
+	.s-commit__value {
 		font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.7rem);
 		font-weight: var(--fw-semibold);
 		line-height: 1.05;
 		letter-spacing: var(--ls-h3);
 	}
-	.s-hero__stat-label {
+	.s-commit__label {
 		font-size: var(--fs-small);
 		line-height: 1.3;
 	}
-	@media (min-width: 961px) {
-		.s-hero__stat-label {
-			white-space: nowrap; /* single line on desktop (per feedback) */
-		}
-	}
-	.s-hero__stat.is-pink .s-hero__stat-value,
-	.s-hero__stat.is-pink .s-hero__stat-label {
+	.s-commit__item.is-pink .s-commit__value,
+	.s-commit__item.is-pink .s-commit__label {
 		color: var(--color-light-pink);
 	}
-	.s-hero__stat.is-green .s-hero__stat-value,
-	.s-hero__stat.is-green .s-hero__stat-label {
+	.s-commit__item.is-green .s-commit__value,
+	.s-commit__item.is-green .s-commit__label {
 		color: var(--color-light-green);
 	}
 
-	.s-hero__form-title {
-		color: var(--text-on-dark);
-		margin-bottom: 0.75rem;
-	}
-	.s-hero__form-row {
+	.s-commit__form-row {
 		display: flex;
 		gap: 0.75rem;
 		flex-wrap: wrap;
 	}
-	.s-hero__input {
+	.s-commit__input {
 		flex: 1 1 12rem;
 		min-width: 0;
 		height: 54px;
@@ -272,32 +366,45 @@ const h = splitHighlight(heading, accent);
 		color: var(--color-headings-dark);
 		font-size: var(--fs-small);
 	}
-	.s-hero__input::placeholder {
+	.s-commit__input::placeholder {
 		color: #8a85a0;
 	}
-	.s-hero__input:focus-visible {
+	.s-commit__input:focus-visible {
 		outline: 2px solid var(--color-light-yellow);
 		outline-offset: 2px;
 	}
-	.s-hero__form-row :global(.btn) {
+	.s-commit__form-row :global(.btn) {
 		flex: 0 0 auto;
 		padding-inline: 28px 22px;
 	}
-	.s-hero__form-note {
+	.s-commit__form-note {
 		margin-top: 1rem;
 		font-size: var(--fs-small);
 		color: var(--text-on-dark-muted);
 	}
-	.s-hero__form-note[data-state='ok'] {
+	.s-commit__form-note[data-state='ok'] {
 		color: var(--color-light-green);
 	}
-	.s-hero__form-note[data-state='error'] {
+	.s-commit__form-note[data-state='error'] {
 		color: var(--color-light-pink);
 	}
 
 	@media (max-width: 960px) {
 		.s-hero__inner {
 			grid-template-columns: 1fr;
+		}
+		.s-commit__inner {
+			grid-template-columns: 1fr;
+		}
+	}
+	@media (max-width: 640px) {
+		.s-commit__item {
+			flex: 1 1 40%;
+		}
+		/* Wrapped onto two columns the rule belongs before right-hand cells only. */
+		.s-commit__item:nth-child(odd) {
+			padding-left: 0;
+			border-left: none;
 		}
 	}
 </style>

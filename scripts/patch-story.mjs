@@ -33,7 +33,10 @@ const BACKUP_DIR = fileURLToPath(new URL('../.storyblok-backups', import.meta.ur
 const argv = process.argv.slice(2);
 const APPLY = argv.includes('--apply');
 const FORCE = argv.includes('--force');
-const patchName = argv.find((a) => !a.startsWith('--'));
+/** `--value <x>` supplies the new value for patches that take one. */
+const valueIdx = argv.indexOf('--value');
+const VALUE = valueIdx !== -1 ? argv[valueIdx + 1] : undefined;
+const patchName = argv.find((a, i) => !a.startsWith('--') && i !== valueIdx + 1);
 
 /* ------------------------------------------------------------------ *
  * Patches. Each receives the story content and mutates it in place,
@@ -69,6 +72,47 @@ function setField(blok, field, value, label, changes) {
 }
 
 const PATCHES = {
+	'hero-video': {
+		description:
+			'Set the hero video. Pass --value "<YouTube or Vimeo URL>"; an empty value clears it back to the poster.',
+		run(content) {
+			if (VALUE === undefined) {
+				throw new Error('hero-video needs --value "<url>" (use --value "" to clear it).');
+			}
+			const changes = [];
+			const [hero] = findBloks(content, 'support_hero');
+			if (!hero) throw new Error('No support_hero blok found.');
+			setField(hero, 'video', VALUE, 'support_hero.video', changes);
+			return changes;
+		},
+	},
+
+	'hero-commitment-order': {
+		description:
+			'Reorder the hero response commitments to the Figma order: critical → uptime → standard → target.',
+		order: ['1hr', '24/7', '4hrs', '99.9%'],
+		run(content) {
+			const changes = [];
+			const [hero] = findBloks(content, 'support_hero');
+			if (!hero) throw new Error('No support_hero blok found.');
+			const stats = hero.stats || [];
+			const want = PATCHES['hero-commitment-order'].order;
+			const before = stats.map((s) => s.value);
+			// Reorder in place by value, keeping any stat the list doesn't name.
+			const sorted = [...stats].sort((a, b) => {
+				const ai = want.indexOf(a.value);
+				const bi = want.indexOf(b.value);
+				return (ai === -1 ? want.length : ai) - (bi === -1 ? want.length : bi);
+			});
+			const after = sorted.map((s) => s.value);
+			if (before.join() !== after.join()) {
+				hero.stats = sorted;
+				changes.push({ what: 'support_hero.stats order', before: before.join(' → '), after: after.join(' → ') });
+			}
+			return changes;
+		},
+	},
+
 	'watford-address': {
 		description:
 			'Collapse the duplicated "Leavesden Lodge / Copsewood Lodge" wording in the Watford footer address (feedback #5).',

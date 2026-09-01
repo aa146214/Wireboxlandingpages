@@ -176,6 +176,8 @@ const text = (pos, extra = {}) => ({ type: 'text', pos, ...extra });
 const area = (pos, extra = {}) => ({ type: 'textarea', pos, ...extra });
 const bool = (pos) => ({ type: 'boolean', pos });
 const asset = (pos) => ({ type: 'asset', filetypes: ['images'], pos });
+/** Asset field with no filetype restriction — needed for video uploads. */
+const anyAsset = (pos, extra = {}) => ({ type: 'asset', pos, ...extra });
 const multiasset = (pos) => ({ type: 'multiasset', filetypes: ['images'], pos });
 const link = (pos) => ({ type: 'multilink', pos });
 const bloks = (pos, whitelist) => ({ type: 'bloks', restrict_components: true, component_whitelist: whitelist, pos });
@@ -213,7 +215,7 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'testimonials', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), items: bloks(3, ['testimonial']) } },
 	{ name: 'footer', schema: { offices: bloks(0, ['footer_office']), services: bloks(1, ['footer_service']), links: bloks(2, ['footer_link']), credentials: multiasset(3), socials: bloks(4, ['social_link']), privacy_label: text(5), copyright: text(6) } },
 	// sections
-	{ name: 'support_hero', schema: { eyebrow: text(0), heading: area(1), heading_accent: text(2), body: area(3), ctas: bloks(4, ['cta']), card_title: text(5), stats: bloks(6, ['hero_stat']), form_title: text(7), form_cta_label: text(8), form_note: text(9), bg_image: asset(10) } },
+	{ name: 'support_hero', schema: { eyebrow: text(0), heading: area(1), heading_accent: text(2), body: area(3), ctas: bloks(4, ['cta']), video: text(5, { description: 'Vimeo video id or URL — takes priority over an uploaded file' }), video_file: anyAsset(6, { description: 'Or upload a video file here instead' }), video_poster: asset(7, { description: 'Still shown before the video plays' }), video_title: text(8), card_title: text(9), stats: bloks(10, ['hero_stat']), form_title: text(11), form_cta_label: text(12), form_note: text(13), bg_image: asset(14) } },
 	{ name: 'trust_bar', schema: { items: bloks(0, ['trust_item']) } },
 	{ name: 'risk_stats', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), stats: bloks(3, ['risk_stat']), footnote: text(4), cta_label: text(5), cta_link: text(6) } },
 	{ name: 'value_props', schema: { eyebrow: text(0), heading: text(1), body: area(2), cta_label: text(3), cta_link: text(4), image: asset(5), toolkit_title: text(6), toolkit: area(7, { description: 'One tool per line' }), features: bloks(8, ['vp_feature']) } },
@@ -313,10 +315,11 @@ function supportHero() {
 		],
 		card_title: 'Our response commitments',
 		bg_image: A('hero-building.png'),
+		// Figma order: critical → uptime → standard → target (pinks then greens).
 		stats: [
 			['1hr', 'critical issue response', 'pink'],
-			['4hrs', 'standard issue response', 'green'],
 			['24/7', 'uptime monitoring', 'pink'],
+			['4hrs', 'standard issue response', 'green'],
 			['99.9%', 'target uptime', 'green'],
 		].map(([value, label, tone]) => sb('hero_stat', { value, label, tone })),
 		form_title: 'Get your free site review',
