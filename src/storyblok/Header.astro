@@ -351,6 +351,31 @@ const socialLabels: Record<string, string> = {
 		.site-header__cluster.is-minimal .site-header__phone-label {
 			display: none;
 		}
+		/* At 375px the full-size pill (21px number + 24px padding each side)
+		   is wider than the room left beside the logo and pushed the whole
+		   page into a horizontal scroll. */
+		.site-header__phone {
+			height: 44px;
+			padding-inline: 14px;
+			font-size: var(--fs-small);
+		}
+		.site-header__logo img {
+			height: 32px;
+		}
+	}
+	/* Narrow phones (320px): logo + gap + pill still need ~29px more than the
+	   content box allows, so tighten all three. */
+	@media (max-width: 400px) {
+		.site-header__inner {
+			gap: 12px;
+			padding-inline: 12px;
+		}
+		.site-header__logo img {
+			height: 28px;
+		}
+		.site-header__phone {
+			padding-inline: 12px;
+		}
 	}
 
 	.site-header__drawer {
