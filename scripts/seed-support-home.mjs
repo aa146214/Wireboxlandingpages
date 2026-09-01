@@ -46,8 +46,15 @@ const PROTECTED_SPACES = {
 	293434407023515: 'Wirebox Landing Site (client, live)',
 };
 const FORCE = process.argv.includes('--force-overwrite-client-space');
+/**
+ * Push component schemas only, leaving every story untouched. Needed when a
+ * component gains a field: without the schema the value still delivers, but
+ * the editor renders it as an orphaned field it can't edit.
+ */
+const COMPONENTS_ONLY = process.argv.includes('--components-only');
 
-if (PROTECTED_SPACES[SPACE] && !FORCE) {
+// --components-only writes no story content, so it is safe on a live space.
+if (PROTECTED_SPACES[SPACE] && !FORCE && !COMPONENTS_ONLY) {
 	console.error(
 		`REFUSING to seed space ${SPACE} — ${PROTECTED_SPACES[SPACE]}.\n\n` +
 			'This script replaces the entire story content and would discard anything\n' +
@@ -175,7 +182,7 @@ function A(name) {
 const text = (pos, extra = {}) => ({ type: 'text', pos, ...extra });
 const area = (pos, extra = {}) => ({ type: 'textarea', pos, ...extra });
 const bool = (pos) => ({ type: 'boolean', pos });
-const asset = (pos) => ({ type: 'asset', filetypes: ['images'], pos });
+const asset = (pos, extra = {}) => ({ type: 'asset', filetypes: ['images'], pos, ...extra });
 /** Asset field with no filetype restriction — needed for video uploads. */
 const anyAsset = (pos, extra = {}) => ({ type: 'asset', pos, ...extra });
 const multiasset = (pos) => ({ type: 'multiasset', filetypes: ['images'], pos });
@@ -215,7 +222,7 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'testimonials', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), items: bloks(3, ['testimonial']) } },
 	{ name: 'footer', schema: { offices: bloks(0, ['footer_office']), services: bloks(1, ['footer_service']), links: bloks(2, ['footer_link']), credentials: multiasset(3), socials: bloks(4, ['social_link']), privacy_label: text(5), copyright: text(6) } },
 	// sections
-	{ name: 'support_hero', schema: { eyebrow: text(0), heading: area(1), heading_accent: text(2), body: area(3), ctas: bloks(4, ['cta']), video: text(5, { description: 'Vimeo video id or URL — takes priority over an uploaded file' }), video_file: anyAsset(6, { description: 'Or upload a video file here instead' }), video_poster: asset(7, { description: 'Still shown before the video plays' }), video_title: text(8), card_title: text(9), stats: bloks(10, ['hero_stat']), form_title: text(11), form_cta_label: text(12), form_note: text(13), bg_image: asset(14) } },
+	{ name: 'support_hero', schema: { eyebrow: text(0), heading: area(1), heading_accent: text(2), body: area(3), ctas: bloks(4, ['cta']), video: text(5, { description: 'YouTube or Vimeo link (or id) — takes priority over an uploaded file' }), video_file: anyAsset(6, { description: 'Or upload a video file here instead' }), video_poster: asset(7, { description: 'Still shown before the video plays' }), video_title: text(8), card_title: text(9), stats: bloks(10, ['hero_stat']), form_title: text(11), form_cta_label: text(12), form_note: text(13), bg_image: asset(14) } },
 	{ name: 'trust_bar', schema: { items: bloks(0, ['trust_item']) } },
 	{ name: 'risk_stats', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), stats: bloks(3, ['risk_stat']), footnote: text(4), cta_label: text(5), cta_link: text(6) } },
 	{ name: 'value_props', schema: { eyebrow: text(0), heading: text(1), body: area(2), cta_label: text(3), cta_link: text(4), image: asset(5), toolkit_title: text(6), toolkit: area(7, { description: 'One tool per line' }), features: bloks(8, ['vp_feature']) } },
@@ -569,6 +576,10 @@ async function main() {
 	console.log('=== Components ===');
 	await syncComponents();
 	await ensurePageNoindexField();
+	if (COMPONENTS_ONLY) {
+		console.log('\nComponent schemas synced. No story was read or written (--components-only).');
+		return;
+	}
 	await uploadAssets();
 	const content = buildContent();
 	console.log('\n=== Story ===');
