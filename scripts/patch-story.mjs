@@ -36,7 +36,11 @@ const FORCE = argv.includes('--force');
 /** `--value <x>` supplies the new value for patches that take one. */
 const valueIdx = argv.indexOf('--value');
 const VALUE = valueIdx !== -1 ? argv[valueIdx + 1] : undefined;
-const patchName = argv.find((a, i) => !a.startsWith('--') && i !== valueIdx + 1);
+// Skip the token after `--value`, but only when the flag is actually present —
+// otherwise valueIdx is -1 and this would swallow the patch name at index 0.
+const patchName = argv.find(
+	(a, i) => !a.startsWith('--') && !(valueIdx !== -1 && i === valueIdx + 1)
+);
 
 /* ------------------------------------------------------------------ *
  * Patches. Each receives the story content and mutates it in place,
@@ -72,6 +76,19 @@ function setField(blok, field, value, label, changes) {
 }
 
 const PATCHES = {
+	'hero-eyebrow': {
+		description:
+			'Correct the hero eyebrow to "245 sites protected & monitored" (the CSS uppercases it).',
+		value: '245 sites protected & monitored',
+		run(content) {
+			const changes = [];
+			const [hero] = findBloks(content, 'support_hero');
+			if (!hero) throw new Error('No support_hero blok found.');
+			setField(hero, 'eyebrow', PATCHES['hero-eyebrow'].value, 'support_hero.eyebrow', changes);
+			return changes;
+		},
+	},
+
 	'hero-video': {
 		description:
 			'Set the hero video. Pass --value "<YouTube or Vimeo URL>"; an empty value clears it back to the poster.',
