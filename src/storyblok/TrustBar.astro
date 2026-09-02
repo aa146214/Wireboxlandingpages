@@ -7,6 +7,12 @@ interface Item {
 	text: string;
 }
 
+/**
+ * 'dark' is the original navy bar; 'fuchsia' is the pink bar introduced with
+ * the video hero. Items stay yellow in both. Defaults to 'dark'.
+ */
+const tone: 'dark' | 'fuchsia' = blok?.tone === 'fuchsia' ? 'fuchsia' : 'dark';
+
 const items: Item[] = blok?.items?.length
 	? blok.items
 	: [
@@ -18,7 +24,7 @@ const items: Item[] = blok?.items?.length
 		];
 ---
 
-<section class="trust-bar" {...storyblokEditable(blok)}>
+<section class:list={['trust-bar', `is-${tone}`]} {...storyblokEditable(blok)}>
 	<ul class="trust-bar__inner container" role="list">
 		{
 			items.map((it) => (
@@ -33,8 +39,13 @@ const items: Item[] = blok?.items?.length
 
 <style>
 	.trust-bar {
-		background: var(--color-fuchsia); /* Figma: pink bar under the hero band */
-		color: var(--color-light-yellow); /* Figma: items stay yellow on the pink */
+		color: var(--color-light-yellow); /* Figma: items are yellow on both tones */
+	}
+	.trust-bar.is-dark {
+		background: var(--surface-invert);
+	}
+	.trust-bar.is-fuchsia {
+		background: var(--color-fuchsia);
 	}
 	.trust-bar__inner {
 		display: flex;

@@ -28,6 +28,8 @@ const BACKUP_DIR = fileURLToPath(new URL('../.storyblok-backups', import.meta.ur
 const TOKEN = process.env.SB_MANAGEMENT_TOKEN;
 const SPACE = process.env.SB_SPACE_ID || '293147646055661';
 const HOME_STORY_ID = process.env.SB_HOME_STORY_ID || '186762709919814';
+/** Slug for the second landing page (video hero variant). */
+const VARIANT_SLUG = process.env.SB_VARIANT_SLUG || 'v2';
 const MAPI = `https://mapi.storyblok.com/v1/spaces/${SPACE}`;
 
 if (!TOKEN) {
@@ -222,8 +224,8 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'testimonials', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), items: bloks(3, ['testimonial']) } },
 	{ name: 'footer', schema: { offices: bloks(0, ['footer_office']), services: bloks(1, ['footer_service']), links: bloks(2, ['footer_link']), credentials: multiasset(3), socials: bloks(4, ['social_link']), privacy_label: text(5), copyright: text(6) } },
 	// sections
-	{ name: 'support_hero', schema: { eyebrow: text(0), heading: area(1), heading_accent: text(2), body: area(3), ctas: bloks(4, ['cta']), video: text(5, { description: 'YouTube or Vimeo link (or id) — takes priority over an uploaded file' }), video_file: anyAsset(6, { description: 'Or upload a video file here instead' }), video_poster: asset(7, { description: 'Still shown before the video plays' }), video_title: text(8), card_title: text(9), stats: bloks(10, ['hero_stat']), form_title: text(11), form_cta_label: text(12), form_note: text(13), bg_image: asset(14) } },
-	{ name: 'trust_bar', schema: { items: bloks(0, ['trust_item']) } },
+	{ name: 'support_hero', schema: { layout: opt(0, [{ name: 'Commitments card in hero', value: 'card' }, { name: 'Video in hero, commitments below', value: 'video' }], 'card'), eyebrow: text(0), heading: area(1), heading_accent: text(2), body: area(3), ctas: bloks(4, ['cta']), video: text(5, { description: 'YouTube or Vimeo link (or id) — takes priority over an uploaded file' }), video_file: anyAsset(6, { description: 'Or upload a video file here instead' }), video_poster: asset(7, { description: 'Still shown before the video plays' }), video_title: text(8), card_title: text(9), stats: bloks(10, ['hero_stat']), form_title: text(11), form_cta_label: text(12), form_note: text(13), bg_image: asset(14) } },
+	{ name: 'trust_bar', schema: { items: bloks(0, ['trust_item']), tone: opt(1, ['dark', 'fuchsia'], 'dark') } },
 	{ name: 'risk_stats', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), stats: bloks(3, ['risk_stat']), footnote: text(4), cta_label: text(5), cta_link: text(6) } },
 	{ name: 'value_props', schema: { eyebrow: text(0), heading: text(1), body: area(2), cta_label: text(3), cta_link: text(4), image: asset(5), toolkit_title: text(6), toolkit: area(7, { description: 'One tool per line' }), features: bloks(8, ['vp_feature']) } },
 	{ name: 'sla_tiers', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), tiers: bloks(4, ['sla_tier']) } },
@@ -310,8 +312,9 @@ const testimonials = sb('testimonials', {
 const CDN = 'https://a.storyblok.com/f/293147646055661';
 const cdnAsset = (filename, alt = '') => ({ fieldtype: 'asset', filename, alt });
 
-function supportHero() {
+function supportHero(layout = 'card') {
 	return sb('support_hero', {
+		layout,
 		eyebrow: '245 sites protected & monitored',
 		heading: 'Never lose a sale to a\nbroken website again',
 		heading_accent: 'broken website',
@@ -335,8 +338,9 @@ function supportHero() {
 	});
 }
 
-function trustBar() {
+function trustBar(tone = 'dark') {
 	return sb('trust_bar', {
+		tone,
 		items: ['1-hour critical response', 'No long-term contracts', 'Award-winning team', '5★ Google rated', 'Laravel certified'].map((t) => sb('trust_item', { text: t })),
 	});
 }
@@ -504,15 +508,22 @@ function footer() {
 	});
 }
 
-function buildContent() {
+/**
+ * Both landing pages share every section below the fold; they differ only in
+ * the hero treatment and the trust bar's colour.
+ *   'card'  – commitments card inside the hero, dark trust bar (the original)
+ *   'video' – video in the hero, commitments band beneath, fuchsia trust bar
+ */
+function buildContent(variant = 'card') {
+	const isVideo = variant === 'video';
 	return sb('page', {
 		seo_title: 'Wirebox — Website support & maintenance that keeps you online',
 		seo_description:
 			"Wirebox is your dedicated website support partner — monitoring, protecting, and improving your site 24/7. 1-hour critical response, no long-term contracts.",
 		body: [
 			header,
-			supportHero(),
-			trustBar(),
+			supportHero(isVideo ? 'video' : 'card'),
+			trustBar(isVideo ? 'fuchsia' : 'dark'),
 			riskStats(),
 			valueProps(),
 			slaTiers(),
@@ -572,6 +583,25 @@ async function seedThankYouStory() {
 	}
 }
 
+/**
+ * The second landing page: same sections, video hero variant. Lives at /v2 and
+ * is created if missing, so it can be seeded without disturbing the home story.
+ */
+async function seedVideoVariantStory() {
+	const content = buildContent('video');
+	const found = await mapi('GET', `/stories/?with_slug=${VARIANT_SLUG}`);
+	const existing = (found.stories || []).find((s) => s.slug === VARIANT_SLUG);
+	const story = { name: 'Support (video hero)', slug: VARIANT_SLUG, content };
+	if (existing) {
+		await backupStory(existing.id, VARIANT_SLUG);
+		await mapi('PUT', `/stories/${existing.id}`, { story, publish: 1 });
+		console.log(`Published "${VARIANT_SLUG}" (updated) — video hero variant.`);
+	} else {
+		await mapi('POST', '/stories/', { story, publish: 1 });
+		console.log(`Published "${VARIANT_SLUG}" (created) — video hero variant.`);
+	}
+}
+
 async function main() {
 	console.log('=== Components ===');
 	await syncComponents();
@@ -590,6 +620,7 @@ async function main() {
 		publish: 1,
 	});
 	console.log(`Published "${story.slug}" as the support page (${content.body.length} sections).`);
+	await seedVideoVariantStory();
 	await seedThankYouStory();
 }
 

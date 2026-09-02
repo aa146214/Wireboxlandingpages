@@ -66,6 +66,14 @@ function embedUrl(raw?: string): string {
 	return vimeo ? `https://player.vimeo.com/video/${vimeo[0]}` : '';
 }
 
+/**
+ * Two above-the-fold treatments share this component:
+ *   'card'  – commitments + form in a card on the right of the hero (original)
+ *   'video' – video on the right, commitments + form in a band underneath
+ * Defaults to 'card' so an unset value keeps the original layout.
+ */
+const layout: 'card' | 'video' = blok?.layout === 'video' ? 'video' : 'card';
+
 const videoEmbed: string = embedUrl(blok?.video);
 const videoFile: string = blok?.video_file?.filename || '';
 const videoPoster: string = blok?.video_poster?.filename || '';
@@ -100,6 +108,42 @@ const h = splitHighlight(heading, accent);
 			</div>
 		</div>
 
+		{layout === 'card' ? (
+			<aside class="s-hero__card">
+				<p class="s-hero__card-title">{cardTitle}</p>
+				<ul class="s-hero__stats" role="list">
+					{stats.map((s) => (
+						<li class:list={['s-hero__stat', `is-${s.tone ?? 'pink'}`]}>
+							<span class="s-hero__stat-value">{s.value}</span>
+							<span class="s-hero__stat-label">{s.label}</span>
+						</li>
+					))}
+				</ul>
+
+				<form class="s-hero__form" id="hero-review" action="/api/lead" method="post" data-lead novalidate>
+					<p class="s-hero__form-title category">{formTitle}</p>
+					<input type="hidden" name="source" value="hero" />
+					<input type="hidden" name="page" value="" />
+					<input class="lead-hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+					<div class="s-hero__form-row" data-lead-fields>
+						<label class="visually-hidden" for="hero-email">Your email address</label>
+						<input
+							class="s-hero__input"
+							id="hero-email"
+							type="email"
+							name="email"
+							placeholder="your@email.com"
+							autocomplete="email"
+							required
+						/>
+						<Button label={formCtaLabel} variant="fuchsia" icon="arrow-right" type="submit" />
+					</div>
+					<p class="s-hero__form-note" data-lead-status aria-live="polite">
+						<span aria-hidden="true">🔒</span> {formNote}
+					</p>
+				</form>
+			</aside>
+		) : (
 		<div class="s-hero__media">
 			{
 				videoEmbed ? (
@@ -128,10 +172,12 @@ const h = splitHighlight(heading, accent);
 				)
 			}
 		</div>
+		)}
 	</div>
 </section>
 
-<!-- Response commitments + review form: a full-width band under the hero. -->
+<!-- Video layout only: commitments + review form move to a band under the hero. -->
+{layout === 'video' && (
 <section class="s-commit">
 	<div class="s-commit__inner container">
 		<div class="s-commit__group">
@@ -179,6 +225,7 @@ const h = splitHighlight(heading, accent);
 		</form>
 	</div>
 </section>
+)}
 
 <style>
 	.s-hero {
@@ -258,7 +305,105 @@ const h = splitHighlight(heading, accent);
 		gap: 16px;
 	}
 
-	/* --- Hero video (replaces the old commitments card) --- */
+	/* --- Response-commitments card --- */
+	.s-hero__card {
+		padding: clamp(1.5rem, 2vw, 2rem);
+		background: rgba(42, 12, 103, 0.2);
+		border: 1px solid rgba(248, 247, 250, 0.6);
+		border-radius: var(--radius-card);
+		backdrop-filter: blur(2px);
+	}
+	.s-hero__card-title {
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--color-light-lavender);
+		margin-bottom: 1rem;
+	}
+	.s-hero__stats {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.75rem;
+		margin: 0 0 1.5rem;
+		padding: 0;
+	}
+	.s-hero__stat {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+		padding: 1.1rem 1.25rem;
+		background: rgba(42, 12, 103, 0.45);
+		border-radius: 0; /* Figma: inner commitment cells are sharp */
+	}
+	.s-hero__stat-value {
+		font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.7rem);
+		font-weight: var(--fw-semibold);
+		line-height: 1.05;
+		letter-spacing: var(--ls-h3);
+	}
+	.s-hero__stat-label {
+		font-size: var(--fs-small);
+		line-height: 1.3;
+	}
+	@media (min-width: 961px) {
+		.s-hero__stat-label {
+			white-space: nowrap; /* single line on desktop (per feedback) */
+		}
+	}
+	.s-hero__stat.is-pink .s-hero__stat-value,
+	.s-hero__stat.is-pink .s-hero__stat-label {
+		color: var(--color-light-pink);
+	}
+	.s-hero__stat.is-green .s-hero__stat-value,
+	.s-hero__stat.is-green .s-hero__stat-label {
+		color: var(--color-light-green);
+	}
+
+	.s-hero__form-title {
+		color: var(--text-on-dark);
+		margin-bottom: 0.75rem;
+	}
+	.s-hero__form-row {
+		display: flex;
+		gap: 0.75rem;
+		flex-wrap: wrap;
+	}
+	.s-hero__input {
+		flex: 1 1 12rem;
+		min-width: 0;
+		height: 54px;
+		padding-inline: 1.25rem;
+		border: 1px solid transparent;
+		border-radius: 0; /* Figma: email input is sharp */
+		background: var(--color-white-80);
+		color: var(--color-headings-dark);
+		font-size: var(--fs-small);
+	}
+	.s-hero__input::placeholder {
+		color: #8a85a0;
+	}
+	.s-hero__input:focus-visible {
+		outline: 2px solid var(--color-light-yellow);
+		outline-offset: 2px;
+	}
+	.s-hero__form-row :global(.btn) {
+		flex: 0 0 auto;
+		padding-inline: 28px 22px;
+	}
+	.s-hero__form-note {
+		margin-top: 1rem;
+		font-size: var(--fs-small);
+		color: var(--text-on-dark-muted);
+	}
+	.s-hero__form-note[data-state='ok'] {
+		color: var(--color-light-green);
+	}
+	.s-hero__form-note[data-state='error'] {
+		color: var(--color-light-pink);
+	}
+
+	/* --- Hero video (video layout) --- */
 	.s-hero__media {
 		aspect-ratio: 16 / 9;
 		overflow: hidden;
