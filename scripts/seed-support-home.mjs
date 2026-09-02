@@ -29,7 +29,7 @@ const TOKEN = process.env.SB_MANAGEMENT_TOKEN;
 const SPACE = process.env.SB_SPACE_ID || '293147646055661';
 const HOME_STORY_ID = process.env.SB_HOME_STORY_ID || '186762709919814';
 /** Slug for the second landing page (video hero variant). */
-const VARIANT_SLUG = process.env.SB_VARIANT_SLUG || 'v2';
+const VARIANT_SLUG = process.env.SB_VARIANT_SLUG || 'A';
 const MAPI = `https://mapi.storyblok.com/v1/spaces/${SPACE}`;
 
 if (!TOKEN) {

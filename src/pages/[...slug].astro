@@ -2,25 +2,106 @@
 import { useStoryblokApi } from '@storyblok/astro';
 import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import Layout from '../layouts/Layout.astro';
+import Button from '../components/Button.astro';
 
 const { slug } = Astro.params;
 
 const storyblokApi = useStoryblokApi();
-// `cv: Date.now()` forces the latest published content on every request — the
-// Storyblok client otherwise reuses a cached cache-version and serves stale
-// content after an editor publishes.
-const { data } = await storyblokApi.get(`cdn/stories/${slug || 'home'}`, {
-	version: 'published',
-	cv: Date.now(),
-});
 
-const story = data.story;
-const seoTitle: string | undefined = story?.content?.seo_title || undefined;
-const seoDescription: string | undefined = story?.content?.seo_description || undefined;
-// Thank-you/confirmation pages set this so they stay out of search results.
-const noindex = Boolean(story?.content?.seo_noindex);
+/**
+ * A slug with no story is a 404, not a 500 — an unknown URL is a normal thing
+ * for visitors and crawlers to hit, and renaming a page leaves the old path
+ * behind. Anything else (Storyblok down, bad token) still throws, so a real
+ * outage isn't disguised as a missing page and quietly deindexed.
+ */
+const isNotFound = (err: unknown): boolean => {
+	const e = err as { status?: number; response?: { status?: number }; message?: string };
+	const status = e?.status ?? e?.response?.status;
+	if (status === 404) return true;
+	return /not found|could not be found/i.test(e?.message ?? '');
+};
+
+let story: { content?: Record<string, unknown> } | null = null;
+try {
+	// `cv: Date.now()` forces the latest published content on every request — the
+	// Storyblok client otherwise reuses a cached cache-version and serves stale
+	// content after an editor publishes.
+	const { data } = await storyblokApi.get(`cdn/stories/${slug || 'home'}`, {
+		version: 'published',
+		cv: Date.now(),
+	});
+	story = data.story;
+} catch (err) {
+	if (!isNotFound(err)) throw err;
+	console.warn(`[slug] no published story for "${slug}" — serving 404`);
+}
+
+if (!story) Astro.response.status = 404;
+
+const seoTitle: string | undefined = story
+	? (story.content?.seo_title as string) || undefined
+	: 'Page not found — Wirebox';
+const seoDescription: string | undefined = story
+	? (story.content?.seo_description as string) || undefined
+	: "That page doesn't exist. Head back to the Wirebox website support homepage.";
+// Confirmation pages set this so they stay out of search results; a 404 should
+// never be indexed either.
+const noindex = story ? Boolean(story.content?.seo_noindex) : true;
 ---
 
 <Layout title={seoTitle} description={seoDescription} noindex={noindex}>
-	<StoryblokComponent blok={story.content} />
+	{
+		story ? (
+			<StoryblokComponent blok={story.content} />
+		) : (
+			<section class="nf">
+				<div class="nf__inner container">
+					<p class="nf__code category">404</p>
+					<h1 class="nf__heading">This page doesn’t exist</h1>
+					<p class="nf__body">
+						The link may be out of date, or the address mistyped. Everything about
+						our website support is on the homepage.
+					</p>
+					<div class="nf__cta">
+						<Button label="back to home" link="/" variant="fuchsia" icon="arrow-right" />
+					</div>
+				</div>
+			</section>
+		)
+	}
 </Layout>
+
+<style>
+	.nf {
+		background: var(--surface-page);
+		padding-block: clamp(4rem, 10vw, 8rem);
+	}
+	.nf__inner {
+		max-width: 640px;
+		text-align: center;
+	}
+	.nf__code {
+		color: var(--color-fuchsia);
+		margin-bottom: 1rem;
+	}
+	.nf__heading {
+		font-size: var(--fs-h2-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h2);
+		color: var(--color-primary-blue);
+		margin-bottom: 1.25rem;
+	}
+	.nf__body {
+		max-width: 48ch;
+		margin-inline: auto;
+		font-size: var(--fs-paragraph-fluid);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+	.nf__cta {
+		display: flex;
+		justify-content: center;
+		margin-top: 2.25rem;
+	}
+</style>
