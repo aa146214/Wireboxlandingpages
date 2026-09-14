@@ -76,6 +76,18 @@ function setField(blok, field, value, label, changes) {
 }
 
 const PATCHES = {
+	'footer-copyright': {
+		description: 'Fix the footer copyright typo: "© Wiredbox Ltd." → "© Wirebox Ltd."',
+		value: '© Wirebox Ltd.',
+		run(content) {
+			const changes = [];
+			const footers = findBloks(content, 'footer');
+			if (!footers.length) throw new Error('No footer blok found.');
+			for (const f of footers) setField(f, 'copyright', PATCHES['footer-copyright'].value, 'footer.copyright', changes);
+			return changes;
+		},
+	},
+
 	'hero-eyebrow': {
 		description:
 			'Correct the hero eyebrow to "245 sites protected & monitored" (the CSS uppercases it).',

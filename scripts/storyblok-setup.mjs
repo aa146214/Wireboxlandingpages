@@ -649,7 +649,7 @@ function buildContent() {
 			['instagram', 'https://www.instagram.com/wireboxuk'],
 		].map(([platform, url]) => sb('social_link', { platform, url })),
 		privacy_label: 'Cookie / Privacy Policy',
-		copyright: '© Wiredbox Ltd.',
+		copyright: '© Wirebox Ltd.',
 	});
 
 	return sb('page', {
