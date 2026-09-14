@@ -69,6 +69,35 @@ const terminalHtml = terminalRaw
 	.join('\n');
 const terminalBadge: string = blok?.terminal_badge ?? 'Production ready';
 
+/**
+ * Partner logos are painted through a CSS mask so any uploaded mark takes the
+ * tile colour. A mask image is a CORS-checked fetch, and the Storyblok CDN
+ * doesn't reliably send CORS headers, so the browser would silently drop it.
+ * Fetch the file here on the server instead and hand the browser a data URI.
+ * Asset URLs carry a content hash, so caching by URL for the process lifetime
+ * is safe.
+ */
+const maskCache: Map<string, string> = ((globalThis as any).__wbMaskCache ??= new Map());
+async function maskSource(url?: string): Promise<string> {
+	if (!url) return '';
+	if (url.startsWith('/')) return url; // same-origin, no CORS involved
+	const hit = maskCache.get(url);
+	if (hit) return hit;
+	try {
+		const res = await fetch(url);
+		if (!res.ok) throw new Error(`HTTP ${res.status}`);
+		const type = (res.headers.get('content-type') || 'image/svg+xml').split(';')[0];
+		const b64 = Buffer.from(await res.arrayBuffer()).toString('base64');
+		const uri = `data:${type};base64,${b64}`;
+		maskCache.set(url, uri);
+		return uri;
+	} catch (err) {
+		console.warn('[laravel_hero] could not inline partner logo, falling back to URL:', url, (err as Error).message);
+		return url;
+	}
+}
+const badgeMasks: string[] = await Promise.all(badges.map((b) => maskSource(b.logo?.filename)));
+
 const trustRaw = blok?.trust_items;
 const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 	? trustRaw.split(/\r?\n/)
@@ -89,15 +118,15 @@ const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 
 			<ul class="lh__badges" role="list">
 				{
-					badges.map((b) => (
+					badges.map((b, i) => (
 						<li class="lh__badge">
 							<span class="lh__badge-brand">
-								{b.logo?.filename && (
+								{badgeMasks[i] && (
 									<span
 										class="lh__badge-logo"
 										role="img"
-										aria-label={b.logo.alt || b.brand || ''}
-										style={`mask-image:url(${JSON.stringify(b.logo.filename)});-webkit-mask-image:url(${JSON.stringify(b.logo.filename)})`}
+										aria-label={b.logo?.alt || b.brand || ''}
+										style={`mask-image:url(${JSON.stringify(badgeMasks[i])});-webkit-mask-image:url(${JSON.stringify(badgeMasks[i])})`}
 									/>
 								)}
 								{b.brand && <span class="lh__badge-wordmark">{b.brand}</span>}
