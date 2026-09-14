@@ -128,6 +128,7 @@ const ASSET_DEFS = {
 	'sme.png': 'SME Hertfordshire Business Awards',
 	'watford-pledge.png': 'Watford Business Pledge Member',
 	'aws-partner.png': 'AWS Partner',
+	'aws-wordmark.svg': 'AWS',
 	'laravel-logomark.svg': 'Laravel',
 };
 const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', svg: 'image/svg+xml' };

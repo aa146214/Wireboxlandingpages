@@ -36,7 +36,7 @@ const badges: Badge[] = blok?.badges?.length
 	? blok.badges
 	: [
 			{ brand: 'Laravel', label: 'Certified\nLaravel\nPartner', logo: { filename: '/seed-assets/support/laravel-logomark.svg' } },
-			{ label: 'AWS\nPartner', logo: { filename: '/seed-assets/support/aws-partner.png' } },
+			{ label: 'AWS\nPartner', logo: { filename: '/seed-assets/support/aws-wordmark.svg' } },
 		];
 
 const terminalTitle: string = blok?.terminal_title || 'wirebox — laravel';
@@ -92,7 +92,14 @@ const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 					badges.map((b) => (
 						<li class="lh__badge">
 							<span class="lh__badge-brand">
-								{b.logo?.filename && <img class="lh__badge-logo" src={b.logo.filename} alt={b.logo.alt || ''} loading="lazy" />}
+								{b.logo?.filename && (
+									<span
+										class="lh__badge-logo"
+										role="img"
+										aria-label={b.logo.alt || b.brand || ''}
+										style={`mask-image:url(${JSON.stringify(b.logo.filename)});-webkit-mask-image:url(${JSON.stringify(b.logo.filename)})`}
+									/>
+								)}
 								{b.brand && <span class="lh__badge-wordmark">{b.brand}</span>}
 							</span>
 							<span class="lh__badge-label">{b.label}</span>
@@ -160,7 +167,7 @@ const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 	}
 
 	.lh__eyebrow {
-		color: var(--color-lavender);
+		color: var(--color-light-green);
 		margin-bottom: 1.25rem;
 	}
 	.lh__heading {
@@ -206,7 +213,9 @@ const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 		gap: 1rem;
 		min-height: 92px;
 		padding: 0.85rem 1.25rem;
-		border: 1px solid rgba(255, 255, 255, 0.35);
+		/* Design: the whole tile is monochrome lavender — logo, wordmark, label and border. */
+		border: 1px solid rgba(170, 140, 231, 0.45);
+		color: var(--color-lavender);
 	}
 	.lh__badge-brand {
 		display: flex;
@@ -214,23 +223,31 @@ const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 		align-items: center;
 		gap: 0.25rem;
 	}
+	/* The logo is painted through a mask so any uploaded mark renders in lavender. */
 	.lh__badge-logo {
+		display: block;
+		width: 52px;
 		height: 46px;
-		width: auto;
-		object-fit: contain;
+		background: currentColor;
+		mask-repeat: no-repeat;
+		mask-position: center;
+		mask-size: contain;
+		-webkit-mask-repeat: no-repeat;
+		-webkit-mask-position: center;
+		-webkit-mask-size: contain;
 	}
 	.lh__badge-wordmark {
 		font-size: 0.95rem;
 		font-weight: var(--fw-semibold);
 		letter-spacing: 0.02em;
-		color: var(--color-white);
+		color: currentColor;
 	}
 	.lh__badge-label {
 		font-size: 0.95rem;
 		font-weight: var(--fw-medium);
 		line-height: 1.25;
 		white-space: pre-line;
-		color: var(--text-on-dark);
+		color: currentColor;
 	}
 
 	/* --- Terminal card --- */

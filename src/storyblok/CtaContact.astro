@@ -227,15 +227,19 @@ const h = splitHighlight(heading, accent);
 	.cta.tone-blue {
 		background: var(--color-primary-blue);
 	}
+	/* Design: the card is a darker wash over the section, the fields are solid
+	   dark blue with only a lavender bottom rule (same underline style as the
+	   fuchsia form). */
 	.cta.tone-blue .cta__form {
-		background: var(--color-dark-blue);
+		background: rgba(42, 12, 103, 0.55);
 		border-color: rgba(202, 187, 231, 0.55);
 	}
-	/* Design: filled, softly rounded fields rather than the underline style. */
 	.cta.tone-blue .cta__input {
-		background: rgba(22, 16, 38, 0.45);
-		border: 1px solid rgba(202, 187, 231, 0.35);
-		border-radius: 6px;
+		background: var(--color-dark-blue);
+		border-bottom-color: rgba(170, 140, 231, 0.7);
+	}
+	.cta.tone-blue .cta__input::placeholder {
+		color: var(--color-light-lavender);
 	}
 	.cta.tone-blue .cta__eyebrow {
 		color: var(--color-lavender);

@@ -63,7 +63,7 @@ const openUrl = (p: Place) =>
 	}
 	.locations__item {
 		position: relative;
-		aspect-ratio: 24 / 7;
+		aspect-ratio: 32 / 15; /* design: 960×450 tiles */
 		overflow: hidden;
 	}
 	.locations__map {
@@ -94,17 +94,17 @@ const openUrl = (p: Place) =>
 		padding: 0;
 	}
 
+	/* `tall` predates the ratio fix and now matches the default; kept so
+	   stories that set it keep rendering. */
 	.locations.is-tall .locations__item {
-		aspect-ratio: 24 / 12;
+		aspect-ratio: 32 / 15;
 	}
 
 	@media (max-width: 700px) {
 		.locations__grid {
 			grid-template-columns: 1fr;
 		}
-		.locations__item {
-			aspect-ratio: 16 / 7;
-		}
+		.locations__item,
 		.locations.is-tall .locations__item {
 			aspect-ratio: 16 / 10;
 		}

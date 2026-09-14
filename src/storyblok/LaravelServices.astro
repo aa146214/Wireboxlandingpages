@@ -174,7 +174,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 		font-weight: var(--fw-semibold);
 		line-height: var(--lh-h5);
 		letter-spacing: var(--ls-h5);
-		color: var(--color-dark-blue);
+		color: var(--color-primary-blue);
 	}
 	.ls__subbody {
 		margin-top: 0.75rem;
@@ -222,7 +222,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 	}
 	.ls__service {
 		display: grid;
-		grid-template-columns: 40px 1fr;
+		grid-template-columns: 56px 1fr;
 		gap: 1rem;
 		padding-block: 1.35rem;
 		border-bottom: 1px solid var(--border-subtle);
@@ -231,16 +231,17 @@ const pad = (n: number) => String(n).padStart(2, '0');
 		border-bottom: none;
 	}
 	.ls__icon {
-		width: 34px;
-		height: 34px;
+		width: 46px;
+		height: 46px;
 		transform: rotate(90deg); /* glyph is fingers-up; the design points right */
 	}
-	/* Icon takes its row's title colour (design alternates fuchsia / purple). */
+	/* Design: the hand is the *other* colour to its title — a fuchsia title gets
+	   a purple hand and vice versa — so the pair alternates down the panel. */
 	.ls__service.is-fuchsia .ls__icon {
-		color: var(--color-fuchsia);
+		color: var(--color-primary-blue);
 	}
 	.ls__service.is-purple .ls__icon {
-		color: var(--color-primary-blue);
+		color: var(--color-fuchsia);
 	}
 	.ls__service-title {
 		font-size: var(--fs-h5-fluid);

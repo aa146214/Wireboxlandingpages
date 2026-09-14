@@ -70,7 +70,7 @@ export function buildLaravelBody({ sb, A, mlink, header, testimonialItems, locat
 		],
 		badges: [
 			sb('partner_badge', { brand: 'Laravel', label: 'Certified\nLaravel\nPartner', logo: A('laravel-logomark.svg') }),
-			sb('partner_badge', { label: 'AWS\nPartner', logo: A('aws-partner.png') }),
+			sb('partner_badge', { label: 'AWS\nPartner', logo: A('aws-wordmark.svg') }),
 		],
 		terminal_title: 'wirebox — laravel',
 		terminal: [
@@ -167,7 +167,6 @@ export function buildLaravelBody({ sb, A, mlink, header, testimonialItems, locat
 		subtitle: "We're still actively supporting every client below.",
 		footnote: 'Six sectors. One standard: business-critical software built for the long term.',
 		chip_tags: true,
-		link_tone: 'blue',
 		square_media: true,
 		items: CASE_ITEMS.map(([title, duration, description, tags, img]) =>
 			sb('support_case', { title, duration, description: CASE_COPY[title] || description, tags: tags.join('\n'), image: A(img), link: mlink('#') })
