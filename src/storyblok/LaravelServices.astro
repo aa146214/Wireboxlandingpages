@@ -85,7 +85,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 		<ul class="ls__panel" role="list">
 			{
 				services.map((s) => (
-					<li class="ls__service">
+					<li class:list={['ls__service', `is-${s.tone ?? 'fuchsia'}`]}>
 						<svg class="ls__icon" viewBox="0 0 24 24" aria-hidden="true" set:html={icons.hand} />
 						<div>
 							<h3 class:list={['ls__service-title', `is-${s.tone ?? 'fuchsia'}`]}>{s.title}</h3>
@@ -148,22 +148,22 @@ const pad = (n: number) => String(n).padStart(2, '0');
 	.ls__badge {
 		display: inline-flex;
 		align-items: center;
-		gap: 1rem;
+		gap: 1.25rem;
 		margin-top: 2rem;
-		padding: 0.9rem 1.1rem;
+		padding: 1.1rem 1.4rem;
 		background: #ff2d20; /* Laravel brand red */
 		border-radius: 10px;
 		color: var(--color-white);
 	}
 	.ls__badge-text {
-		font-size: 1.15rem;
+		font-size: 1.45rem;
 		font-weight: var(--fw-semibold);
-		line-height: 1.05;
+		line-height: 1.02;
 		letter-spacing: 0.06em;
 		text-transform: uppercase;
 	}
 	.ls__badge-logo {
-		height: 52px;
+		height: 64px;
 		width: auto;
 		filter: brightness(0) invert(1); /* logomark ships red; badge wants white */
 	}
@@ -212,16 +212,19 @@ const pad = (n: number) => String(n).padStart(2, '0');
 	}
 
 	/* --- Services panel --- */
+	/* Design: the panel is shorter than the intro column and sits flush with
+	   its bottom (level with the last numbered point), not stretched. */
 	.ls__panel {
+		align-self: end;
 		margin: 0;
-		padding: clamp(0.5rem, 1.5vw, 1rem) clamp(1.5rem, 3vw, 2.5rem);
+		padding: clamp(0.25rem, 1vw, 0.75rem) clamp(1.5rem, 3vw, 2.5rem);
 		background: var(--color-light-bg-1);
 	}
 	.ls__service {
 		display: grid;
 		grid-template-columns: 40px 1fr;
 		gap: 1rem;
-		padding-block: 1.6rem;
+		padding-block: 1.35rem;
 		border-bottom: 1px solid var(--border-subtle);
 	}
 	.ls__service:last-child {
@@ -230,8 +233,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
 	.ls__icon {
 		width: 34px;
 		height: 34px;
-		color: var(--color-primary-blue);
 		transform: rotate(90deg); /* glyph is fingers-up; the design points right */
+	}
+	/* Icon takes its row's title colour (design alternates fuchsia / purple). */
+	.ls__service.is-fuchsia .ls__icon {
+		color: var(--color-fuchsia);
+	}
+	.ls__service.is-purple .ls__icon {
+		color: var(--color-primary-blue);
 	}
 	.ls__service-title {
 		font-size: var(--fs-h5-fluid);

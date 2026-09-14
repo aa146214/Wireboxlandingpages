@@ -29,6 +29,20 @@ export const TESTIMONIAL_ITEMS = [
 	{ quote: 'Great service – great knowledge throughout the company, very quick response and always have the solution to our problems in a professional and timely manner.', name: 'Chevin Fleet', role: 'Marketing Manager' },
 ];
 
+/**
+ * The six case studies: [title, duration, description, tags, image file].
+ * Shared by the support page seed and the Laravel page (which overrides two
+ * descriptions to match its design).
+ */
+export const CASE_ITEMS = [
+	['Mr Clutch', '5+ years', 'Ongoing support and database maintenance across a vast multi-location estate – keeping critical booking and operational systems running flawlessly.', ['Database', 'Performance', 'Multi-site'], 'support-mrclutch.png'],
+	['Bulgin', '5+ years', 'Tailored support and monitoring covering their entire global operation – from Asia to the Americas – with custom SLAs for business-critical uptime.', ['Global', '24/7 monitor', 'Custom SLA'], 'support-bulgin.png'],
+	['Penguin Cold Caps', 'Ongoing', '24/7 monitoring for a medical device company where site availability directly impacts cancer patients. Zero tolerance for downtime.', ['Healthcare', '24/7', 'Multi-country'], 'support-penguin.png'],
+	['Pennies', '3+ years', 'Trusted partner for a fintech charity processing millions in donations. We maintain their Magento platform and custom integrations so every gift gets through.', ['Fintech', 'Magento', 'Charity'], 'support-pennies.png'],
+	['Middlesex University', 'Ongoing', 'We maintain their graduate showcase portal – an arts site where students present their work to the world – keeping it secure, current, and performing.', ['Education', 'WordPress', 'Portal'], 'support-middlesex.png'],
+	['Sapphire Gymnastics', 'Ongoing', 'We built and continue to manage their bespoke booking and payments database – allocating children to classes and managing live capacity in real time.', ['Bespoke DB', 'Payments', 'Laravel'], 'support-sapphire.png'],
+];
+
 export const LARAVEL_SEO = {
 	seo_title: 'Laravel development agency — UK certified Laravel partner | Wirebox',
 	seo_description:
@@ -42,11 +56,10 @@ export const LARAVEL_SEO = {
  * @param {(url: string) => any} h.mlink                          link value for `cta` bloks
  * @param {object} h.header                                        the shared header blok
  * @param {object[]} h.testimonialItems                            testimonial bloks to reuse
- * @param {() => object} h.supportCases                            the shared case-study section
  * @param {() => object} h.locations                               the shared maps section
  * @param {() => object} h.footer                                  the shared footer
  */
-export function buildLaravelBody({ sb, A, mlink, header, testimonialItems, supportCases, locations, footer }) {
+export function buildLaravelBody({ sb, A, mlink, header, testimonialItems, locations, footer }) {
 	const hero = sb('laravel_hero', {
 		eyebrow: "UK's first certified Laravel partner",
 		heading: 'Business-critical software,\nbuilt the artisan way.',
@@ -56,7 +69,7 @@ export function buildLaravelBody({ sb, A, mlink, header, testimonialItems, suppo
 			sb('cta', { label: 'View our work', link: mlink('#work'), variant: 'outline', icon: 'arrow-right' }),
 		],
 		badges: [
-			sb('partner_badge', { label: 'Certified\nLaravel\nPartner', logo: A('laravel-logomark.svg') }),
+			sb('partner_badge', { brand: 'Laravel', label: 'Certified\nLaravel\nPartner', logo: A('laravel-logomark.svg') }),
 			sb('partner_badge', { label: 'AWS\nPartner', logo: A('aws-partner.png') }),
 		],
 		terminal_title: 'wirebox — laravel',
@@ -137,19 +150,29 @@ export function buildLaravelBody({ sb, A, mlink, header, testimonialItems, suppo
 
 	const testimonials = sb('testimonials', {
 		eyebrow: 'What our clients say',
-		heading: 'An experience that exceeds expectations in every way',
+		heading: 'An experience that exceeds\nexpectations in every way',
 		heading_accent: '',
 		items: testimonialItems,
 	});
 
-	const cases = {
-		...supportCases(),
+	// Two case descriptions differ from the support page's wording in this design.
+	const CASE_COPY = {
+		Pennies: 'Trusted partner for a fintech charity processing millions in donations. We maintain their Magento platform and custom integrations on an ongoing retainer.',
+		'Sapphire Gymnastics': 'We created and continue to manage their bespoke booking and payments database – allocating children to classes and managing live capacity in real time.',
+	};
+	const cases = sb('support_cases', {
 		eyebrow: 'Client work',
 		heading: 'Long-term partners, not one-off projects',
 		heading_accent: '',
 		subtitle: "We're still actively supporting every client below.",
 		footnote: 'Six sectors. One standard: business-critical software built for the long term.',
-	};
+		chip_tags: true,
+		link_tone: 'blue',
+		square_media: true,
+		items: CASE_ITEMS.map(([title, duration, description, tags, img]) =>
+			sb('support_case', { title, duration, description: CASE_COPY[title] || description, tags: tags.join('\n'), image: A(img), link: mlink('#') })
+		),
+	});
 
 	const featured = sb('featured_testimonial', {
 		eyebrow: 'What clients say',
@@ -176,7 +199,7 @@ export function buildLaravelBody({ sb, A, mlink, header, testimonialItems, suppo
 	const faq = sb('faq', {
 		eyebrow: 'FAQ',
 		heading: 'Questions we get asked every week',
-		heading_accent: 'every week',
+		heading_accent: '', // design: single Primary Blue, no highlight
 		items: [
 			['Why choose a certified Laravel partner?', 'Wirebox was the first agency in the UK to become a certified Laravel partner, with over a decade of production experience across finance, education, charity and automotive clients.', true],
 			['Do you only build new applications, or take over existing ones?', 'Both. We regularly migrate legacy PHP applications into Laravel, and take over ongoing support of applications another agency originally built — with a full audit before we touch anything live.', false],
@@ -203,9 +226,12 @@ export function buildLaravelBody({ sb, A, mlink, header, testimonialItems, suppo
 		].map(([number, label]) => sb('cta_phone', { number, label })),
 		form_title: "Tell us what you're building",
 		form_cta_label: 'Book my consultation',
+		form_note: "No obligation · We'll respond within 1 business day",
 		show_message: true,
 		form_source: 'laravel',
 	});
 
-	return [header, hero, proof, services, process, testimonials, cases, featured, banner, faq, getStarted, locations(), footer()];
+	const maps = { ...locations(), tall: true };
+
+	return [header, hero, proof, services, process, testimonials, cases, featured, banner, faq, getStarted, maps, footer()];
 }

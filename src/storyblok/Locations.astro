@@ -19,6 +19,9 @@ const places: Place[] = blok?.places?.length
 			{ label: 'Watford', query: '1A Copsewood Road, Watford, WD24 5DY' },
 		];
 
+/** Taller maps (the Laravel page); default keeps the home page's wide strip. */
+const tall = Boolean(blok?.tall);
+
 // Keyless Google Maps embed (no API key required).
 const embedUrl = (q: string) =>
 	`https://maps.google.com/maps?q=${encodeURIComponent(q)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
@@ -26,7 +29,7 @@ const openUrl = (p: Place) =>
 	p.link || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.query)}`;
 ---
 
-<section class="locations" {...storyblokEditable(blok)} aria-label="Our office locations">
+<section class:list={['locations', { 'is-tall': tall }]} {...storyblokEditable(blok)} aria-label="Our office locations">
 	<ul class="locations__grid" role="list">
 		{
 			places.map((p) => (
@@ -91,12 +94,19 @@ const openUrl = (p: Place) =>
 		padding: 0;
 	}
 
+	.locations.is-tall .locations__item {
+		aspect-ratio: 24 / 12;
+	}
+
 	@media (max-width: 700px) {
 		.locations__grid {
 			grid-template-columns: 1fr;
 		}
 		.locations__item {
 			aspect-ratio: 16 / 7;
+		}
+		.locations.is-tall .locations__item {
+			aspect-ratio: 16 / 10;
 		}
 	}
 </style>

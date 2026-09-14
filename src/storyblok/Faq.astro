@@ -12,7 +12,8 @@ interface Item {
 
 const eyebrow: string = blok?.eyebrow || 'FAQ';
 const heading: string = blok?.heading || 'Questions we get asked every week';
-const accent: string = blok?.heading_accent || 'every week';
+// `??` not `||`: an explicitly empty accent means "no highlight" (Laravel page).
+const accent: string = blok?.heading_accent ?? 'every week';
 const items: Item[] = blok?.items?.length
 	? blok.items
 	: [

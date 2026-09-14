@@ -14,6 +14,8 @@ interface CtaBlok {
 }
 interface Badge {
 	label: string;
+	/** Wordmark shown under the logo, e.g. "Laravel". Omit when the logo image already carries it. */
+	brand?: string;
 	logo?: { filename?: string; alt?: string };
 }
 
@@ -33,7 +35,7 @@ const ctas: CtaBlok[] = blok?.ctas?.length
 const badges: Badge[] = blok?.badges?.length
 	? blok.badges
 	: [
-			{ label: 'Certified\nLaravel\nPartner', logo: { filename: '/seed-assets/support/laravel-logomark.svg' } },
+			{ brand: 'Laravel', label: 'Certified\nLaravel\nPartner', logo: { filename: '/seed-assets/support/laravel-logomark.svg' } },
 			{ label: 'AWS\nPartner', logo: { filename: '/seed-assets/support/aws-partner.png' } },
 		];
 
@@ -89,7 +91,10 @@ const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 				{
 					badges.map((b) => (
 						<li class="lh__badge">
-							{b.logo?.filename && <img class="lh__badge-logo" src={b.logo.filename} alt={b.logo.alt || ''} loading="lazy" />}
+							<span class="lh__badge-brand">
+								{b.logo?.filename && <img class="lh__badge-logo" src={b.logo.filename} alt={b.logo.alt || ''} loading="lazy" />}
+								{b.brand && <span class="lh__badge-wordmark">{b.brand}</span>}
+							</span>
 							<span class="lh__badge-label">{b.label}</span>
 						</li>
 					))
@@ -172,7 +177,9 @@ const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 	.lh__body {
 		max-width: 50ch;
 		margin-top: 1.5rem;
-		font-size: var(--fs-paragraph-fluid);
+		/* Design wraps this to three lines; at our column width that's the
+		   small size rather than paragraph size. */
+		font-size: var(--fs-small);
 		line-height: var(--lh-body);
 		color: var(--text-on-dark-muted);
 	}
@@ -196,17 +203,30 @@ const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 	.lh__badge {
 		display: inline-flex;
 		align-items: center;
-		gap: 0.85rem;
-		padding: 0.7rem 1rem;
+		gap: 1rem;
+		min-height: 92px;
+		padding: 0.85rem 1.25rem;
 		border: 1px solid rgba(255, 255, 255, 0.35);
 	}
+	.lh__badge-brand {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.25rem;
+	}
 	.lh__badge-logo {
-		height: 40px;
+		height: 46px;
 		width: auto;
 		object-fit: contain;
 	}
+	.lh__badge-wordmark {
+		font-size: 0.95rem;
+		font-weight: var(--fw-semibold);
+		letter-spacing: 0.02em;
+		color: var(--color-white);
+	}
 	.lh__badge-label {
-		font-size: var(--fs-category);
+		font-size: 0.95rem;
 		font-weight: var(--fw-medium);
 		line-height: 1.25;
 		white-space: pre-line;

@@ -33,6 +33,8 @@ const bodyStrong: string = blok?.body_strong || '';
 const showMessage = Boolean(blok?.show_message);
 const labelsFirst = Boolean(blok?.labels_first);
 const formSource: string = blok?.form_source || 'cta';
+/** Reassurance line under the submit button (Laravel page). */
+const formNote: string = blok?.form_note || '';
 
 const h = splitHighlight(heading, accent);
 ---
@@ -82,6 +84,7 @@ const h = splitHighlight(heading, accent);
 					)
 				}
 				<Button label={formCtaLabel} variant={tone === 'blue' ? 'primary' : 'deep'} icon="arrow-right" type="submit" />
+				{formNote && <p class="cta__note">{formNote}</p>}
 			</div>
 			<p class="cta__status" data-lead-status aria-live="polite"></p>
 		</form>
@@ -228,14 +231,31 @@ const h = splitHighlight(heading, accent);
 		background: var(--color-dark-blue);
 		border-color: rgba(202, 187, 231, 0.55);
 	}
+	/* Design: filled, softly rounded fields rather than the underline style. */
 	.cta.tone-blue .cta__input {
 		background: rgba(22, 16, 38, 0.45);
+		border: 1px solid rgba(202, 187, 231, 0.35);
+		border-radius: 6px;
+	}
+	.cta.tone-blue .cta__eyebrow {
+		color: var(--color-lavender);
 	}
 	.cta.tone-blue .cta__phone-label {
-		color: var(--color-lavender);
+		color: var(--text-on-dark);
 	}
 	.cta.tone-blue .cta__phones {
 		gap: 1.5rem 2.5rem;
+	}
+	/* Design: full-width submit with the reassurance line centred beneath. */
+	.cta.tone-blue .cta__fields :global(.btn) {
+		align-self: stretch;
+		width: 100%;
+	}
+	.cta__note {
+		margin-top: 0.25rem;
+		text-align: center;
+		font-size: var(--fs-category);
+		color: var(--text-on-dark-muted);
 	}
 
 	@media (max-width: 880px) {

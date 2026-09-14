@@ -88,6 +88,7 @@ const h = splitHighlight(heading, accent);
 		margin-bottom: 1rem;
 	}
 	.testimonials__heading {
+		white-space: pre-line; /* a newline in the CMS heading breaks the line (Laravel page) */
 		color: var(--color-dark-blue);
 	}
 	.testimonials__hl {

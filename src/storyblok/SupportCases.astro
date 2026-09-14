@@ -21,6 +21,11 @@ const subtitle: string =
 	"These aren't one-off builds. These are long-term partnerships – we're still actively supporting every client below.";
 /** Optional closing line under the grid (used by the Laravel page). */
 const footnote: string = blok?.footnote || '';
+// Presentation options (the Laravel page's cards use lavender tag chips, blue
+// "Read the story" links and square media). Defaults keep the home-page look.
+const chipTags = Boolean(blok?.chip_tags);
+const linkTone: 'fuchsia' | 'blue' = blok?.link_tone === 'blue' ? 'blue' : 'fuchsia';
+const squareMedia = Boolean(blok?.square_media);
 
 const cdn = 'https://a.storyblok.com/f/293147646055661';
 const items: Case[] = blok?.items?.length
@@ -42,7 +47,11 @@ const resolveLink = (l: Case['link']) =>
 const h = splitHighlight(heading, accent === heading ? '' : accent);
 ---
 
-<section class="cases" id="work" {...storyblokEditable(blok)}>
+<section
+	class:list={['cases', `link-${linkTone}`, { 'chip-tags': chipTags, 'square-media': squareMedia }]}
+	id="work"
+	{...storyblokEditable(blok)}
+>
 	<div class="cases__inner container">
 		<header class="cases__head">
 			<p class="cases__eyebrow category">{eyebrow}</p>
@@ -81,6 +90,21 @@ const h = splitHighlight(heading, accent === heading ? '' : accent);
 		text-align: center;
 		font-size: var(--fs-paragraph-fluid);
 		font-weight: var(--fw-semibold);
+		color: var(--color-primary-blue);
+	}
+	/* Laravel page variants. */
+	.cases.square-media .case-card__media {
+		aspect-ratio: 1 / 1;
+	}
+	.cases.chip-tags .case-card__tags {
+		gap: 0.4rem;
+	}
+	.cases.chip-tags .case-card__tags li {
+		padding: 0.3rem 0.6rem;
+		background: var(--surface-lavender-tint);
+		border-radius: 4px;
+	}
+	.cases.link-blue .case-card__more {
 		color: var(--color-primary-blue);
 	}
 	.cases {
