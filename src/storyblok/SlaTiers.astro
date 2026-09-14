@@ -28,7 +28,8 @@ const tiers: Tier[] = blok?.tiers?.length
 
 // Presentation options other pages set (the Laravel page reuses this section
 // for its four-stage process). Defaults preserve the home-page look.
-const eyebrowTone: 'pink' | 'lavender' = blok?.eyebrow_tone === 'lavender' ? 'lavender' : 'pink';
+const eyebrowTone: 'pink' | 'lavender' | 'green' =
+	blok?.eyebrow_tone === 'lavender' || blok?.eyebrow_tone === 'green' ? blok.eyebrow_tone : 'pink';
 const hideDividers = Boolean(blok?.hide_dividers);
 const stackLabel: string = blok?.stack_label || '';
 const stackRaw = blok?.stack;
@@ -162,6 +163,9 @@ const h = splitHighlight(heading, accent);
 	/* Variants used by the Laravel page's process section. */
 	.sla.eyebrow-lavender .sla__eyebrow {
 		color: var(--color-lavender);
+	}
+	.sla.eyebrow-green .sla__eyebrow {
+		color: var(--color-light-green);
 	}
 	.sla.no-dividers .sla__tier {
 		padding-left: 0;

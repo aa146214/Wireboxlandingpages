@@ -132,7 +132,7 @@ export function buildLaravelBody({ sb, A, mlink, header, testimonialItems, locat
 
 	const process = sb('sla_tiers', {
 		eyebrow: 'How we build',
-		eyebrow_tone: 'lavender',
+		eyebrow_tone: 'green',
 		heading: 'A four-stage process, every time',
 		heading_accent: '',
 		subtitle: "The same discipline whether we're building a booking platform or migrating a decade of legacy code.",
