@@ -216,6 +216,9 @@ async function main() {
 	console.log(`Story   "${story.name}" (${story.full_slug}, id ${story.id})`);
 	console.log(`Patch   ${patchName}\n`);
 
+	// Patches mutate content in place, so snapshot the story first — the backup
+	// must be what was live before the patch, not after it.
+	const original = structuredClone(story);
 	const changes = patch.run(story.content);
 
 	if (!changes.length) {
@@ -247,7 +250,7 @@ async function main() {
 	if (!existsSync(BACKUP_DIR)) mkdirSync(BACKUP_DIR, { recursive: true });
 	const stamp = new Date().toISOString().replace(/[:.]/g, '-');
 	const backup = join(BACKUP_DIR, `${SPACE}-${story.slug}-${stamp}.json`);
-	writeFileSync(backup, JSON.stringify(story, null, 2));
+	writeFileSync(backup, JSON.stringify(original, null, 2));
 	console.log(`\nBacked up current story -> ${backup}`);
 
 	await mapi('PUT', `/stories/${story.id}`, {
