@@ -21,7 +21,8 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildLaravelBody, LARAVEL_SEO, TESTIMONIAL_ITEMS } from '../src/data/laravel-content.mjs';
+import { buildLaravelBody, LARAVEL_SEO, TESTIMONIAL_ITEMS, CASE_ITEMS } from '../src/data/laravel-content.mjs';
+import { DEFAULT_SITE_SCRIPTS } from '../src/data/site-scripts.mjs';
 
 const SEED_ASSETS = fileURLToPath(new URL('../public/seed-assets/support', import.meta.url));
 const BACKUP_DIR = fileURLToPath(new URL('../.storyblok-backups', import.meta.url));
@@ -238,13 +239,13 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'value_props', schema: { eyebrow: text(0), heading: text(1), body: area(2), cta_label: text(3), cta_link: text(4), image: asset(5), toolkit_title: text(6), toolkit: area(7, { description: 'One tool per line' }), features: bloks(8, ['vp_feature']) } },
 	{ name: 'sla_tiers', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), tiers: bloks(4, ['sla_tier']), eyebrow_tone: opt(5, ['pink', 'lavender'], 'pink'), hide_dividers: bool(6), stack_label: text(7), stack: area(8, { description: 'One technology per line, shown as chips under the tiers' }), stack_highlight: text(9, { description: 'Which chip gets the fuchsia highlight' }) } },
 	{ name: 'pricing', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), plans: bloks(4, ['pricing_plan']), footnote: text(5), foot_link_label: text(6), foot_link: text(7), foot_trail: text(8) } },
-	{ name: 'support_cases', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), items: bloks(4, ['support_case']), footnote: text(5, { description: 'Optional closing line under the grid' }) } },
+	{ name: 'support_cases', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), items: bloks(4, ['support_case']), footnote: text(5, { description: 'Optional closing line under the grid' }), chip_tags: bool(6), link_tone: opt(7, ['fuchsia', 'blue'], 'fuchsia'), square_media: bool(8) } },
 	{ name: 'faq', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), items: bloks(3, ['faq_item']) } },
-	{ name: 'cta_contact', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), body: area(3), phones: bloks(4, ['cta_phone']), form_cta_label: text(5), tone: opt(6, ['fuchsia', 'blue'], 'fuchsia'), form_title: text(7), body_strong: area(8), show_message: bool(9), labels_first: bool(10), form_source: text(11, { description: 'Tag sent with the lead so the source form is identifiable' }) } },
-	{ name: 'locations', schema: { places: bloks(0, ['map_place']) } },
+	{ name: 'cta_contact', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), body: area(3), phones: bloks(4, ['cta_phone']), form_cta_label: text(5), tone: opt(6, ['fuchsia', 'blue'], 'fuchsia'), form_title: text(7), body_strong: area(8), show_message: bool(9), labels_first: bool(10), form_source: text(11, { description: 'Tag sent with the lead so the source form is identifiable' }), form_note: text(12, { description: 'Reassurance line under the submit button' }) } },
+	{ name: 'locations', schema: { places: bloks(0, ['map_place']), tall: bool(1) } },
 	{ name: 'thank_you', schema: { eyebrow: text(0), heading: text(1), heading_line_2: text(2, { description: 'Shown on a second line, in the accent colour' }), body: area(3), cta_label: text(4), cta_link: text(5), phones_title: text(6), phones: bloks(7, ['cta_phone']) } },
 	// --- Laravel partner landing page (leaves first) ---
-	{ name: 'partner_badge', schema: { label: area(0, { description: 'One line per row, e.g. Certified / Laravel / Partner' }), logo: anyAsset(1) } },
+	{ name: 'partner_badge', schema: { brand: text(0, { description: 'Wordmark under the logo, e.g. Laravel — leave empty if the logo image already has it' }), label: area(1, { description: 'One line per row, e.g. Certified / Laravel / Partner' }), logo: anyAsset(2) } },
 	{ name: 'numbered_point', schema: { text: text(0), tone: opt(1, ['purple', 'fuchsia', 'dark'], 'purple') } },
 	{ name: 'service_item', schema: { title: text(0), description: area(1), tone: opt(2, ['fuchsia', 'purple'], 'fuchsia') } },
 	{ name: 'rating_badge', schema: { kicker: text(0), brand: text(1), score: text(2), stars: text(3, { description: '1–5' }), caption: text(4), tone: opt(5, ['clutch', 'google'], 'clutch') } },
@@ -252,6 +253,13 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'laravel_services', schema: { eyebrow: text(0), heading: area(1), body: area(2), badge_image: asset(3, { description: 'Laravel Certified Company badge — drawn in CSS when empty' }), subheading: text(4), subbody: area(5), points: bloks(6, ['numbered_point']), services: bloks(7, ['service_item']) } },
 	{ name: 'featured_testimonial', schema: { eyebrow: text(0), heading: area(1), quote: area(2), name: text(3), role: text(4), video: text(5, { description: 'YouTube or Vimeo link — shows a poster with a play mark when empty' }), poster: asset(6), ratings: bloks(7, ['rating_badge']), cta_label: text(8), cta_link: text(9) } },
 	{ name: 'cta_banner', schema: { heading: text(0), prompt: text(1), cta_label: text(2), cta_link: text(3) } },
+	// --- Site settings: third-party scripts editors manage without a deploy ---
+	{ name: 'site_script', schema: {
+		name: text(0, { description: 'Label, e.g. "Captiwate chat" — also written into the page source as a comment' }),
+		placement: opt(1, [{ name: 'In <head>', value: 'head' }, { name: 'Start of <body>', value: 'body_start' }, { name: 'End of <body>', value: 'body_end' }], 'head'),
+		code: area(2, { description: 'Paste the snippet exactly as the vendor supplies it, <script> tags included' }),
+		enabled: { type: 'boolean', pos: 3, default_value: true, description: 'Untick to pause the script without deleting it' },
+	} },
 ];
 
 async function syncComponents() {
@@ -296,6 +304,39 @@ async function ensurePageNoindexField() {
 	const schema = { ...page.schema, seo_noindex: bool(Object.keys(page.schema || {}).length) };
 	await mapi('PUT', `/components/${page.id}`, { component: { ...page, schema } });
 	console.log('  updated  page (+seo_noindex)');
+}
+
+/**
+ * `site_settings` is a root (content-type) component, like `page`, so it is
+ * created outside syncComponents(), which forces is_root: false.
+ */
+async function ensureSiteSettingsComponent() {
+	const { components } = await mapi('GET', '/components/');
+	const schema = { scripts: bloks(0, ['site_script']) };
+	const existing = components.find((c) => c.name === 'site_settings');
+	if (existing) {
+		await mapi('PUT', `/components/${existing.id}`, { component: { ...existing, schema, is_root: true, is_nestable: false } });
+		console.log('  updated  site_settings');
+	} else {
+		await mapi('POST', '/components/', { component: { name: 'site_settings', display_name: 'Site Settings', is_root: true, is_nestable: false, schema } });
+		console.log('  created  site_settings');
+	}
+}
+
+/**
+ * The "Site settings" story. Created with the scripts the layout used to
+ * hardcode; never overwritten once it exists, because editors change it in the
+ * CMS and a reseed must not undo that.
+ */
+async function seedSettingsStory() {
+	const found = await mapi('GET', '/stories/?with_slug=settings');
+	if ((found.stories || []).some((s) => s.slug === 'settings')) {
+		console.log('"settings" already exists — left untouched (edit scripts in Storyblok).');
+		return;
+	}
+	const content = sb('site_settings', { scripts: DEFAULT_SITE_SCRIPTS.map((s) => sb('site_script', s)) });
+	await mapi('POST', '/stories/', { story: { name: 'Site settings', slug: 'settings', content }, publish: 1 });
+	console.log(`Published "settings" (created) with ${DEFAULT_SITE_SCRIPTS.length} scripts.`);
 }
 
 const sb = (component, fields = {}) => ({ _uid: randomUUID(), component, ...fields });
@@ -429,14 +470,8 @@ function pricing() {
 }
 
 function supportCases() {
-	const items = [
-		['Mr Clutch', '5+ years', 'Ongoing support and database maintenance across a vast multi-location estate – keeping critical booking and operational systems running flawlessly.', ['Database', 'Performance', 'Multi-site'], 'support-mrclutch.png'],
-		['Bulgin', '5+ years', 'Tailored support and monitoring covering their entire global operation – from Asia to the Americas – with custom SLAs for business-critical uptime.', ['Global', '24/7 monitor', 'Custom SLA'], 'support-bulgin.png'],
-		['Penguin Cold Caps', 'Ongoing', '24/7 monitoring for a medical device company where site availability directly impacts cancer patients. Zero tolerance for downtime.', ['Healthcare', '24/7', 'Multi-country'], 'support-penguin.png'],
-		['Pennies', '3+ years', 'Trusted partner for a fintech charity processing millions in donations. We maintain their Magento platform and custom integrations so every gift gets through.', ['Fintech', 'Magento', 'Charity'], 'support-pennies.png'],
-		['Middlesex University', 'Ongoing', 'We maintain their graduate showcase portal – an arts site where students present their work to the world – keeping it secure, current, and performing.', ['Education', 'WordPress', 'Portal'], 'support-middlesex.png'],
-		['Sapphire Gymnastics', 'Ongoing', 'We built and continue to manage their bespoke booking and payments database – allocating children to classes and managing live capacity in real time.', ['Bespoke DB', 'Payments', 'Laravel'], 'support-sapphire.png'],
-	];
+	// The six case studies live in src/data/laravel-content.mjs (shared with the Laravel page).
+	const items = CASE_ITEMS;
 	return sb('support_cases', {
 		eyebrow: 'Client relationships, not just projects',
 		heading: '245 businesses supported, and counting_',
@@ -513,7 +548,7 @@ function footer() {
 		credentials: [A('biz4biz.png'), A('sme.png'), A('watford-pledge.png'), A('aws-partner.png')].filter((c) => c.id),
 		socials: [['facebook', 'https://facebook.com/WireboxConsultancy/'], ['twitter', 'https://x.com/wirebox'], ['vimeo', 'https://vimeo.com/wirebox'], ['linkedin', 'https://www.linkedin.com/company/wirebox-consultancy'], ['github', 'https://github.com/Wirebox'], ['instagram', 'https://www.instagram.com/wireboxuk']].map(([platform, url]) => sb('social_link', { platform, url })),
 		privacy_label: 'Cookie / Privacy Policy',
-		copyright: '© Wiredbox Ltd.',
+		copyright: '© Wirebox Ltd.',
 	});
 }
 
@@ -594,7 +629,6 @@ function buildLaravelContent() {
 			mlink,
 			header,
 			testimonialItems: (testimonials.items || []).map(clone),
-			supportCases,
 			locations,
 			footer,
 		}),
@@ -654,16 +688,18 @@ async function main() {
 	console.log('=== Components ===');
 	await syncComponents();
 	await ensurePageNoindexField();
+	await ensureSiteSettingsComponent();
 	if (COMPONENTS_ONLY) {
 		console.log('\nComponent schemas synced. No story was read or written (--components-only).');
 		return;
 	}
 	await uploadAssets();
 	if (ONLY) {
-		if (ONLY !== 'laravel') throw new Error(`Unknown --only target "${ONLY}" (supported: laravel).`);
+		const targets = { laravel: seedLaravelStory, settings: seedSettingsStory };
+		if (!targets[ONLY]) throw new Error(`Unknown --only target "${ONLY}" (supported: ${Object.keys(targets).join(', ')}).`);
 		console.log('\n=== Story ===');
-		await seedLaravelStory();
-		console.log('Only the "laravel" story was written (--only=laravel).');
+		await targets[ONLY]();
+		console.log(`Only the "${ONLY}" story was touched (--only=${ONLY}).`);
 		return;
 	}
 	const content = buildContent();
@@ -678,6 +714,7 @@ async function main() {
 	await seedVideoVariantStory();
 	await seedThankYouStory();
 	await seedLaravelStory();
+	await seedSettingsStory();
 }
 
 main().catch((err) => {

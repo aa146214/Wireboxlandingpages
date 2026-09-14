@@ -31,6 +31,13 @@ try {
 		cv: Date.now(),
 	});
 	story = data.story;
+	// Only page stories are routable. Configuration stories such as the "Site
+	// settings" story (slug `settings`) exist for the layout to read, not to be
+	// rendered at their slug.
+	if (story?.content?.component !== 'page') {
+		console.warn(`[slug] "${slug}" is a ${story?.content?.component} story, not a page — serving 404`);
+		story = null;
+	}
 } catch (err) {
 	if (!isNotFound(err)) throw err;
 	console.warn(`[slug] no published story for "${slug}" — serving 404`);

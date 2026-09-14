@@ -5,7 +5,8 @@ import '../styles/tokens.css';
 import '../styles/global.css';
 import '../styles/patterns.css';
 import CookieBanner from '../components/CookieBanner.astro';
-import { GTM_ID, CRAZY_EGG_SRC, CAPTIWATE_SITE_ID } from '../lib/analytics';
+import { loadSiteScripts } from '../lib/site-scripts';
+import { renderScripts } from '../data/site-scripts.mjs';
 
 export interface Props {
 	title?: string;
@@ -28,6 +29,14 @@ const {
 const siteUrl = Astro.site ?? new URL(Astro.url.origin);
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, siteUrl).href;
 const ogImageUrl = new URL(ogImage, siteUrl).href;
+
+// Third-party scripts (GTM, Crazy Egg, chat widgets…) come from the Storyblok
+// "Site settings" story so they can be managed without a deploy; the bundled
+// list is the fallback. Rendered as raw HTML at three injection points.
+const { scripts: siteScripts } = await loadSiteScripts();
+const headScripts = renderScripts(siteScripts, 'head');
+const bodyStartScripts = renderScripts(siteScripts, 'body_start');
+const bodyEndScripts = renderScripts(siteScripts, 'body_end');
 ---
 
 <!doctype html>
@@ -36,17 +45,8 @@ const ogImageUrl = new URL(ogImage, siteUrl).href;
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-		<!-- Google Tag Manager -->
-		<script is:inline set:html={`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${GTM_ID}');`} />
-		<!-- End Google Tag Manager -->
-
-		<!-- Crazy Egg -->
-		<script type="text/javascript" src={CRAZY_EGG_SRC} async is:inline></script>
-
-		<!-- Captiwate chat widget. Hardcoded rather than via GTM: the published
-		     container carries no custom tags, and the snippet's own _loaded guard
-		     means a later GTM copy can't double-initialise it. -->
-		<script is:inline set:html={`(function(w,d,i){w._captiwateSettings={site:i};if(w.Captiwate&&w.Captiwate._loaded)return;w.Captiwate=new Proxy({_q:[]},{get:function(t,p){if(p==='_q'||p==='_loaded')return t[p];return function(){t._q.push([p,[].slice.call(arguments)]);};}});var h=d.getElementsByTagName('head')[0];var s=d.createElement('script');s.defer=1;s.type='module';s.src='https://widget.captiwate.com/widget.js';h.appendChild(s);})(window,document,'${CAPTIWATE_SITE_ID}');`} />
+		<!-- Site scripts: head (GTM must stay first — it's first in the list) -->
+		<Fragment set:html={headScripts} />
 
 		<title>{title}</title>
 		<meta name="description" content={description} />
@@ -74,11 +74,12 @@ const ogImageUrl = new URL(ogImage, siteUrl).href;
 		<slot name="head" />
 	</head>
 	<body>
-		<!-- Google Tag Manager (noscript) -->
-		<noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`} height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-		<!-- End Google Tag Manager (noscript) -->
+		<!-- Site scripts: start of body (GTM noscript lives here) -->
+		<Fragment set:html={bodyStartScripts} />
 		<a class="skip-link" href="#main">Skip to content</a>
 		<slot />
 		<CookieBanner />
+		<!-- Site scripts: end of body -->
+		<Fragment set:html={bodyEndScripts} />
 	</body>
 </html>
