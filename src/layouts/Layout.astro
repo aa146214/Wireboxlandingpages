@@ -5,7 +5,7 @@ import '../styles/tokens.css';
 import '../styles/global.css';
 import '../styles/patterns.css';
 import CookieBanner from '../components/CookieBanner.astro';
-import { GTM_ID, CRAZY_EGG_SRC } from '../lib/analytics';
+import { GTM_ID, CRAZY_EGG_SRC, CAPTIWATE_SITE_ID } from '../lib/analytics';
 
 export interface Props {
 	title?: string;
@@ -42,6 +42,11 @@ const ogImageUrl = new URL(ogImage, siteUrl).href;
 
 		<!-- Crazy Egg -->
 		<script type="text/javascript" src={CRAZY_EGG_SRC} async is:inline></script>
+
+		<!-- Captiwate chat widget. Hardcoded rather than via GTM: the published
+		     container carries no custom tags, and the snippet's own _loaded guard
+		     means a later GTM copy can't double-initialise it. -->
+		<script is:inline set:html={`(function(w,d,i){w._captiwateSettings={site:i};if(w.Captiwate&&w.Captiwate._loaded)return;w.Captiwate=new Proxy({_q:[]},{get:function(t,p){if(p==='_q'||p==='_loaded')return t[p];return function(){t._q.push([p,[].slice.call(arguments)]);};}});var h=d.getElementsByTagName('head')[0];var s=d.createElement('script');s.defer=1;s.type='module';s.src='https://widget.captiwate.com/widget.js';h.appendChild(s);})(window,document,'${CAPTIWATE_SITE_ID}');`} />
 
 		<title>{title}</title>
 		<meta name="description" content={description} />
