@@ -18,7 +18,8 @@ export type IconName =
 	| 'github'
 	| 'instagram'
 	| 'tiktok'
-	| 'youtube';
+	| 'youtube'
+	| 'hand';
 
 export const icons: Record<IconName, string> = {
 	search:
@@ -49,4 +50,7 @@ export const icons: Record<IconName, string> = {
 		'<path d="M14 4c.3 2 1.5 3.5 3.5 3.8v2.6c-1.2 0-2.4-.4-3.5-1.1v5.4a4.8 4.8 0 1 1-4.8-4.8c.3 0 .5 0 .8.1v2.7a2.1 2.1 0 1 0 1.5 2V4H14Z" fill="currentColor"/>',
 	youtube:
 		'<path d="M21.5 8.3c-.2-1-.9-1.7-1.9-2C17.9 6 12 6 12 6s-5.9 0-7.6.4c-1 .2-1.7.9-1.9 2C2 10 2 12 2 12s0 2 .4 3.7c.2 1 .9 1.7 1.9 2C6 18 12 18 12 18s5.9 0 7.6-.4c1-.2 1.7-.9 1.9-2C22 14 22 12 22 12s0-2-.5-3.7ZM10 15V9l5.2 3L10 15Z" fill="currentColor"/>',
+	// Outlined pointing hand (fingers up; rotate 90° in CSS to point right).
+	hand:
+		'<path d="M9 11.5V5.75a1.75 1.75 0 0 1 3.5 0V11m0-3.25a1.75 1.75 0 0 1 3.5 0V11m0-1.5a1.75 1.75 0 0 1 3.5 0V15a6.5 6.5 0 0 1-6.5 6.5h-1.3a5 5 0 0 1-4.2-2.3l-3-4.6a1.6 1.6 0 0 1 2.6-1.8L9 14.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
 };

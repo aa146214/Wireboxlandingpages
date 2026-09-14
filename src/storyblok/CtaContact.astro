@@ -25,22 +25,33 @@ const phones: Phone[] = blok?.phones?.length
 		];
 const formCtaLabel: string = blok?.form_cta_label || 'Get My Free Review';
 
+// Presentation options other pages set (the Laravel page reuses this section).
+// Every default preserves the original home-page look.
+const tone: 'fuchsia' | 'blue' = blok?.tone === 'blue' ? 'blue' : 'fuchsia';
+const formTitle: string = blok?.form_title || '';
+const bodyStrong: string = blok?.body_strong || '';
+const showMessage = Boolean(blok?.show_message);
+const labelsFirst = Boolean(blok?.labels_first);
+const formSource: string = blok?.form_source || 'cta';
+
 const h = splitHighlight(heading, accent);
 ---
 
-<section class="cta" id="contact" {...storyblokEditable(blok)}>
+<section class:list={['cta', `tone-${tone}`]} id="contact" {...storyblokEditable(blok)}>
 	<div class="cta__inner container">
 		<div class="cta__content">
 			<p class="cta__eyebrow category">{eyebrow}</p>
 			<h2 class="cta__heading">{h.pre}<span class="cta__hl">{h.mid}</span>{h.post}</h2>
 			<p class="cta__body">{body}</p>
+			{bodyStrong && <p class="cta__body cta__body--strong">{bodyStrong}</p>}
 
 			<ul class="cta__phones" role="list">
 				{
 					phones.map((p) => (
 						<li class="cta__phone">
+							{labelsFirst && <span class="cta__phone-label">{p.label}</span>}
 							<a class="cta__phone-number" href={`tel:${p.number.replace(/[^\d+]/g, '')}`}>{p.number}</a>
-							<span class="cta__phone-label">{p.label}</span>
+							{!labelsFirst && <span class="cta__phone-label">{p.label}</span>}
 						</li>
 					))
 				}
@@ -48,7 +59,8 @@ const h = splitHighlight(heading, accent);
 		</div>
 
 		<form class="cta__form" action="/api/lead" method="post" data-lead novalidate>
-			<input type="hidden" name="source" value="cta" />
+			{formTitle && <h3 class="cta__form-title">{formTitle}</h3>}
+			<input type="hidden" name="source" value={formSource} />
 			<input type="hidden" name="page" value="" />
 			<input class="lead-hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
 			<div class="cta__fields" data-lead-fields>
@@ -56,9 +68,20 @@ const h = splitHighlight(heading, accent);
 				<input class="cta__input" id="contact-name" name="name" type="text" placeholder="Name" autocomplete="name" />
 				<label class="visually-hidden" for="contact-email">Email</label>
 				<input class="cta__input" id="contact-email" name="email" type="email" placeholder="Email" autocomplete="email" required />
-				<label class="visually-hidden" for="contact-phone">Phone</label>
-				<input class="cta__input" id="contact-phone" name="phone" type="tel" placeholder="Phone" autocomplete="tel" />
-				<Button label={formCtaLabel} variant="deep" icon="arrow-right" type="submit" />
+				{
+					showMessage ? (
+						<>
+							<label class="visually-hidden" for="contact-message">What are you building?</label>
+							<textarea class="cta__input cta__textarea" id="contact-message" name="message" placeholder="What are you building?" rows="3" />
+						</>
+					) : (
+						<>
+							<label class="visually-hidden" for="contact-phone">Phone</label>
+							<input class="cta__input" id="contact-phone" name="phone" type="tel" placeholder="Phone" autocomplete="tel" />
+						</>
+					)
+				}
+				<Button label={formCtaLabel} variant={tone === 'blue' ? 'primary' : 'deep'} icon="arrow-right" type="submit" />
 			</div>
 			<p class="cta__status" data-lead-status aria-live="polite"></p>
 		</form>
@@ -175,6 +198,44 @@ const h = splitHighlight(heading, accent);
 		font-size: var(--fs-small);
 		gap: 16px;
 		margin-top: 0.25rem;
+	}
+
+	/* --- Laravel page options --- */
+	.cta__body--strong {
+		font-weight: var(--fw-semibold);
+		color: var(--color-white);
+	}
+	.cta__form-title {
+		margin-bottom: 1.25rem;
+		font-size: var(--fs-h5-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-light-yellow);
+	}
+	.cta__textarea {
+		height: auto;
+		min-height: 104px;
+		padding-block: 0.75rem;
+		resize: vertical;
+		font-family: inherit;
+	}
+	/* Solid Primary Blue band with a dark form card (no diagonal shapes). */
+	.cta.tone-blue {
+		background: var(--color-primary-blue);
+	}
+	.cta.tone-blue .cta__form {
+		background: var(--color-dark-blue);
+		border-color: rgba(202, 187, 231, 0.55);
+	}
+	.cta.tone-blue .cta__input {
+		background: rgba(22, 16, 38, 0.45);
+	}
+	.cta.tone-blue .cta__phone-label {
+		color: var(--color-lavender);
+	}
+	.cta.tone-blue .cta__phones {
+		gap: 1.5rem 2.5rem;
 	}
 
 	@media (max-width: 880px) {

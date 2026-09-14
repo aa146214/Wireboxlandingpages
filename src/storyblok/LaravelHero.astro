@@ -1,0 +1,310 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Button from '../components/Button.astro';
+import type { ButtonVariant } from '../lib/ui';
+import type { IconName } from '../lib/icons';
+
+const { blok } = Astro.props;
+
+interface CtaBlok {
+	label: string;
+	link?: { url?: string; cached_url?: string } | string;
+	variant?: ButtonVariant;
+	icon?: IconName | null;
+}
+interface Badge {
+	label: string;
+	logo?: { filename?: string; alt?: string };
+}
+
+const eyebrow: string = blok?.eyebrow || "UK's first certified Laravel partner";
+const heading: string = blok?.heading || 'Business-critical software,\nbuilt the artisan way.';
+const body: string =
+	blok?.body ||
+	"Wirebox has spent 10+ years building, migrating and supporting Laravel applications for organisations that can't afford downtime – from charities tracking billions in funding to manufacturers running global operations.";
+
+const ctas: CtaBlok[] = blok?.ctas?.length
+	? blok.ctas
+	: [
+			{ label: 'Book a free consultation', link: '#contact', variant: 'primary', icon: 'arrow-right' },
+			{ label: 'View our work', link: '#work', variant: 'outline', icon: 'arrow-right' },
+		];
+
+const badges: Badge[] = blok?.badges?.length
+	? blok.badges
+	: [
+			{ label: 'Certified\nLaravel\nPartner', logo: { filename: '/seed-assets/support/laravel-logomark.svg' } },
+			{ label: 'AWS\nPartner', logo: { filename: '/seed-assets/support/aws-partner.png' } },
+		];
+
+const terminalTitle: string = blok?.terminal_title || 'wirebox — laravel';
+const terminalRaw: string =
+	blok?.terminal ||
+	[
+		'$ composer create-project laravel/laravel app',
+		'$ php artisan make:model Invoice -mcr',
+		'$ php artisan migrate',
+		'',
+		'Migrated: 2026_08_29_create_invoices_table (11.42ms)',
+		'',
+		'$ php artisan test',
+		'PASS  Tests\\Feature\\InvoiceTest',
+		'✓ ledger reconciles nightly',
+		'✓ webhook retries respect backoff',
+		'',
+		'Tests: 42 passed (118 assertions)',
+		'Time: 1.84s',
+	].join('\n');
+// Rendered as an HTML string: Astro's compiler mangles element-returning
+// expressions inside <pre>, so the lines are built here and set:html'd.
+const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const terminalHtml = terminalRaw
+	.split(/\r?\n/)
+	.map((line) => {
+		const cls = line.startsWith('$') ? ' is-cmd' : line.startsWith('✓') || line.startsWith('PASS') ? ' is-ok' : '';
+		return `<span class="lh__line${cls}">${escapeHtml(line) || ' '}</span>`;
+	})
+	.join('\n');
+const terminalBadge: string = blok?.terminal_badge ?? 'Production ready';
+
+const trustRaw = blok?.trust_items;
+const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
+	? trustRaw.split(/\r?\n/)
+	: ['5★ Google rated', 'No lock-in contracts']
+).map((s: string) => s.trim()).filter(Boolean);
+---
+
+<section class="lh" {...storyblokEditable(blok)}>
+	<div class="lh__inner container">
+		<div class="lh__content">
+			<p class="lh__eyebrow category">{eyebrow}</p>
+			<h1 class="lh__heading">{heading}</h1>
+			<p class="lh__body">{body}</p>
+
+			<div class="lh__actions">
+				{ctas.map((cta) => <Button label={cta.label} link={cta.link} variant={cta.variant ?? 'primary'} icon={cta.icon ?? null} />)}
+			</div>
+
+			<ul class="lh__badges" role="list">
+				{
+					badges.map((b) => (
+						<li class="lh__badge">
+							{b.logo?.filename && <img class="lh__badge-logo" src={b.logo.filename} alt={b.logo.alt || ''} loading="lazy" />}
+							<span class="lh__badge-label">{b.label}</span>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+
+		<div class="lh__aside">
+			<div class="lh__terminal" role="img" aria-label="Terminal showing a Laravel project being scaffolded, migrated and tested">
+				<div class="lh__terminal-bar" aria-hidden="true">
+					<span class="lh__dot lh__dot--red" />
+					<span class="lh__dot lh__dot--yellow" />
+					<span class="lh__dot lh__dot--green" />
+					<span class="lh__terminal-title">{terminalTitle}</span>
+				</div>
+				<pre class="lh__terminal-body" set:html={terminalHtml} />
+				{terminalBadge && (
+					<span class="lh__terminal-badge"><span class="lh__terminal-badge-dot" aria-hidden="true" />{terminalBadge}</span>
+				)}
+			</div>
+
+			{
+				trustItems.length > 0 && (
+					<ul class="lh__trust" role="list">
+						{trustItems.map((t) => <li>{t}</li>)}
+					</ul>
+				)
+			}
+		</div>
+	</div>
+</section>
+
+<style>
+	.lh {
+		position: relative;
+		overflow: hidden;
+		background: var(--color-dark-blue);
+		color: var(--color-white);
+	}
+	/* Large decorative ring behind the terminal (design). */
+	.lh::before {
+		content: '';
+		position: absolute;
+		right: -6%;
+		top: -38%;
+		width: min(58vw, 880px);
+		aspect-ratio: 1;
+		border: 1px solid rgba(255, 255, 255, 0.14);
+		border-radius: 50%;
+		pointer-events: none;
+	}
+	.lh__inner {
+		position: relative;
+		display: grid;
+		grid-template-columns: 1.08fr 1fr;
+		gap: clamp(2rem, 5vw, 5rem);
+		align-items: center;
+		padding-block: clamp(3.5rem, 7vw, 6.5rem);
+	}
+	.lh__content,
+	.lh__aside {
+		min-width: 0;
+	}
+
+	.lh__eyebrow {
+		color: var(--color-lavender);
+		margin-bottom: 1.25rem;
+	}
+	.lh__heading {
+		color: var(--color-white);
+		/* Smaller than the support hero's H1: the design keeps "Business-critical
+		   software," on one line, and our content column is narrower than the
+		   Figma canvas's. */
+		font-size: clamp(2rem, 1.2rem + 2.4vw, 3rem);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h1);
+		white-space: pre-line;
+	}
+	.lh__body {
+		max-width: 50ch;
+		margin-top: 1.5rem;
+		font-size: var(--fs-paragraph-fluid);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark-muted);
+	}
+	.lh__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-top: 2rem;
+	}
+	.lh__actions :global(.btn) {
+		padding-inline: 28px 22px;
+		gap: 16px;
+	}
+	.lh__badges {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+		margin: 2.25rem 0 0;
+		padding: 0;
+	}
+	.lh__badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.85rem;
+		padding: 0.7rem 1rem;
+		border: 1px solid rgba(255, 255, 255, 0.35);
+	}
+	.lh__badge-logo {
+		height: 40px;
+		width: auto;
+		object-fit: contain;
+	}
+	.lh__badge-label {
+		font-size: var(--fs-category);
+		font-weight: var(--fw-medium);
+		line-height: 1.25;
+		white-space: pre-line;
+		color: var(--text-on-dark);
+	}
+
+	/* --- Terminal card --- */
+	.lh__terminal {
+		position: relative;
+		background: var(--color-headings-dark);
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		border-radius: var(--radius-card);
+		box-shadow: 0 30px 60px rgba(22, 16, 38, 0.45);
+	}
+	.lh__terminal-bar {
+		display: flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.75rem 1rem;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+	}
+	.lh__dot {
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+	}
+	.lh__dot--red {
+		background: #ff5f57;
+	}
+	.lh__dot--yellow {
+		background: #febc2e;
+	}
+	.lh__dot--green {
+		background: #28c840;
+	}
+	.lh__terminal-title {
+		margin-left: 0.5rem;
+		font-size: 0.75rem;
+		color: var(--text-on-dark-subtle);
+	}
+	.lh__terminal-body {
+		margin: 0;
+		padding: 1.25rem 1.5rem 3.25rem;
+		font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono', monospace;
+		font-size: 0.875rem;
+		line-height: 1.75;
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+		color: var(--color-light-lavender);
+	}
+	.lh__line.is-cmd {
+		color: var(--color-white);
+	}
+	.lh__line.is-ok {
+		color: var(--color-light-green);
+	}
+	.lh__terminal-badge {
+		position: absolute;
+		right: 1.25rem;
+		bottom: 1.1rem;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		padding: 0.35rem 0.8rem;
+		border-radius: var(--radius-pill);
+		background: var(--color-light-green);
+		color: var(--color-headings-dark);
+		font-size: 0.75rem;
+		font-weight: var(--fw-semibold);
+	}
+	.lh__terminal-badge-dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: var(--color-headings-dark);
+	}
+	.lh__trust {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.5rem 0;
+		margin: 1.25rem 0 0;
+		padding: 0;
+		font-size: var(--fs-category);
+		color: var(--text-on-dark-muted);
+	}
+	.lh__trust li + li::before {
+		content: '•';
+		margin-inline: 0.75rem;
+		color: var(--color-lavender);
+	}
+
+	@media (max-width: 960px) {
+		.lh__inner {
+			grid-template-columns: 1fr;
+		}
+		.lh::before {
+			display: none;
+		}
+	}
+</style>

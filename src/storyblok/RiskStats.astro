@@ -7,6 +7,7 @@ const { blok } = Astro.props;
 interface Stat {
 	value: string;
 	description: string;
+	tone?: 'fuchsia' | 'blue' | 'dark';
 }
 
 const eyebrow: string = blok?.eyebrow || 'The risk of doing nothing';
@@ -24,10 +25,21 @@ const footnote: string = blok?.footnote || "Don't leave your site unprotected.";
 const ctaLabel: string = blok?.cta_label || 'Get a free security review';
 const ctaLink: string = blok?.cta_link || '#contact';
 
+// Presentation options other pages set (the Laravel page reuses this section).
+// Every default preserves the original home-page look.
+const headingTone: 'fuchsia' | 'dark' = blok?.heading_tone === 'dark' ? 'dark' : 'fuchsia';
+const eyebrowTone: 'dark' | 'blue' = blok?.eyebrow_tone === 'blue' ? 'blue' : 'dark';
+const leadingRule = Boolean(blok?.leading_rule);
+const hideFootnote = Boolean(blok?.hide_footnote);
+const statTone = (s: Stat, i: number) => s.tone || (i < 2 ? 'fuchsia' : 'blue');
+
 const h = splitHighlight(heading, accent);
 ---
 
-<section class="risk" {...storyblokEditable(blok)}>
+<section
+	class:list={['risk', `heading-${headingTone}`, `eyebrow-${eyebrowTone}`, { 'has-leading-rule': leadingRule }]}
+	{...storyblokEditable(blok)}
+>
 	<div class="risk__inner container">
 		<p class="risk__eyebrow category">{eyebrow}</p>
 		<h2 class="risk__heading section-heading">{h.pre}<span class="risk__hl">{h.mid}</span>{h.post}</h2>
@@ -36,16 +48,20 @@ const h = splitHighlight(heading, accent);
 			{
 				stats.map((s, i) => (
 					<li class="risk__stat">
-						<span class:list={['risk__value', i < 2 ? 'is-fuchsia' : 'is-blue']}>{s.value}</span>
+						<span class:list={['risk__value', `is-${statTone(s, i)}`]}>{s.value}</span>
 						<p class="risk__desc">{s.description}</p>
 					</li>
 				))
 			}
 		</ul>
 
-		<p class="risk__foot">
-			{footnote} <a class="risk__link" href={ctaLink}>{ctaLabel} →</a>
-		</p>
+		{
+			!hideFootnote && (
+				<p class="risk__foot">
+					{footnote} <a class="risk__link" href={ctaLink}>{ctaLabel} →</a>
+				</p>
+			)
+		}
 	</div>
 </section>
 
@@ -102,6 +118,24 @@ const h = splitHighlight(heading, accent);
 	}
 	.risk__value.is-blue {
 		color: var(--color-primary-blue);
+	}
+	.risk__value.is-dark {
+		color: var(--color-dark-blue);
+	}
+
+	/* Variants used by the Laravel page. */
+	.risk.heading-dark .risk__heading {
+		color: var(--color-dark-blue);
+	}
+	.risk.heading-dark .risk__hl {
+		color: var(--color-fuchsia);
+	}
+	.risk.eyebrow-blue .risk__eyebrow {
+		color: var(--color-primary-blue);
+	}
+	.risk.has-leading-rule .risk__stat:first-child {
+		padding-left: 1.5rem;
+		border-left: 2px solid var(--color-light-lavender);
 	}
 	.risk__desc {
 		font-size: var(--fs-paragraph-fluid); /* Figma: Paragraph 21px */

@@ -1,0 +1,290 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Button from '../components/Button.astro';
+import { icons } from '../lib/icons';
+
+const { blok } = Astro.props;
+
+interface Rating {
+	kicker?: string;
+	brand: string;
+	score?: string;
+	stars?: number | string;
+	caption?: string;
+	tone?: 'clutch' | 'google';
+}
+
+const eyebrow: string = blok?.eyebrow || 'What clients say';
+const heading: string = blok?.heading || 'The kind of partner you keep\nfor years';
+const quote: string =
+	blok?.quote ||
+	"If you ever want a partner to be there with you, to help you grow, as they grow, I can't recommend Wirebox highly enough. Thank you, Wirebox team, and I look forward to the next 10 years.";
+const name: string = blok?.name || 'Dr A M Featherstone';
+const role: string = blok?.role || 'Director of Operations – ECITB';
+const poster: string = blok?.poster?.filename || '';
+const posterAlt: string = blok?.poster?.alt || `${name} video testimonial`;
+
+/** YouTube or Vimeo link/id → embed URL (same rules as the hero video). */
+function embedUrl(raw?: string): string {
+	if (!raw) return '';
+	const v = String(raw).trim();
+	const yt = v.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/)([A-Za-z0-9_-]{11})/);
+	if (yt) return `https://www.youtube-nocookie.com/embed/${yt[1]}`;
+	if (/^[A-Za-z0-9_-]{11}$/.test(v) && !/^\d+$/.test(v)) return `https://www.youtube-nocookie.com/embed/${v}`;
+	const vimeo = v.match(/\d{6,}/);
+	return vimeo ? `https://player.vimeo.com/video/${vimeo[0]}` : '';
+}
+const video: string = embedUrl(blok?.video);
+
+const ratings: Rating[] = blok?.ratings?.length
+	? blok.ratings
+	: [
+			{ kicker: 'Reviewed on', brand: 'Clutch', stars: 5, caption: '11 reviews', tone: 'clutch' },
+			{ kicker: 'Google Rating', brand: 'Google', score: '4.9', stars: 5, caption: 'Based on 61 reviews', tone: 'google' },
+		];
+const ctaLabel: string = blok?.cta_label ?? 'See all testimonials';
+const ctaLink: string = blok?.cta_link || 'https://wirebox.co.uk/testimonials/';
+
+const starRow = (n: Rating['stars']) => '★'.repeat(Math.max(0, Math.min(5, Number(n ?? 5))));
+---
+
+<section class="ft" {...storyblokEditable(blok)}>
+	<div class="ft__inner container">
+		<p class="ft__eyebrow category">{eyebrow}</p>
+		<h2 class="ft__heading">{heading}</h2>
+
+		<div class="ft__grid">
+			<div class="ft__media">
+				{
+					video ? (
+						<iframe class="ft__video" src={video} title={`${name} – video testimonial`} loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen />
+					) : (
+						<>
+							{poster ? <img class="ft__poster" src={poster} alt={posterAlt} loading="lazy" /> : <div class="ft__poster ft__poster--empty" aria-hidden="true" />}
+							<span class="ft__play" aria-hidden="true">
+								<svg viewBox="0 0 24 24" set:html={icons.play} />
+							</span>
+						</>
+					)
+				}
+			</div>
+
+			<figure class="ft__quote">
+				<span class="ft__mark" aria-hidden="true">”</span>
+				<blockquote class="ft__text">{quote}</blockquote>
+				<figcaption class="ft__cite">
+					<span class="ft__name">{name}</span>
+					<span class="ft__role">{role}</span>
+				</figcaption>
+
+				<ul class="ft__ratings" role="list">
+					{
+						ratings.map((r) => (
+							<li class:list={['ft__rating', `is-${r.tone ?? 'clutch'}`]}>
+								{r.tone === 'google' && <span class="ft__g" aria-hidden="true">G</span>}
+								<div>
+									{r.kicker && <span class="ft__rating-kicker">{r.kicker}</span>}
+									<span class="ft__rating-line">
+										{r.tone !== 'google' && <strong class="ft__rating-brand">{r.brand}</strong>}
+										{r.score && <strong class="ft__rating-score">{r.score}</strong>}
+										<span class="ft__stars">{starRow(r.stars)}</span>
+									</span>
+									{r.caption && <span class="ft__rating-caption">{r.caption}</span>}
+								</div>
+							</li>
+						))
+					}
+				</ul>
+			</figure>
+		</div>
+
+		{
+			ctaLabel && (
+				<div class="ft__cta">
+					<Button label={ctaLabel} link={ctaLink} variant="outline" />
+				</div>
+			)
+		}
+	</div>
+</section>
+
+<style>
+	.ft {
+		background: var(--color-primary-blue) url('/quote-bg.svg') center / cover no-repeat;
+		color: var(--color-white);
+		padding-block: var(--section-py);
+		overflow: hidden;
+	}
+	.ft__eyebrow {
+		color: var(--text-on-dark);
+		margin-bottom: 1rem;
+	}
+	.ft__heading {
+		max-width: 22ch;
+		margin-bottom: clamp(2rem, 4vw, 3rem);
+		font-size: var(--fs-h2-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h2);
+		color: var(--color-white);
+		white-space: pre-line;
+	}
+	.ft__grid {
+		display: grid;
+		grid-template-columns: 1.1fr 1fr;
+		gap: clamp(2rem, 4vw, 4rem);
+		align-items: center;
+	}
+	.ft__media {
+		position: relative;
+		aspect-ratio: 16 / 9;
+		overflow: hidden;
+		background: var(--color-dark-blue);
+	}
+	.ft__video,
+	.ft__poster {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border: 0;
+		object-fit: cover;
+	}
+	.ft__poster--empty {
+		background: linear-gradient(135deg, var(--color-dark-blue), var(--surface-placeholder));
+	}
+	.ft__play {
+		position: absolute;
+		left: 1rem;
+		bottom: 1rem;
+		display: grid;
+		place-items: center;
+		width: 40px;
+		height: 40px;
+		background: var(--color-white);
+		color: var(--color-headings-dark);
+	}
+	.ft__play svg {
+		width: 18px;
+		height: 18px;
+	}
+
+	.ft__quote {
+		margin: 0;
+	}
+	.ft__mark {
+		display: block;
+		font-size: 5.5rem;
+		line-height: 0.6;
+		font-weight: var(--fw-semibold);
+		color: var(--color-lavender);
+		margin-bottom: 1rem;
+	}
+	.ft__text {
+		margin: 0;
+		font-size: var(--fs-paragraph-fluid);
+		line-height: var(--lh-quote);
+		color: var(--color-white);
+	}
+	.ft__cite {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+		margin-top: 1.25rem;
+	}
+	.ft__name {
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+	}
+	.ft__role {
+		font-size: var(--fs-category);
+		text-transform: none;
+		color: var(--text-on-dark-muted);
+	}
+
+	.ft__ratings {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.85rem;
+		margin: 1.75rem 0 0;
+		padding: 0;
+	}
+	.ft__rating {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.7rem;
+		padding: 0.55rem 0.9rem;
+		background: var(--color-white);
+		color: var(--color-headings-dark);
+		border-radius: var(--radius-card);
+		line-height: 1.2;
+	}
+	.ft__rating-kicker {
+		display: block;
+		font-size: 0.6rem;
+		font-weight: var(--fw-semibold);
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--color-paragraph);
+	}
+	.ft__rating-line {
+		display: inline-flex;
+		align-items: baseline;
+		gap: 0.4rem;
+		font-size: 0.95rem;
+	}
+	.ft__rating-brand {
+		font-weight: 700;
+		letter-spacing: -0.02em;
+	}
+	.ft__rating-score {
+		font-weight: 700;
+	}
+	.ft__stars {
+		font-size: 0.8rem;
+		letter-spacing: 0.05em;
+	}
+	.is-clutch .ft__stars {
+		color: #ef4335; /* Clutch brand */
+	}
+	.is-google .ft__stars {
+		color: #fbbc04; /* Google brand */
+	}
+	.ft__rating-caption {
+		display: block;
+		font-size: 0.62rem;
+		color: var(--color-paragraph);
+		margin-top: 0.15rem;
+	}
+	.ft__g {
+		display: grid;
+		place-items: center;
+		width: 30px;
+		height: 30px;
+		border-radius: 50%;
+		background: var(--color-light-bg-1);
+		font-weight: 700;
+		font-size: 1.1rem;
+		color: #4285f4;
+	}
+
+	.ft__cta {
+		display: flex;
+		justify-content: center;
+		margin-top: clamp(2rem, 4vw, 3rem);
+	}
+	/* Design: white outline button on the blue band. */
+	.ft__cta :global(.btn--outline) {
+		border-color: var(--color-white);
+		color: var(--color-white);
+	}
+	.ft__cta :global(.btn--outline:hover) {
+		background: var(--color-white);
+		color: var(--color-primary-blue);
+	}
+
+	@media (max-width: 880px) {
+		.ft__grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

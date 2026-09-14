@@ -1,0 +1,61 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Button from '../components/Button.astro';
+
+const { blok } = Astro.props;
+
+const heading: string = blok?.heading || 'Software development and maintenance expertise';
+const prompt: string = blok?.prompt ?? 'Ready to start a project?';
+const ctaLabel: string = blok?.cta_label || 'Arrange a health check';
+const ctaLink: string = blok?.cta_link || '#contact';
+---
+
+<section class="cb" {...storyblokEditable(blok)}>
+	<div class="cb__inner container">
+		<h2 class="cb__heading">{heading}</h2>
+		<div class="cb__row">
+			<span class="cb__rule" aria-hidden="true" />
+			{prompt && <span class="cb__prompt">{prompt}</span>}
+			<Button label={ctaLabel} link={ctaLink} variant="deep" icon="arrow-right" />
+		</div>
+	</div>
+</section>
+
+<style>
+	.cb {
+		/* Same fuchsia + diagonal shapes as the Get Started section. */
+		background: var(--color-fuchsia) url('/cta-bg.svg') center / cover no-repeat;
+		color: var(--color-white);
+		padding-block: clamp(3rem, 6vw, 5rem);
+	}
+	.cb__heading {
+		font-size: var(--fs-h3-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h3);
+		color: var(--color-white);
+		margin-bottom: 1.75rem;
+	}
+	.cb__row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 1rem 1.5rem;
+	}
+	.cb__rule {
+		flex: 1 1 8rem;
+		height: 1px;
+		background: rgba(255, 255, 255, 0.45);
+	}
+	.cb__prompt {
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		white-space: nowrap;
+	}
+	.cb__row :global(.btn) {
+		height: 46px;
+		padding-inline: 24px 20px;
+		font-size: var(--fs-small);
+		gap: 14px;
+	}
+</style>

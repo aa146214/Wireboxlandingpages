@@ -19,6 +19,8 @@ const accent: string = blok?.heading_accent || 'and counting_';
 const subtitle: string =
 	blok?.subtitle ||
 	"These aren't one-off builds. These are long-term partnerships – we're still actively supporting every client below.";
+/** Optional closing line under the grid (used by the Laravel page). */
+const footnote: string = blok?.footnote || '';
 
 const cdn = 'https://a.storyblok.com/f/293147646055661';
 const items: Case[] = blok?.items?.length
@@ -40,7 +42,7 @@ const resolveLink = (l: Case['link']) =>
 const h = splitHighlight(heading, accent === heading ? '' : accent);
 ---
 
-<section class="cases" {...storyblokEditable(blok)}>
+<section class="cases" id="work" {...storyblokEditable(blok)}>
 	<div class="cases__inner container">
 		<header class="cases__head">
 			<p class="cases__eyebrow category">{eyebrow}</p>
@@ -68,10 +70,19 @@ const h = splitHighlight(heading, accent === heading ? '' : accent);
 				))
 			}
 		</ul>
+
+		{footnote && <p class="cases__foot">{footnote}</p>}
 	</div>
 </section>
 
 <style>
+	.cases__foot {
+		margin-top: clamp(2rem, 4vw, 3rem);
+		text-align: center;
+		font-size: var(--fs-paragraph-fluid);
+		font-weight: var(--fw-semibold);
+		color: var(--color-primary-blue);
+	}
 	.cases {
 		background: var(--surface-page);
 		padding-block: var(--section-py);

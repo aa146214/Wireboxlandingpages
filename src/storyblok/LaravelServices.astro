@@ -1,0 +1,260 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import { icons } from '../lib/icons';
+
+const { blok } = Astro.props;
+
+interface Point {
+	text: string;
+	tone?: 'purple' | 'fuchsia' | 'dark';
+}
+interface Service {
+	title: string;
+	description: string;
+	tone?: 'fuchsia' | 'purple';
+}
+
+const eyebrow: string = blok?.eyebrow || 'What we do';
+const heading: string = blok?.heading || 'More than a\nbuild-and-walk-away\nagency';
+const body: string =
+	blok?.body ||
+	"We don't just ship a Laravel application and disappear. We stay on as the team that keeps it secure, fast, and growing.";
+
+const badgeImage: string = blok?.badge_image?.filename || '';
+const badgeAlt: string = blok?.badge_image?.alt || 'Laravel Certified Company';
+const badgeLogo = '/seed-assets/support/laravel-logomark.svg';
+
+const subheading: string = blok?.subheading || 'Laravel application development';
+const subbody: string =
+	blok?.subbody ||
+	'Bespoke, business-critical applications built on Laravel — from booking and payments platforms to funding databases and configuration tools — designed around how your business actually operates, not a generic template.';
+
+const points: Point[] = blok?.points?.length
+	? blok.points
+	: [
+			{ text: 'Built bespoke, not templated', tone: 'purple' },
+			{ text: 'Signed off in staging first', tone: 'fuchsia' },
+			{ text: 'Owned by a certified Laravel team', tone: 'dark' },
+		];
+
+const services: Service[] = blok?.services?.length
+	? blok.services
+	: [
+			{ title: 'Laravel migration', description: 'Moving a legacy PHP application onto Laravel, or taking over one another agency built. We audit, document, and migrate with zero downtime.', tone: 'fuchsia' },
+			{ title: 'Laravel hosting', description: 'Provisioned and managed on AWS, Azure or DigitalOcean, with Forge and Ansible keeping deployment and infrastructure repeatable.', tone: 'purple' },
+			{ title: 'Maintenance & support', description: 'Security patching, version upgrades and code optimisation on a rolling monthly plan — no long-term contract required.', tone: 'fuchsia' },
+			{ title: 'Reliability & operational review', description: 'A backup and disaster-recovery audit, plus a look at your existing processes for what can be automated or made more resilient.', tone: 'purple' },
+		];
+
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="ls" {...storyblokEditable(blok)}>
+	<div class="ls__inner container">
+		<div class="ls__intro">
+			<p class="ls__eyebrow category">{eyebrow}</p>
+			<h2 class="ls__heading">{heading}</h2>
+			<p class="ls__body">{body}</p>
+
+			{
+				badgeImage ? (
+					<img class="ls__badge-img" src={badgeImage} alt={badgeAlt} loading="lazy" />
+				) : (
+					<div class="ls__badge" role="img" aria-label={badgeAlt}>
+						<span class="ls__badge-text">Laravel<br />Certified<br />Company</span>
+						<img class="ls__badge-logo" src={badgeLogo} alt="" aria-hidden="true" loading="lazy" />
+					</div>
+				)
+			}
+
+			<h3 class="ls__subheading">{subheading}</h3>
+			<p class="ls__subbody">{subbody}</p>
+
+			<ol class="ls__points" role="list">
+				{
+					points.map((p, i) => (
+						<li class:list={['ls__point', `is-${p.tone ?? 'purple'}`]}>
+							<span class="ls__point-num">{pad(i + 1)}</span>
+							<span>{p.text}</span>
+						</li>
+					))
+				}
+			</ol>
+		</div>
+
+		<ul class="ls__panel" role="list">
+			{
+				services.map((s) => (
+					<li class="ls__service">
+						<svg class="ls__icon" viewBox="0 0 24 24" aria-hidden="true" set:html={icons.hand} />
+						<div>
+							<h3 class:list={['ls__service-title', `is-${s.tone ?? 'fuchsia'}`]}>{s.title}</h3>
+							<p class="ls__service-desc">{s.description}</p>
+						</div>
+					</li>
+				))
+			}
+		</ul>
+	</div>
+</section>
+
+<style>
+	.ls {
+		background: var(--surface-page);
+		padding-block: var(--section-py);
+	}
+	.ls__inner {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: clamp(2rem, 5vw, 5rem);
+		align-items: center;
+	}
+	.ls__intro,
+	.ls__panel {
+		min-width: 0;
+	}
+	.ls__eyebrow {
+		color: var(--color-primary-blue);
+		margin-bottom: 1rem;
+	}
+	.ls__heading {
+		font-size: var(--fs-h2-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h2);
+		color: var(--color-headings-dark);
+		white-space: pre-line;
+	}
+	@media (max-width: 560px) {
+		.ls__heading {
+			white-space: normal;
+		}
+	}
+	.ls__body {
+		max-width: 46ch;
+		margin-top: 1.25rem;
+		font-size: var(--fs-paragraph-fluid);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+
+	/* "Laravel Certified Company" badge — image when supplied, else drawn. */
+	.ls__badge-img {
+		display: block;
+		height: 112px;
+		width: auto;
+		margin-top: 2rem;
+	}
+	.ls__badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 1rem;
+		margin-top: 2rem;
+		padding: 0.9rem 1.1rem;
+		background: #ff2d20; /* Laravel brand red */
+		border-radius: 10px;
+		color: var(--color-white);
+	}
+	.ls__badge-text {
+		font-size: 1.15rem;
+		font-weight: var(--fw-semibold);
+		line-height: 1.05;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+	.ls__badge-logo {
+		height: 52px;
+		width: auto;
+		filter: brightness(0) invert(1); /* logomark ships red; badge wants white */
+	}
+
+	.ls__subheading {
+		margin-top: 2rem;
+		font-size: var(--fs-h5-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-dark-blue);
+	}
+	.ls__subbody {
+		margin-top: 0.75rem;
+		max-width: 50ch;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+	.ls__points {
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+		margin: 1.5rem 0 0;
+		padding: 0;
+	}
+	.ls__point {
+		display: flex;
+		align-items: baseline;
+		gap: 0.75rem;
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+	}
+	.ls__point-num {
+		font-size: var(--fs-category);
+		letter-spacing: 0.04em;
+	}
+	.ls__point.is-purple {
+		color: var(--color-primary-blue);
+	}
+	.ls__point.is-fuchsia {
+		color: var(--color-fuchsia);
+	}
+	.ls__point.is-dark {
+		color: var(--color-dark-blue);
+	}
+
+	/* --- Services panel --- */
+	.ls__panel {
+		margin: 0;
+		padding: clamp(0.5rem, 1.5vw, 1rem) clamp(1.5rem, 3vw, 2.5rem);
+		background: var(--color-light-bg-1);
+	}
+	.ls__service {
+		display: grid;
+		grid-template-columns: 40px 1fr;
+		gap: 1rem;
+		padding-block: 1.6rem;
+		border-bottom: 1px solid var(--border-subtle);
+	}
+	.ls__service:last-child {
+		border-bottom: none;
+	}
+	.ls__icon {
+		width: 34px;
+		height: 34px;
+		color: var(--color-primary-blue);
+		transform: rotate(90deg); /* glyph is fingers-up; the design points right */
+	}
+	.ls__service-title {
+		font-size: var(--fs-h5-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		margin-bottom: 0.5rem;
+	}
+	.ls__service-title.is-fuchsia {
+		color: var(--color-fuchsia);
+	}
+	.ls__service-title.is-purple {
+		color: var(--color-primary-blue);
+	}
+	.ls__service-desc {
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+
+	@media (max-width: 900px) {
+		.ls__inner {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

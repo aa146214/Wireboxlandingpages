@@ -44,6 +44,11 @@ export default defineConfig({
 				cta_contact: 'storyblok/CtaContact',
 				locations: 'storyblok/Locations',
 				thank_you: 'storyblok/ThankYou',
+				// --- Laravel partner landing page ---
+				laravel_hero: 'storyblok/LaravelHero',
+				laravel_services: 'storyblok/LaravelServices',
+				featured_testimonial: 'storyblok/FeaturedTestimonial',
+				cta_banner: 'storyblok/CtaBanner',
 				// --- Legacy marketing landing page (kept for other stories) ---
 				hero: 'storyblok/Hero',
 				podcast_banner: 'storyblok/PodcastBanner',

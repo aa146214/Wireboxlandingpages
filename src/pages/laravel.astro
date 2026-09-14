@@ -1,0 +1,53 @@
+---
+import { randomUUID } from 'node:crypto';
+import { useStoryblokApi } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import Layout from '../layouts/Layout.astro';
+import { buildLaravelBody, LARAVEL_SEO, TESTIMONIAL_ITEMS } from '../data/laravel-content.mjs';
+
+/**
+ * Laravel partner landing page.
+ *
+ * Has its own route rather than sharing [...slug].astro because it's a
+ * campaign URL: if the story is unpublished or Storyblok is unreachable it must
+ * still render, not 404 paid traffic. The fallback is built from the same
+ * content module the seed uses, so the two can't drift; only the shared bloks
+ * (header, testimonials, case studies, maps, footer) fall back to their
+ * component defaults.
+ */
+const FALLBACK = {
+	component: 'page',
+	...LARAVEL_SEO,
+	body: buildLaravelBody({
+		sb: (component: string, fields: Record<string, unknown> = {}) => ({ _uid: randomUUID(), component, ...fields }),
+		A: (name: string) => ({ filename: `/seed-assets/support/${name}`, alt: '' }),
+		mlink: (url: string) => url,
+		// The minimal header (logo + call pill), same as the seed's.
+		header: { _uid: 'fallback-header', component: 'header', nav: [], socials: [], phone_label: 'call us on:', phone_number: '0207 993 5485' },
+		testimonialItems: TESTIMONIAL_ITEMS.map((t) => ({ _uid: randomUUID(), component: 'testimonial', ...t })),
+		supportCases: () => ({ _uid: 'fallback-cases', component: 'support_cases' }),
+		locations: () => ({ _uid: 'fallback-locations', component: 'locations' }),
+		footer: () => ({ _uid: 'fallback-footer', component: 'footer' }),
+	}),
+};
+
+let content: Record<string, unknown> = FALLBACK;
+try {
+	const storyblokApi = useStoryblokApi();
+	const { data } = await storyblokApi.get('cdn/stories/laravel', {
+		version: 'published',
+		cv: Date.now(),
+	});
+	if (data?.story?.content) content = data.story.content;
+} catch (err) {
+	console.warn('[laravel] Storyblok fetch failed — using bundled content:', (err as Error).message);
+}
+
+const seoTitle = (content.seo_title as string) || LARAVEL_SEO.seo_title;
+const seoDescription = (content.seo_description as string) || LARAVEL_SEO.seo_description;
+const noindex = Boolean(content.seo_noindex);
+---
+
+<Layout title={seoTitle} description={seoDescription} noindex={noindex}>
+	<StoryblokComponent blok={content} />
+</Layout>

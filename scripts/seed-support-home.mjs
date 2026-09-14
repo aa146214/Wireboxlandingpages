@@ -21,6 +21,7 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { buildLaravelBody, LARAVEL_SEO, TESTIMONIAL_ITEMS } from '../src/data/laravel-content.mjs';
 
 const SEED_ASSETS = fileURLToPath(new URL('../public/seed-assets/support', import.meta.url));
 const BACKUP_DIR = fileURLToPath(new URL('../.storyblok-backups', import.meta.url));
@@ -54,9 +55,15 @@ const FORCE = process.argv.includes('--force-overwrite-client-space');
  * the editor renders it as an orphaned field it can't edit.
  */
 const COMPONENTS_ONLY = process.argv.includes('--components-only');
+/**
+ * Seed a single story by slug (currently: laravel). Writes nothing else, and
+ * backs the story up first if it already exists, so it is safe on a live space.
+ */
+const ONLY = (process.argv.find((a) => a.startsWith('--only=')) || '').slice('--only='.length);
 
-// --components-only writes no story content, so it is safe on a live space.
-if (PROTECTED_SPACES[SPACE] && !FORCE && !COMPONENTS_ONLY) {
+// --components-only and --only=<story> never touch the home story, so they are
+// safe on a live space.
+if (PROTECTED_SPACES[SPACE] && !FORCE && !COMPONENTS_ONLY && !ONLY) {
 	console.error(
 		`REFUSING to seed space ${SPACE} — ${PROTECTED_SPACES[SPACE]}.\n\n` +
 			'This script replaces the entire story content and would discard anything\n' +
@@ -120,6 +127,7 @@ const ASSET_DEFS = {
 	'sme.png': 'SME Hertfordshire Business Awards',
 	'watford-pledge.png': 'Watford Business Pledge Member',
 	'aws-partner.png': 'AWS Partner',
+	'laravel-logomark.svg': 'Laravel',
 };
 const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', svg: 'image/svg+xml' };
 const mimeOf = (f) => MIME[f.split('.').pop().toLowerCase()] || 'application/octet-stream';
@@ -202,10 +210,10 @@ const SUPPORT_COMPONENTS = [
 	// leaves
 	{ name: 'hero_stat', schema: { value: text(0), label: text(1), tone: opt(2, ['pink', 'green'], 'pink') } },
 	{ name: 'trust_item', schema: { text: text(0) } },
-	{ name: 'risk_stat', schema: { value: text(0), description: area(1) } },
+	{ name: 'risk_stat', schema: { value: text(0), description: area(1), tone: opt(2, [{ name: 'Auto (position)', value: '' }, 'fuchsia', 'blue', 'dark'], '') } },
 	{ name: 'vp_feature', schema: { title: text(0), description: area(1), tone: opt(2, ['dark', 'fuchsia', 'purple'], 'dark') } },
 	{ name: 'vp_chip', schema: { label: text(0) } },
-	{ name: 'sla_tier', schema: { value: text(0), label: text(1), description: area(2), tone: opt(3, ['pink', 'yellow', 'green', 'cyan'], 'pink') } },
+	{ name: 'sla_tier', schema: { value: text(0), label: text(1), description: area(2), tone: opt(3, ['pink', 'yellow', 'green', 'cyan', 'lavender'], 'pink') } },
 	{ name: 'pricing_plan', schema: { tier: text(0), name: text(1), badge: text(2), price_prefix: text(3), price: text(4), meta: text(5), features: area(6, { description: 'One feature per line' }), cta_label: text(7), cta_variant: opt(8, ['outline-lavender', 'solid', 'fuchsia', 'deep'], 'outline-lavender'), cta_link: text(9), featured: bool(10) } },
 	{ name: 'support_case', schema: { title: text(0), duration: text(1), description: area(2), tags: area(3, { description: 'One tag per line' }), image: asset(4), link: link(5) } },
 	{ name: 'faq_item', schema: { question: text(0), answer: area(1), open: bool(2) } },
@@ -226,15 +234,24 @@ const SUPPORT_COMPONENTS = [
 	// sections
 	{ name: 'support_hero', schema: { layout: opt(0, [{ name: 'Commitments card in hero', value: 'card' }, { name: 'Video in hero, commitments below', value: 'video' }], 'card'), eyebrow: text(0), heading: area(1), heading_accent: text(2), body: area(3), ctas: bloks(4, ['cta']), video: text(5, { description: 'YouTube or Vimeo link (or id) — takes priority over an uploaded file' }), video_file: anyAsset(6, { description: 'Or upload a video file here instead' }), video_poster: asset(7, { description: 'Still shown before the video plays' }), video_title: text(8), card_title: text(9), stats: bloks(10, ['hero_stat']), form_title: text(11), form_cta_label: text(12), form_note: text(13), bg_image: asset(14) } },
 	{ name: 'trust_bar', schema: { items: bloks(0, ['trust_item']), tone: opt(1, ['dark', 'fuchsia'], 'dark') } },
-	{ name: 'risk_stats', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), stats: bloks(3, ['risk_stat']), footnote: text(4), cta_label: text(5), cta_link: text(6) } },
+	{ name: 'risk_stats', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), stats: bloks(3, ['risk_stat']), footnote: text(4), cta_label: text(5), cta_link: text(6), heading_tone: opt(7, ['fuchsia', 'dark'], 'fuchsia'), eyebrow_tone: opt(8, ['dark', 'blue'], 'dark'), leading_rule: bool(9), hide_footnote: bool(10) } },
 	{ name: 'value_props', schema: { eyebrow: text(0), heading: text(1), body: area(2), cta_label: text(3), cta_link: text(4), image: asset(5), toolkit_title: text(6), toolkit: area(7, { description: 'One tool per line' }), features: bloks(8, ['vp_feature']) } },
-	{ name: 'sla_tiers', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), tiers: bloks(4, ['sla_tier']) } },
+	{ name: 'sla_tiers', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), tiers: bloks(4, ['sla_tier']), eyebrow_tone: opt(5, ['pink', 'lavender'], 'pink'), hide_dividers: bool(6), stack_label: text(7), stack: area(8, { description: 'One technology per line, shown as chips under the tiers' }), stack_highlight: text(9, { description: 'Which chip gets the fuchsia highlight' }) } },
 	{ name: 'pricing', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), plans: bloks(4, ['pricing_plan']), footnote: text(5), foot_link_label: text(6), foot_link: text(7), foot_trail: text(8) } },
-	{ name: 'support_cases', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), items: bloks(4, ['support_case']) } },
+	{ name: 'support_cases', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), items: bloks(4, ['support_case']), footnote: text(5, { description: 'Optional closing line under the grid' }) } },
 	{ name: 'faq', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), items: bloks(3, ['faq_item']) } },
-	{ name: 'cta_contact', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), body: area(3), phones: bloks(4, ['cta_phone']), form_cta_label: text(5) } },
+	{ name: 'cta_contact', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), body: area(3), phones: bloks(4, ['cta_phone']), form_cta_label: text(5), tone: opt(6, ['fuchsia', 'blue'], 'fuchsia'), form_title: text(7), body_strong: area(8), show_message: bool(9), labels_first: bool(10), form_source: text(11, { description: 'Tag sent with the lead so the source form is identifiable' }) } },
 	{ name: 'locations', schema: { places: bloks(0, ['map_place']) } },
 	{ name: 'thank_you', schema: { eyebrow: text(0), heading: text(1), heading_line_2: text(2, { description: 'Shown on a second line, in the accent colour' }), body: area(3), cta_label: text(4), cta_link: text(5), phones_title: text(6), phones: bloks(7, ['cta_phone']) } },
+	// --- Laravel partner landing page (leaves first) ---
+	{ name: 'partner_badge', schema: { label: area(0, { description: 'One line per row, e.g. Certified / Laravel / Partner' }), logo: anyAsset(1) } },
+	{ name: 'numbered_point', schema: { text: text(0), tone: opt(1, ['purple', 'fuchsia', 'dark'], 'purple') } },
+	{ name: 'service_item', schema: { title: text(0), description: area(1), tone: opt(2, ['fuchsia', 'purple'], 'fuchsia') } },
+	{ name: 'rating_badge', schema: { kicker: text(0), brand: text(1), score: text(2), stars: text(3, { description: '1–5' }), caption: text(4), tone: opt(5, ['clutch', 'google'], 'clutch') } },
+	{ name: 'laravel_hero', schema: { eyebrow: text(0), heading: area(1), body: area(2), ctas: bloks(3, ['cta']), badges: bloks(4, ['partner_badge']), terminal_title: text(5), terminal: area(6, { description: 'One terminal line per row; lines starting with $ render as commands' }), terminal_badge: text(7), trust_items: area(8, { description: 'One item per line, shown under the terminal' }) } },
+	{ name: 'laravel_services', schema: { eyebrow: text(0), heading: area(1), body: area(2), badge_image: asset(3, { description: 'Laravel Certified Company badge — drawn in CSS when empty' }), subheading: text(4), subbody: area(5), points: bloks(6, ['numbered_point']), services: bloks(7, ['service_item']) } },
+	{ name: 'featured_testimonial', schema: { eyebrow: text(0), heading: area(1), quote: area(2), name: text(3), role: text(4), video: text(5, { description: 'YouTube or Vimeo link — shows a poster with a play mark when empty' }), poster: asset(6), ratings: bloks(7, ['rating_badge']), cta_label: text(8), cta_link: text(9) } },
+	{ name: 'cta_banner', schema: { heading: text(0), prompt: text(1), cta_label: text(2), cta_link: text(3) } },
 ];
 
 async function syncComponents() {
@@ -296,17 +313,9 @@ const testimonials = sb('testimonials', {
 	eyebrow: 'What our clients say',
 	heading: 'The kind of partner you keep for years',
 	heading_accent: 'keep for years',
-	items: [
-		sb('testimonial', { name: 'James Randall', role: 'Co-founder, Kids Party Finder', vimeo: '1119462004' }),
-		sb('testimonial', { name: 'Stephen Makinde', role: 'Owner, The Oak Practice & Perfect Balance Clinic', vimeo: '1127563818' }),
-		sb('testimonial', { name: 'Glen Hempenstall', role: 'Communications Manager, Watford Town Centre BID', vimeo: '996278084' }),
-		sb('testimonial', { name: 'Alison Hutchinson CBE', role: 'CEO, Pennies', vimeo: '1125445378' }),
-		sb('testimonial', { quote: 'John and his team have been punctual, helpful and supportive showing both excellent knowledge of WordPress as well as a strong creative and design skill set. I would have no reservation in recommending Wirebox for WordPress development.', name: 'Nina Innocenti', role: 'Project Manager, Middlesex University' }),
-		sb('testimonial', { quote: 'Wirebox went above and beyond, delivering a brilliant website with an attractive design, web governance conformity and smooth functionality – and it all went from brief to finished product within about two months.', name: 'Sweta Rana', role: 'Web Manager, Middlesex University' }),
-		sb('testimonial', { quote: 'The Wirebox team worked from the initial scope and developed a fantastic solution which is interactive, fast, clear and allows full transparency and consistency across the business. We are delighted with the end result.', name: 'Kathryn Boyd', role: 'Director of HR, Search Consultancy' }),
-		sb('testimonial', { quote: 'Wirebox were able to analyse reports and offer solutions to improve the site. It took a few weeks, but our score is 95+ which is the best in our industry. Really happy with the work and always will recommend Wirebox.', name: 'Mr Clutch', role: 'Marketing Manager' }),
-		sb('testimonial', { quote: 'Great service – great knowledge throughout the company, very quick response and always have the solution to our problems in a professional and timely manner.', name: 'Chevin Fleet', role: 'Marketing Manager' }),
-	],
+	// The review list lives in src/data/laravel-content.mjs so the Laravel page's
+	// fallback render shows the same carousel.
+	items: TESTIMONIAL_ITEMS.map((t) => sb('testimonial', t)),
 });
 
 const CDN = 'https://a.storyblok.com/f/293147646055661';
@@ -568,6 +577,45 @@ function buildThankYouContent() {
 	});
 }
 
+/* ------------------------------------------------------------------ *
+ * Laravel partner landing page (/laravel). The copy lives in
+ * src/data/laravel-content.mjs so the page's fallback render and this seed
+ * can't drift apart; this just supplies the seed-side helpers.
+ * ------------------------------------------------------------------ */
+
+const clone = (b) => ({ ...b, _uid: randomUUID() });
+
+function buildLaravelContent() {
+	return sb('page', {
+		...LARAVEL_SEO,
+		body: buildLaravelBody({
+			sb,
+			A,
+			mlink,
+			header,
+			testimonialItems: (testimonials.items || []).map(clone),
+			supportCases,
+			locations,
+			footer,
+		}),
+	});
+}
+
+async function seedLaravelStory() {
+	const content = buildLaravelContent();
+	const found = await mapi('GET', '/stories/?with_slug=laravel');
+	const existing = (found.stories || []).find((s) => s.slug === 'laravel');
+	const story = { name: 'Laravel', slug: 'laravel', content };
+	if (existing) {
+		await backupStory(existing.id, 'laravel');
+		await mapi('PUT', `/stories/${existing.id}`, { story, publish: 1 });
+		console.log(`Published "laravel" (updated, ${content.body.length} sections).`);
+	} else {
+		await mapi('POST', '/stories/', { story, publish: 1 });
+		console.log(`Published "laravel" (created, ${content.body.length} sections).`);
+	}
+}
+
 async function seedThankYouStory() {
 	const content = buildThankYouContent();
 	const found = await mapi('GET', '/stories/?with_slug=thankyou');
@@ -611,6 +659,13 @@ async function main() {
 		return;
 	}
 	await uploadAssets();
+	if (ONLY) {
+		if (ONLY !== 'laravel') throw new Error(`Unknown --only target "${ONLY}" (supported: laravel).`);
+		console.log('\n=== Story ===');
+		await seedLaravelStory();
+		console.log('Only the "laravel" story was written (--only=laravel).');
+		return;
+	}
 	const content = buildContent();
 	console.log('\n=== Story ===');
 	await backupStory(HOME_STORY_ID, 'home');
@@ -622,6 +677,7 @@ async function main() {
 	console.log(`Published "${story.slug}" as the support page (${content.body.length} sections).`);
 	await seedVideoVariantStory();
 	await seedThankYouStory();
+	await seedLaravelStory();
 }
 
 main().catch((err) => {

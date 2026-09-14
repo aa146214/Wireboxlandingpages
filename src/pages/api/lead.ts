@@ -11,6 +11,7 @@ const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const SOURCES: Record<string, string> = {
 	hero: 'Hero — "Get your free site review"',
 	cta: 'CTA — "Get My Free Review"',
+	laravel: 'Laravel page — "Book my consultation"',
 };
 
 interface SendResult {
@@ -40,6 +41,7 @@ async function sendLeadEmail(fields: Record<string, string>): Promise<SendResult
 		`Email:   ${fields.email}`,
 		fields.phone ? `Phone:   ${fields.phone}` : null,
 		fields.page ? `Page:    ${fields.page}` : null,
+		fields.message ? `\nMessage:\n${fields.message.trim()}` : null,
 	].filter(Boolean);
 
 	const body = new URLSearchParams();
