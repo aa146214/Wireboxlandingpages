@@ -75,7 +75,35 @@ function setField(blok, field, value, label, changes) {
 	changes.push({ what: label, before, after: value });
 }
 
+/**
+ * Each review's own Vimeo id, keyed by the person. Two of these were swapped in
+ * the seed, so a card played someone else's video under the wrong name.
+ * Verified against the Vimeo titles ("KPF-Testmonial", "WatfordBid Glenn
+ * Review") rather than against another story.
+ */
+const TESTIMONIAL_VIDEOS = {
+	'James Randall': '996278084',
+	'Glen Hempenstall': '1119462004',
+	'Stephen Makinde': '1127563818',
+	'Alison Hutchinson CBE': '1125445378',
+};
+
 const PATCHES = {
+	'testimonial-videos': {
+		description: "Point each testimonial card at that person's own video (two were swapped).",
+		run(content) {
+			const changes = [];
+			const items = findBloks(content, 'testimonial');
+			if (!items.length) throw new Error('No testimonial bloks found.');
+			for (const item of items) {
+				const want = TESTIMONIAL_VIDEOS[item.name];
+				if (!want) continue; // reviews without a video, and anyone added later
+				setField(item, 'vimeo', want, `testimonial[${item.name}].vimeo`, changes);
+			}
+			return changes;
+		},
+	},
+
 	'footer-copyright': {
 		description: 'Fix the footer copyright typo: "© Wiredbox Ltd." → "© Wirebox Ltd."',
 		value: '© Wirebox Ltd.',

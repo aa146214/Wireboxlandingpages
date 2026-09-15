@@ -42,9 +42,9 @@ const testimonials: SbBlok = {
 	heading: 'The kind of partner you keep for years',
 	heading_accent: 'keep for years',
 	items: [
-		{ name: 'James Randall', role: 'Co-founder, Kids Party Finder', vimeo: '1119462004' },
+		{ name: 'James Randall', role: 'Co-founder, Kids Party Finder', vimeo: '996278084' },
 		{ name: 'Stephen Makinde', role: 'Owner, The Oak Practice & Perfect Balance Clinic', vimeo: '1127563818' },
-		{ name: 'Glen Hempenstall', role: 'Communications Manager, Watford Town Centre BID', vimeo: '996278084' },
+		{ name: 'Glen Hempenstall', role: 'Communications Manager, Watford Town Centre BID', vimeo: '1119462004' },
 		{ name: 'Alison Hutchinson CBE', role: 'CEO, Pennies', vimeo: '1125445378' },
 		{ quote: 'John and his team have been punctual, helpful and supportive showing both excellent knowledge of WordPress as well as a strong creative and design skill set. I would have no reservation in recommending Wirebox for WordPress development.', name: 'Nina Innocenti', role: 'Project Manager, Middlesex University' },
 		{ quote: 'Wirebox went above and beyond, delivering a brilliant website with an attractive design, web governance conformity and smooth functionality – and it all went from brief to finished product within about two months.', name: 'Sweta Rana', role: 'Web Manager, Middlesex University' },

@@ -18,9 +18,9 @@
  * objects; callers wrap them in `testimonial` bloks.
  */
 export const TESTIMONIAL_ITEMS = [
-	{ name: 'James Randall', role: 'Co-founder, Kids Party Finder', vimeo: '1119462004' },
+	{ name: 'James Randall', role: 'Co-founder, Kids Party Finder', vimeo: '996278084' },
 	{ name: 'Stephen Makinde', role: 'Owner, The Oak Practice & Perfect Balance Clinic', vimeo: '1127563818' },
-	{ name: 'Glen Hempenstall', role: 'Communications Manager, Watford Town Centre BID', vimeo: '996278084' },
+	{ name: 'Glen Hempenstall', role: 'Communications Manager, Watford Town Centre BID', vimeo: '1119462004' },
 	{ name: 'Alison Hutchinson CBE', role: 'CEO, Pennies', vimeo: '1125445378' },
 	{ quote: 'John and his team have been punctual, helpful and supportive showing both excellent knowledge of WordPress as well as a strong creative and design skill set. I would have no reservation in recommending Wirebox for WordPress development.', name: 'Nina Innocenti', role: 'Project Manager, Middlesex University' },
 	{ quote: 'Wirebox went above and beyond, delivering a brilliant website with an attractive design, web governance conformity and smooth functionality – and it all went from brief to finished product within about two months.', name: 'Sweta Rana', role: 'Web Manager, Middlesex University' },
@@ -176,10 +176,10 @@ export function buildLaravelBody({ sb, A, mlink, header, testimonialItems, locat
 	const featured = sb('featured_testimonial', {
 		eyebrow: 'What clients say',
 		heading: 'The kind of partner you keep\nfor years',
-		quote: "If you ever want a partner to be there with you, to help you grow, as they grow, I can't recommend Wirebox highly enough. Thank you, Wirebox team, and I look forward to the next 10 years.",
-		name: 'Dr A M Featherstone',
-		role: 'Director of Operations – ECITB',
-		video: '',
+		quote: "If you ever want a partner to be there with you, to help you grow, as *they* grow, I can't recommend Wirebox highly enough. Thank you, Wirebox team, and I look forward to the next 10 years.",
+		name: 'Alison Hutchinson',
+		role: 'CBE, CEO, Pennies',
+		video: 'https://player.vimeo.com/video/1125445378?fl=ip&fe=ec',
 		ratings: [
 			sb('rating_badge', { kicker: 'Reviewed on', brand: 'Clutch', score: '', stars: '5', caption: '11 reviews', tone: 'clutch' }),
 			sb('rating_badge', { kicker: 'Google Rating', brand: 'Google', score: '4.9', stars: '5', caption: 'Based on 61 reviews', tone: 'google' }),

@@ -18,9 +18,17 @@ const eyebrow: string = blok?.eyebrow || 'What clients say';
 const heading: string = blok?.heading || 'The kind of partner you keep\nfor years';
 const quote: string =
 	blok?.quote ||
-	"If you ever want a partner to be there with you, to help you grow, as they grow, I can't recommend Wirebox highly enough. Thank you, Wirebox team, and I look forward to the next 10 years.";
-const name: string = blok?.name || 'Dr A M Featherstone';
-const role: string = blok?.role || 'Director of Operations – ECITB';
+	"If you ever want a partner to be there with you, to help you grow, as *they* grow, I can't recommend Wirebox highly enough. Thank you, Wirebox team, and I look forward to the next 10 years.";
+const name: string = blok?.name || 'Alison Hutchinson';
+const role: string = blok?.role || 'CBE, CEO, Pennies';
+
+/**
+ * The design italicises a word inside the quote. Editors write it as *word*,
+ * which is the only markup the field understands — everything else is escaped.
+ */
+const quoteHtml: string = quote
+	.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c] as string)
+	.replace(/\*([^*]+)\*/g, '<em>$1</em>');
 const poster: string = blok?.poster?.filename || '';
 const posterAlt: string = blok?.poster?.alt || `${name} video testimonial`;
 
@@ -71,7 +79,7 @@ const starRow = (n: Rating['stars']) => '★'.repeat(Math.max(0, Math.min(5, Num
 
 			<figure class="ft__quote">
 				<span class="ft__mark" aria-hidden="true">”</span>
-				<blockquote class="ft__text">{quote}</blockquote>
+				<blockquote class="ft__text" set:html={quoteHtml} />
 				<figcaption class="ft__cite">
 					<span class="ft__name">{name}</span>
 					<span class="ft__role">{role}</span>
