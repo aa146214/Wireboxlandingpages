@@ -13,8 +13,6 @@
 
 export const GTM_ID = 'GTM-5MQDMD38';
 export const CRAZY_EGG_SRC = '//script.crazyegg.com/pages/scripts/0132/1340.js';
-/** Captiwate chat widget — the site id from its install screen. */
-export const CAPTIWATE_SITE_ID = '6fe7212f-8b0e-4c0b-b302-16ff7afa43a8';
 
 /** Where a snippet is injected. */
 export const PLACEMENTS = ['head', 'body_start', 'body_end'];
@@ -37,12 +35,6 @@ export const DEFAULT_SITE_SCRIPTS = [
 		placement: 'head',
 		enabled: true,
 		code: `<script type="text/javascript" src="${CRAZY_EGG_SRC}" async="async"></script>`,
-	},
-	{
-		name: 'Captiwate chat',
-		placement: 'head',
-		enabled: true,
-		code: `<script>(function(w,d,i){w._captiwateSettings={site:i};if(w.Captiwate&&w.Captiwate._loaded)return;w.Captiwate=new Proxy({_q:[]},{get:function(t,p){if(p==='_q'||p==='_loaded')return t[p];return function(){t._q.push([p,[].slice.call(arguments)]);};}});var h=d.getElementsByTagName('head')[0];var s=d.createElement('script');s.defer=1;s.type='module';s.src='https://widget.captiwate.com/widget.js';h.appendChild(s);})(window,document,'${CAPTIWATE_SITE_ID}');</script>`,
 	},
 ];
 

@@ -256,7 +256,7 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'cta_banner', schema: { heading: text(0), prompt: text(1), cta_label: text(2), cta_link: text(3) } },
 	// --- Site settings: third-party scripts editors manage without a deploy ---
 	{ name: 'site_script', schema: {
-		name: text(0, { description: 'Label, e.g. "Captiwate chat" — also written into the page source as a comment' }),
+		name: text(0, { description: 'Label, e.g. "Crazy Egg" — also written into the page source as a comment' }),
 		placement: opt(1, [{ name: 'In <head>', value: 'head' }, { name: 'Start of <body>', value: 'body_start' }, { name: 'End of <body>', value: 'body_end' }], 'head'),
 		code: area(2, { description: 'Paste the snippet exactly as the vendor supplies it, <script> tags included' }),
 		enabled: { type: 'boolean', pos: 3, default_value: true, description: 'Untick to pause the script without deleting it' },
