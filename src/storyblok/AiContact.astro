@@ -71,12 +71,12 @@ const explore: Link[] = blok?.explore?.length ? blok.explore : [];
 							<li class="ax__office">
 								<span class="ax__office-name">{office.name}</span>
 								{office.phone && (
-									<a class="ax__office-link" href={`tel:${office.phone.replace(/[^\d+]/g, '')}`}>
+									<a class="ax__office-link ax__office-phone" href={`tel:${office.phone.replace(/[^\d+]/g, '')}`}>
 										{office.phone}
 									</a>
 								)}
 								{office.email && (
-									<a class="ax__office-link" href={`mailto:${office.email}`}>
+									<a class="ax__office-link ax__office-email" href={`mailto:${office.email}`}>
 										{office.email}
 									</a>
 								)}
@@ -214,6 +214,7 @@ const explore: Link[] = blok?.explore?.length ? blok.explore : [];
 	}
 	.ax__aside-title--explore {
 		margin-top: 2.5rem;
+		color: var(--color-light-yellow);
 	}
 	.ax__aside-body {
 		margin-top: 0.85rem;
@@ -237,7 +238,6 @@ const explore: Link[] = blok?.explore?.length ? blok.explore : [];
 	.ax__office-name {
 		font-size: var(--fs-small);
 		font-weight: var(--fw-semibold);
-		color: var(--color-light-yellow);
 	}
 	.ax__office-link {
 		font-size: var(--fs-category);
@@ -245,6 +245,16 @@ const explore: Link[] = blok?.explore?.length ? blok.explore : [];
 	}
 	.ax__office-link:hover {
 		color: var(--color-white);
+	}
+	/* Design: each office carries its own accent — first yellow, then green —
+	   on its name and its email address. The phone stays plain. */
+	.ax__office:nth-child(odd) .ax__office-name,
+	.ax__office:nth-child(odd) .ax__office-email {
+		color: var(--color-light-yellow);
+	}
+	.ax__office:nth-child(even) .ax__office-name,
+	.ax__office:nth-child(even) .ax__office-email {
+		color: var(--color-light-green);
 	}
 	.ax__explore {
 		display: flex;
@@ -255,9 +265,12 @@ const explore: Link[] = blok?.explore?.length ? blok.explore : [];
 	}
 	.ax__explore a {
 		font-size: var(--fs-category);
-		color: var(--color-white);
+		color: var(--color-light-lavender);
 		text-decoration: underline;
 		text-underline-offset: 3px;
+	}
+	.ax__explore a:hover {
+		color: var(--color-white);
 	}
 
 	@media (max-width: 900px) {
