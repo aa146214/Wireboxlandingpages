@@ -114,7 +114,14 @@ export const PHP_OPTIONS = [
 	{ key: 'unsure', label: 'Not sure' },
 ];
 
-/** The seven questions, in the order the wizard asks them. */
+/**
+ * The seven questions, in the order the wizard asks them.
+ *
+ * `title` and `hint` are verbatim from the workbook's "Wizard Steps" sheet —
+ * don't reword them here. The add-on labels come from the "Add-on Options"
+ * sheet rather than that sheet's abbreviated summary column. `short` is the
+ * only invention: it's the rail label, which the workbook doesn't specify.
+ */
 export const STEPS = [
 	{ key: 'current', short: 'Current', title: 'What Laravel version are you currently running?', hint: 'Pick the version your production application is on today.', type: 'single' },
 	{ key: 'target', short: 'Target', title: 'What version are you upgrading to?', hint: "We'll map every step in between.", type: 'single' },
@@ -122,7 +129,7 @@ export const STEPS = [
 	{ key: 'php', short: 'PHP', title: 'What PHP version are you currently running?', hint: "Some Laravel versions need a newer PHP — we'll flag it if yours does.", type: 'single' },
 	{ key: 'tests', short: 'Tests', title: 'How much automated test coverage do you have?', hint: 'This changes how much manual regression testing the upgrade needs.', type: 'single' },
 	{ key: 'deps', short: 'Packages', title: 'How many third-party packages does it depend on?', hint: 'Composer packages that may need their own compatibility check.', type: 'single' },
-	{ key: 'addons', short: 'Add-ons', title: 'Does any of this apply?', hint: 'Pick all that apply. Each one adds its own, separately-costed line to the estimate.', type: 'multi' },
+	{ key: 'addons', short: 'Add-ons', title: 'Does any of this apply? Pick all that apply.', hint: 'Each one adds its own, separately-costed line to the estimate.', type: 'multi' },
 ];
 
 const byKey = (list, key) => list.find((x) => x.key === key);
