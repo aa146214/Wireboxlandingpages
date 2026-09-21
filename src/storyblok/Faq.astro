@@ -28,10 +28,12 @@ const items: Item[] = blok?.items?.length
 		];
 
 const subtitle: string = blok?.subtitle || '';
+/** Linkable so in-page menus can point at it; overridable per story. */
+const anchor: string = blok?.anchor || 'faq';
 const h = splitHighlight(heading, accent);
 ---
 
-<section class="faq" {...storyblokEditable(blok)}>
+<section class="faq" id={anchor} {...storyblokEditable(blok)}>
 	<div class="faq__inner container">
 		<header class="faq__head">
 			<p class="faq__eyebrow category">{eyebrow}</p>
