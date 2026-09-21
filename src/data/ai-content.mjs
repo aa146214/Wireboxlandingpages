@@ -49,6 +49,7 @@ export function buildAiBody({ sb, A, mlink, header, locations, footer }) {
 			sb('cta', { label: 'Explore our AI capabilities', link: mlink('#capabilities'), variant: 'primary', icon: 'arrow-right' }),
 			sb('cta', { label: 'See the 14 most common asks', link: mlink('#catalogue'), variant: 'outline', icon: 'arrow-right' }),
 		],
+		background: A('ai-hero-sky.webp'),
 		trust_line: "UK's first Laravel Certified company | London & Milton Keynes | Biz4Biz Awards 2025 Winner",
 		form_title: 'Start with a free AI consultation',
 		form_cta_label: 'Request my free consultation',

@@ -131,9 +131,10 @@ const ASSET_DEFS = {
 	'watford-pledge.png': 'Watford Business Pledge Member',
 	'aws-partner.png': 'AWS Partner',
 	'aws-wordmark.svg': 'AWS',
+	'ai-hero-sky.webp': 'Blue sky with scattered clouds',
 	'laravel-logomark.svg': 'Laravel',
 };
-const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', svg: 'image/svg+xml' };
+const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', svg: 'image/svg+xml', webp: 'image/webp' };
 const mimeOf = (f) => MIME[f.split('.').pop().toLowerCase()] || 'application/octet-stream';
 
 /** basename -> { id, filename(cdn url), alt } */
