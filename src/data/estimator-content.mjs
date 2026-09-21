@@ -107,5 +107,5 @@ export function buildEstimatorBody({ sb, A, mlink, header, locations, footer }) 
 
 	const maps = { ...locations(), tall: true };
 
-	return [header, hero, wizard, drivers, range, banner, getStarted, maps, footer()];
+	return [header, hero, wizard, drivers, range, getStarted, banner, maps, footer()];
 }
