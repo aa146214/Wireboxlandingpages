@@ -511,25 +511,26 @@ const total = STEPS.length;
 	}
 	.ew__rail-label {
 		font-size: var(--fs-category);
-		font-weight: var(--fw-semibold);
+		font-weight: var(--fw-medium);
 		letter-spacing: var(--ls-category);
 		text-transform: uppercase;
-		color: var(--color-light-lavender);
+		color: var(--color-paragraph);
 		white-space: nowrap;
 	}
 	.ew__rail-num {
-		color: var(--color-light-lavender);
+		color: inherit;
 	}
-	.ew__rail-step.is-active .ew__rail-label,
+	/* The step you're on is called out whole, number and name together. */
+	.ew__rail-step.is-active .ew__rail-label {
+		font-weight: var(--fw-semibold);
+		color: var(--color-primary-blue);
+	}
 	.ew__rail-step.is-done .ew__rail-label {
 		color: var(--color-headings-dark);
 	}
-	.ew__rail-step.is-active .ew__rail-num {
-		color: var(--color-primary-blue);
-	}
 	.ew__rail-bar {
-		height: 3px;
-		background: var(--surface-lavender-tint);
+		height: 8px;
+		background: var(--color-light-lavender);
 		transition: background 0.2s ease;
 	}
 	.ew__rail-step.is-active .ew__rail-bar,
@@ -537,10 +538,10 @@ const total = STEPS.length;
 		background: var(--color-primary-blue);
 	}
 	.ew__rail-dot {
-		width: 11px;
-		height: 11px;
+		width: 14px;
+		height: 14px;
 		border-radius: 50%;
-		border: 1.5px solid var(--color-light-lavender);
+		border: 1.5px solid var(--color-lavender);
 		background: var(--color-white);
 	}
 	.ew__rail-step.is-active .ew__rail-dot {
