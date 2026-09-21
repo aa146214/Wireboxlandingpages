@@ -120,14 +120,21 @@ const EDGES = [
 		margin: 2rem 0 0;
 		padding: 0;
 	}
+	/* Sampled from the design: solid fills alternating light pink and lavender,
+	   with dark blue text — not a tint of the background. */
 	.at__chips li {
-		padding: 0.35rem 0.7rem;
-		background: rgba(170, 140, 231, 0.22);
-		font-size: 0.68rem;
+		padding: 0.3rem 0.65rem;
+		font-size: 0.72rem;
 		font-weight: var(--fw-semibold);
-		letter-spacing: 0.08em;
+		letter-spacing: 0.06em;
 		text-transform: uppercase;
-		color: var(--color-light-lavender);
+		color: var(--color-dark-blue);
+	}
+	.at__chips li:nth-child(odd) {
+		background: var(--color-light-pink);
+	}
+	.at__chips li:nth-child(even) {
+		background: var(--color-lavender);
 	}
 
 	.at__list {
