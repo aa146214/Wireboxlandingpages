@@ -1,0 +1,128 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import { CONSTANTS } from '../data/estimator-model.mjs';
+
+/**
+ * "How the range is calculated" — states the rate and the low/mid/high
+ * multipliers openly, so the number reads as a planning range rather than a
+ * quote. The percentages come from the estimator model, not from the CMS, so
+ * the page can't advertise a spread the calculator doesn't use.
+ */
+const { blok } = Astro.props;
+
+const eyebrow: string = blok?.eyebrow || 'How the range is calculated';
+const heading: string = blok?.heading || 'A useful planning range, with the assumptions visible';
+const body: string =
+	blok?.body ||
+	`Based on a £${CONSTANTS.hourlyRate}/hr blended rate and a solo senior developer's realistic weekly capacity on this project. Every codebase is different – the range assumes no major surprises, which is exactly what a short paid audit rules out before we quote a fixed price.`;
+
+const percent = (multiplier: number) => `${Math.round(multiplier * 100)}%`;
+
+const stats = [
+	{ value: percent(CONSTANTS.lowMultiplier), label: blok?.low_label || 'Low range', tone: 'green' },
+	{ value: '100%', label: blok?.mid_label || 'Mid-point', tone: 'blue' },
+	{ value: percent(CONSTANTS.highMultiplier), label: blok?.high_label || 'High range', tone: 'pink' },
+];
+
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="er" {...storyblokEditable(blok)}>
+	<div class="er__inner container">
+		<p class="er__eyebrow category">{eyebrow}</p>
+		<h2 class="er__heading">{heading}</h2>
+		<p class="er__body">{body}</p>
+
+		<ol class="er__grid" role="list">
+			{
+				stats.map((s, i) => (
+					<li class:list={['er__stat', `is-${s.tone}`]}>
+						<span class="er__stat-num">{pad(i + 1)}</span>
+						<span class="er__stat-value">{s.value}</span>
+						<span class="er__stat-label">{s.label}</span>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+</section>
+
+<style>
+	.er {
+		background: var(--surface-muted);
+		padding-block: var(--section-py);
+	}
+	.er__eyebrow {
+		color: var(--color-primary-blue);
+		margin-bottom: 1rem;
+	}
+	.er__heading {
+		font-size: var(--fs-h5-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-headings-dark);
+	}
+	.er__body {
+		margin-top: 0.75rem;
+		max-width: 70ch;
+		font-size: var(--fs-category);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+	.er__grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: clamp(1.5rem, 3vw, 2.5rem);
+		margin: clamp(2rem, 4vw, 3rem) 0 0;
+		padding: 0;
+	}
+	.er__stat {
+		display: grid;
+		grid-template-columns: auto auto;
+		align-items: baseline;
+		gap: 0.15rem 0.6rem;
+		padding-top: 1rem;
+		border-top: 2px solid var(--color-light-lavender);
+	}
+	.er__stat.is-green {
+		border-top-color: var(--color-light-green);
+	}
+	.er__stat.is-blue {
+		border-top-color: var(--color-primary-blue);
+	}
+	.er__stat.is-pink {
+		border-top-color: var(--color-light-pink);
+	}
+	.er__stat-num {
+		font-size: var(--fs-category);
+		color: var(--color-light-lavender);
+	}
+	.er__stat-value {
+		font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.25rem);
+		line-height: 1;
+		color: var(--color-headings-dark);
+	}
+	.er__stat-label {
+		grid-column: 2;
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--ls-category);
+		text-transform: uppercase;
+	}
+	.er__stat.is-green .er__stat-label {
+		color: #2f9e5f; /* light green is illegible on the off-white band */
+	}
+	.er__stat.is-blue .er__stat-label {
+		color: var(--color-primary-blue);
+	}
+	.er__stat.is-pink .er__stat-label {
+		color: var(--color-fuchsia);
+	}
+
+	@media (max-width: 620px) {
+		.er__grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

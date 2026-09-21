@@ -49,6 +49,10 @@ export default defineConfig({
 				laravel_services: 'storyblok/LaravelServices',
 				featured_testimonial: 'storyblok/FeaturedTestimonial',
 				cta_banner: 'storyblok/CtaBanner',
+				// --- Laravel upgrade estimator page ---
+				estimator_wizard: 'storyblok/EstimatorWizard',
+				estimator_drivers: 'storyblok/EstimatorDrivers',
+				estimator_range: 'storyblok/EstimatorRange',
 				// --- Legacy marketing landing page (kept for other stories) ---
 				hero: 'storyblok/Hero',
 				podcast_banner: 'storyblok/PodcastBanner',

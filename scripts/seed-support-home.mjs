@@ -22,6 +22,7 @@ import { readFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLaravelBody, LARAVEL_SEO, TESTIMONIAL_ITEMS, CASE_ITEMS } from '../src/data/laravel-content.mjs';
+import { buildEstimatorBody, ESTIMATOR_SEO } from '../src/data/estimator-content.mjs';
 import { DEFAULT_SITE_SCRIPTS } from '../src/data/site-scripts.mjs';
 
 const SEED_ASSETS = fileURLToPath(new URL('../public/seed-assets/support', import.meta.url));
@@ -242,7 +243,7 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'pricing', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), plans: bloks(4, ['pricing_plan']), footnote: text(5), foot_link_label: text(6), foot_link: text(7), foot_trail: text(8) } },
 	{ name: 'support_cases', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), items: bloks(4, ['support_case']), footnote: text(5, { description: 'Optional closing line under the grid' }), chip_tags: bool(6), link_tone: opt(7, ['fuchsia', 'blue'], 'fuchsia'), square_media: bool(8) } },
 	{ name: 'faq', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), items: bloks(3, ['faq_item']) } },
-	{ name: 'cta_contact', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), body: area(3), phones: bloks(4, ['cta_phone']), form_cta_label: text(5), tone: opt(6, ['fuchsia', 'blue'], 'fuchsia'), form_title: text(7), body_strong: area(8), show_message: bool(9), labels_first: bool(10), form_source: text(11, { description: 'Tag sent with the lead so the source form is identifiable' }), form_note: text(12, { description: 'Reassurance line under the submit button' }) } },
+	{ name: 'cta_contact', schema: { form_message_prompt: text(30, { description: 'Placeholder for the message box' }), eyebrow: text(0), heading: text(1), heading_accent: text(2), body: area(3), phones: bloks(4, ['cta_phone']), form_cta_label: text(5), tone: opt(6, ['fuchsia', 'blue'], 'fuchsia'), form_title: text(7), body_strong: area(8), show_message: bool(9), labels_first: bool(10), form_source: text(11, { description: 'Tag sent with the lead so the source form is identifiable' }), form_note: text(12, { description: 'Reassurance line under the submit button' }) } },
 	{ name: 'locations', schema: { places: bloks(0, ['map_place']), tall: bool(1) } },
 	{ name: 'thank_you', schema: { eyebrow: text(0), heading: text(1), heading_line_2: text(2, { description: 'Shown on a second line, in the accent colour' }), body: area(3), cta_label: text(4), cta_link: text(5), phones_title: text(6), phones: bloks(7, ['cta_phone']) } },
 	// --- Laravel partner landing page (leaves first) ---
@@ -250,9 +251,32 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'numbered_point', schema: { text: text(0), tone: opt(1, ['purple', 'fuchsia', 'dark'], 'purple') } },
 	{ name: 'service_item', schema: { title: text(0), description: area(1), tone: opt(2, ['fuchsia', 'purple'], 'fuchsia') } },
 	{ name: 'rating_badge', schema: { kicker: text(0), brand: text(1), score: text(2), stars: text(3, { description: '1–5' }), caption: text(4), tone: opt(5, ['clutch', 'google'], 'clutch') } },
-	{ name: 'laravel_hero', schema: { eyebrow: text(0), heading: area(1), body: area(2), ctas: bloks(3, ['cta']), badges: bloks(4, ['partner_badge']), terminal_title: text(5), terminal: area(6, { description: 'One terminal line per row; lines starting with $ render as commands' }), terminal_badge: text(7), trust_items: area(8, { description: 'One item per line, shown under the terminal' }) } },
+	{ name: 'laravel_hero', schema: { layout: opt(0, ['terminal', 'badges'], 'terminal'), eyebrow: text(0), heading: area(1), body: area(2), ctas: bloks(3, ['cta']), badges: bloks(4, ['partner_badge']), terminal_title: text(5), terminal: area(6, { description: 'One terminal line per row; lines starting with $ render as commands' }), terminal_badge: text(7), trust_items: area(8, { description: 'One item per line, shown under the terminal' }) } },
 	{ name: 'laravel_services', schema: { eyebrow: text(0), heading: area(1), body: area(2), badge_image: asset(3, { description: 'Laravel Certified Company badge — drawn in CSS when empty' }), subheading: text(4), subbody: area(5), points: bloks(6, ['numbered_point']), services: bloks(7, ['service_item']) } },
 	{ name: 'featured_testimonial', schema: { eyebrow: text(0), heading: area(1), quote: area(2), name: text(3), role: text(4), video: text(5, { description: 'YouTube or Vimeo link — shows a poster with a play mark when empty' }), poster: asset(6), ratings: bloks(7, ['rating_badge']), cta_label: text(8), cta_link: text(9) } },
+	{
+		name: 'estimator_wizard',
+		schema: {
+			eyebrow: text(0),
+			heading: text(1),
+			body: area(2),
+			stat_questions: text(3),
+			stat_questions_label: text(4),
+			stat_time: text(5),
+			stat_time_label: text(6),
+			sidebar_title: text(7),
+			sidebar_empty: area(8),
+			includes_title: text(9),
+			includes: area(10, { description: 'One line per item, shown before the first answer' }),
+			note_title: text(11),
+			note_body: area(12),
+			cta_label: text(13),
+			cta_link: link(14),
+			update_note: text(15),
+		},
+	},
+	{ name: 'estimator_drivers', schema: { eyebrow: text(0), heading: area(1), body: area(2), items: bloks(3, ['numbered_point']) } },
+	{ name: 'estimator_range', schema: { eyebrow: text(0), heading: area(1), body: area(2, { description: 'Leave empty to state the rate and spread the calculator actually uses' }), low_label: text(3), mid_label: text(4), high_label: text(5) } },
 	{ name: 'cta_banner', schema: { heading: text(0), prompt: text(1), cta_label: text(2), cta_link: text(3) } },
 	// --- Site settings: third-party scripts editors manage without a deploy ---
 	{ name: 'site_script', schema: {
@@ -651,6 +675,25 @@ async function seedLaravelStory() {
 	}
 }
 
+async function seedEstimatorStory() {
+	const content = sb('page', {
+		...ESTIMATOR_SEO,
+		body: buildEstimatorBody({ sb, A, mlink, header, locations, footer }),
+	});
+	const slug = 'laravel-upgrade-estimator';
+	const found = await mapi('GET', `/stories/?with_slug=${slug}`);
+	const existing = (found.stories || []).find((st) => st.slug === slug);
+	const story = { name: 'Laravel Upgrade Estimator', slug, content };
+	if (existing) {
+		await backupStory(existing.id, slug);
+		await mapi('PUT', `/stories/${existing.id}`, { story, publish: 1 });
+		console.log(`Published "${slug}" (updated, ${content.body.length} sections).`);
+	} else {
+		await mapi('POST', '/stories/', { story, publish: 1 });
+		console.log(`Published "${slug}" (created, ${content.body.length} sections).`);
+	}
+}
+
 async function seedThankYouStory() {
 	const content = buildThankYouContent();
 	const found = await mapi('GET', '/stories/?with_slug=thankyou');
@@ -696,7 +739,7 @@ async function main() {
 	}
 	await uploadAssets();
 	if (ONLY) {
-		const targets = { laravel: seedLaravelStory, settings: seedSettingsStory };
+		const targets = { laravel: seedLaravelStory, settings: seedSettingsStory, estimator: seedEstimatorStory };
 		if (!targets[ONLY]) throw new Error(`Unknown --only target "${ONLY}" (supported: ${Object.keys(targets).join(', ')}).`);
 		console.log('\n=== Story ===');
 		await targets[ONLY]();

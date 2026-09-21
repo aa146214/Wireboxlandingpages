@@ -29,6 +29,8 @@ const formCtaLabel: string = blok?.form_cta_label || 'Get My Free Review';
 // Every default preserves the original home-page look.
 const tone: 'fuchsia' | 'blue' = blok?.tone === 'blue' ? 'blue' : 'fuchsia';
 const formTitle: string = blok?.form_title || '';
+/** The message box asks a different question per campaign. */
+const messagePrompt: string = blok?.form_message_prompt || 'What are you building?';
 const bodyStrong: string = blok?.body_strong || '';
 const showMessage = Boolean(blok?.show_message);
 const labelsFirst = Boolean(blok?.labels_first);
@@ -73,8 +75,8 @@ const h = splitHighlight(heading, accent);
 				{
 					showMessage ? (
 						<>
-							<label class="visually-hidden" for="contact-message">What are you building?</label>
-							<textarea class="cta__input cta__textarea" id="contact-message" name="message" placeholder="What are you building?" rows="3" />
+							<label class="visually-hidden" for="contact-message">{messagePrompt}</label>
+							<textarea class="cta__input cta__textarea" id="contact-message" name="message" placeholder={messagePrompt} rows="3" />
 						</>
 					) : (
 						<>

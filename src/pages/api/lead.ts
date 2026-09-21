@@ -12,6 +12,7 @@ const SOURCES: Record<string, string> = {
 	hero: 'Hero — "Get your free site review"',
 	cta: 'CTA — "Get My Free Review"',
 	laravel: 'Laravel page — "Book my consultation"',
+	estimator: 'Upgrade estimator — "Book my technical audit"',
 };
 
 interface SendResult {

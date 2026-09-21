@@ -25,7 +25,15 @@ const body: string =
 	blok?.body ||
 	"Wirebox has spent 10+ years building, migrating and supporting Laravel applications for organisations that can't afford downtime – from charities tracking billions in funding to manufacturers running global operations.";
 
-const ctas: CtaBlok[] = blok?.ctas?.length
+/**
+ * 'terminal' is the partner page: buttons and badges under the copy, terminal
+ * card alongside. 'badges' is the estimator page: no terminal, the partner
+ * tiles take the right-hand column and the trust line sits under the copy.
+ */
+const layout: 'terminal' | 'badges' = blok?.layout === 'badges' ? 'badges' : 'terminal';
+
+// An empty list in the CMS means "no buttons" — only an absent one falls back.
+const ctas: CtaBlok[] = Array.isArray(blok?.ctas)
 	? blok.ctas
 	: [
 			{ label: 'Book a free consultation', link: '#contact', variant: 'primary', icon: 'arrow-right' },
@@ -105,15 +113,25 @@ const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 ).map((s: string) => s.trim()).filter(Boolean);
 ---
 
-<section class="lh" {...storyblokEditable(blok)}>
+<section class:list={['lh', `is-${layout}`]} {...storyblokEditable(blok)}>
 	<div class="lh__inner container">
 		<div class="lh__content">
+			<div class="lh__copy">
 			<p class="lh__eyebrow category">{eyebrow}</p>
 			<h1 class="lh__heading">{heading}</h1>
 			<p class="lh__body">{body}</p>
 
-			<div class="lh__actions">
-				{ctas.map((cta) => <Button label={cta.label} link={cta.link} variant={cta.variant ?? 'primary'} icon={cta.icon ?? null} />)}
+			{ctas.length > 0 && (
+				<div class="lh__actions">
+					{ctas.map((cta) => <Button label={cta.label} link={cta.link} variant={cta.variant ?? 'primary'} icon={cta.icon ?? null} />)}
+				</div>
+			)}
+
+			{layout === 'badges' && trustItems.length > 0 && (
+				<ul class="lh__trust" role="list">
+					{trustItems.map((t) => <li>{t}</li>)}
+				</ul>
+			)}
 			</div>
 
 			<ul class="lh__badges" role="list">
@@ -138,6 +156,7 @@ const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 			</ul>
 		</div>
 
+		{layout === 'terminal' && (
 		<div class="lh__aside">
 			<div class="lh__terminal" role="img" aria-label="Terminal showing a Laravel project being scaffolded, migrated and tested">
 				<div class="lh__terminal-bar" aria-hidden="true">
@@ -160,6 +179,7 @@ const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 				)
 			}
 		</div>
+		)}
 	</div>
 </section>
 
@@ -182,6 +202,33 @@ const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 		border-radius: 50%;
 		pointer-events: none;
 	}
+	/* --- 'badges' layout: no terminal; the partner tiles take the right column. --- */
+	.lh.is-badges .lh__inner {
+		grid-template-columns: 1fr;
+	}
+	.lh.is-badges .lh__content {
+		display: grid;
+		grid-template-columns: minmax(0, 1.08fr) auto;
+		gap: clamp(2rem, 5vw, 5rem);
+		align-items: center;
+	}
+	.lh.is-badges .lh__badges {
+		flex-direction: column;
+		margin-top: 0;
+	}
+	.lh.is-badges .lh__trust {
+		justify-content: flex-start;
+		margin-top: 1.75rem;
+	}
+	@media (max-width: 860px) {
+		.lh.is-badges .lh__content {
+			grid-template-columns: 1fr;
+		}
+		.lh.is-badges .lh__badges {
+			flex-direction: row;
+		}
+	}
+
 	.lh__inner {
 		position: relative;
 		display: grid;
