@@ -114,19 +114,25 @@ const explore: Link[] = blok?.explore?.length ? blok.explore : [];
 		color: var(--color-white);
 		padding-block: var(--section-py);
 	}
-	/* The design runs a lighter diagonal across the band. */
+	/* Design: the band is dark blue throughout, with a lighter diagonal wedge
+	   cutting in from each end — sampled as lavender at 25% over the base. */
 	.ax::before {
 		content: '';
 		position: absolute;
 		inset: 0;
-		background: linear-gradient(104deg, transparent 8%, rgba(84, 24, 208, 0.55) 8%, rgba(84, 24, 208, 0.55) 88%, transparent 88%);
+		background: linear-gradient(
+			105deg,
+			rgba(170, 140, 231, 0.25) 0 5%,
+			transparent 5% 90%,
+			rgba(170, 140, 231, 0.25) 90%
+		);
 		pointer-events: none;
 	}
 	.ax__inner {
 		position: relative;
 	}
 	.ax__eyebrow {
-		color: var(--color-light-lavender);
+		color: var(--color-light-green);
 		margin-bottom: 1rem;
 	}
 	.ax__heading {
@@ -185,7 +191,11 @@ const explore: Link[] = blok?.explore?.length ? blok.explore : [];
 		width: 100%;
 		margin-top: 0.4rem;
 	}
-	.ax__note,
+	.ax__note {
+		font-size: var(--fs-category);
+		text-align: center;
+		color: var(--color-light-green);
+	}
 	.ax__status {
 		font-size: var(--fs-category);
 		text-align: center;
