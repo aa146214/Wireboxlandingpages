@@ -71,6 +71,7 @@ export function buildAiBody({ sb, A, mlink, header, locations, footer }) {
 			'As the UK’s first Laravel Certified company, with over a decade of experience delivering robust, scalable web applications, we combine deep engineering expertise with the latest advances in AI. The result is software that is not only intelligent, but secure, maintainable and built to last.',
 			'Whether you want to automate routine work, surface insights hidden in your data, or give your customers a smarter, more personalised experience, our team helps you scope, build and deliver something incredible.',
 		].join('\n\n'),
+		image: A('support-team.png'),
 		card_title: 'AI that fits',
 		card_items: [
 			'Automate routine work',
