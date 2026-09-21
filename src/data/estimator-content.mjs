@@ -79,21 +79,27 @@ export function buildEstimatorBody({ sb, A, mlink, header, locations, footer }) 
 		high_label: 'High range',
 	});
 
+	const banner = sb('cta_banner', {
+		heading: 'Software development and maintenance expertise',
+		prompt: 'Ready to start a project?',
+		cta_label: 'Arrange a health check',
+		cta_link: '#contact',
+	});
+
 	const getStarted = sb('cta_contact', {
 		tone: 'blue',
 		eyebrow: 'Get started',
-		heading: 'Turn your estimate into a fixed price.',
+		heading: 'Your next Laravel build deserves a certified team.',
 		heading_accent: '',
-		body: "Send us the estimate and we'll book a short technical audit of your codebase. You get a fixed price and a dated plan — not another ballpark.",
+		body: "Talk to us about how artificial intelligence can transform your organisation. We'll help you design, build and deliver something incredible.",
 		body_strong: 'Contact us to schedule a free one-hour consultancy and see how we can help you.',
 		labels_first: true,
 		phones: [
 			['0207 993 5485', 'Watford & London – call us:'],
 			['01908 110 420', 'Milton Keynes – call us:'],
 		].map(([number, label]) => sb('cta_phone', { number, label })),
-		form_title: 'Tell us about your application',
-		form_message_prompt: 'What does your application do, and what is it running on?',
-		form_cta_label: 'Book my technical audit',
+		form_title: "Tell us what you're building",
+		form_cta_label: 'Book my consultation',
 		form_note: "No obligation · We'll respond within 1 business day",
 		show_message: true,
 		form_source: 'estimator',
@@ -101,5 +107,5 @@ export function buildEstimatorBody({ sb, A, mlink, header, locations, footer }) 
 
 	const maps = { ...locations(), tall: true };
 
-	return [header, hero, wizard, drivers, range, getStarted, maps, footer()];
+	return [header, hero, wizard, drivers, range, banner, getStarted, maps, footer()];
 }
