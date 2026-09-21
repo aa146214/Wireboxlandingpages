@@ -99,7 +99,7 @@ export function buildAiBody({ sb, A, mlink, header, locations, footer }) {
 			['Proven engineering pedigree', 'The UK’s first Laravel Certified company, with 10+ years delivering and maintaining business-critical applications.'],
 			['AI plus real software discipline', 'We pair cutting-edge AI with secure, scalable, maintainable engineering — not throwaway prototypes.'],
 			['Award-winning\nteam', 'Biz4Biz Awards 2025 winner for Best Technical Services, and recognised across regional business awards.'],
-			['Transparent, fixed-price quotes', 'A free one-hour consultation to scope your project, followed by clear, transparent pricing.'],
+			['Transparent, fixed-price\nquotes', 'A free one-hour consultation to scope your project, followed by clear, transparent pricing.'],
 			['Ongoing support & maintenance', 'Security patching, model updates, performance monitoring and hosting on AWS, Azure or Digital Ocean.'],
 			['UK-based, working nationwide', 'Offices in London and Milton Keynes, serving clients across the UK and internationally.'],
 		].map(([title, description]) => sb('numbered_point', { title, description })),
