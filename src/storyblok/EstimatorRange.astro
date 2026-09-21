@@ -80,23 +80,34 @@ const pad = (n: number) => String(n).padStart(2, '0');
 	.er__stat {
 		display: grid;
 		grid-template-columns: auto auto;
+		/* Keep the index beside its figure instead of letting the columns
+		   stretch to the grid track. */
+		justify-content: start;
 		align-items: baseline;
 		gap: 0.15rem 0.6rem;
 		padding-top: 1rem;
-		border-top: 2px solid var(--color-light-lavender);
+		border-top: 3px solid var(--color-light-lavender);
 	}
 	.er__stat.is-green {
 		border-top-color: var(--color-light-green);
 	}
 	.er__stat.is-blue {
-		border-top-color: var(--color-primary-blue);
+		border-top-color: var(--color-lavender);
 	}
 	.er__stat.is-pink {
 		border-top-color: var(--color-light-pink);
 	}
 	.er__stat-num {
 		font-size: var(--fs-category);
-		color: var(--color-light-lavender);
+	}
+	.er__stat.is-green .er__stat-num {
+		color: var(--color-light-green);
+	}
+	.er__stat.is-blue .er__stat-num {
+		color: var(--color-lavender);
+	}
+	.er__stat.is-pink .er__stat-num {
+		color: var(--color-light-pink);
 	}
 	.er__stat-value {
 		font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.25rem);

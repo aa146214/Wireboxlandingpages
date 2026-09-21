@@ -28,6 +28,13 @@ const drivers: Driver[] = blok?.items?.length
 		];
 
 const pad = (n: number) => String(n).padStart(2, '0');
+
+/**
+ * The design colours each column in turn — yellow, pink, green, lavender — with
+ * the number and its rule sharing the colour. Driven by position rather than a
+ * CMS field so the sequence can't be broken by reordering.
+ */
+const TONES = ['yellow', 'pink', 'green', 'lavender'];
 ---
 
 <section class="ed" {...storyblokEditable(blok)}>
@@ -39,8 +46,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
 		<ol class="ed__grid" role="list">
 			{
 				drivers.map((d, i) => (
-					<li class="ed__item">
+					<li class:list={['ed__item', `is-${TONES[i % TONES.length]}`]}>
 						<span class="ed__num">{pad(i + 1)}</span>
+						<span class="ed__rule" aria-hidden="true" />
 						<h3 class="ed__title">{d.title}</h3>
 						<p class="ed__desc">{d.description}</p>
 					</li>
@@ -57,7 +65,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 		padding-block: var(--section-py);
 	}
 	.ed__eyebrow {
-		color: var(--color-lavender);
+		color: var(--color-light-lavender);
 		margin-bottom: 1rem;
 	}
 	.ed__heading {
@@ -69,10 +77,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
 	}
 	.ed__body {
 		margin-top: 0.75rem;
-		max-width: 62ch;
+		max-width: 72ch;
 		font-size: var(--fs-small);
 		line-height: var(--lh-body);
-		color: var(--text-on-dark);
+		color: var(--color-light-lavender);
 	}
 	.ed__grid {
 		display: grid;
@@ -81,26 +89,54 @@ const pad = (n: number) => String(n).padStart(2, '0');
 		margin: clamp(2rem, 4vw, 3rem) 0 0;
 		padding: 0;
 	}
-	.ed__item {
-		padding-top: 1rem;
-		border-top: 1px solid rgba(255, 255, 255, 0.28);
-	}
+	/* Design: the number sits above its rule, both in the column's colour. */
 	.ed__num {
 		display: block;
 		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--ls-category);
+	}
+	.ed__rule {
+		display: block;
+		height: 2px;
+		margin-top: 0.5rem;
+	}
+	.ed__item.is-yellow .ed__num {
+		color: var(--color-light-yellow);
+	}
+	.ed__item.is-yellow .ed__rule {
+		background: var(--color-light-yellow);
+	}
+	.ed__item.is-pink .ed__num {
+		color: var(--color-light-pink);
+	}
+	.ed__item.is-pink .ed__rule {
+		background: var(--color-light-pink);
+	}
+	.ed__item.is-green .ed__num {
+		color: var(--color-light-green);
+	}
+	.ed__item.is-green .ed__rule {
+		background: var(--color-light-green);
+	}
+	.ed__item.is-lavender .ed__num {
 		color: var(--color-light-lavender);
 	}
+	.ed__item.is-lavender .ed__rule {
+		background: var(--color-light-lavender);
+	}
 	.ed__title {
-		margin-top: 1.25rem;
+		margin-top: 1.5rem;
 		font-size: var(--fs-small);
 		font-weight: var(--fw-semibold);
 		color: var(--color-white);
 	}
 	.ed__desc {
-		margin-top: 0.6rem;
+		margin-top: 0.75rem;
 		font-size: var(--fs-category);
+		font-weight: var(--fw-regular);
 		line-height: var(--lh-body);
-		color: var(--text-on-dark);
+		color: var(--color-light-lavender);
 	}
 
 	@media (max-width: 900px) {
