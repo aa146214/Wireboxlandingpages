@@ -95,16 +95,15 @@ const background: string = blok?.background?.filename || '';
 		object-fit: cover;
 		z-index: -2;
 	}
-	/* Keeps the copy legible over whatever photograph is dropped in, and stands
-	   in for it while there isn't one. */
-	.ah::before {
+	/* Keeps the copy legible once a photograph is dropped in; with no image the
+	   band is just the flat dark blue underneath. */
+	.ah__bg + .ah__inner::before,
+	.ah:has(.ah__bg)::before {
 		content: '';
 		position: absolute;
 		inset: 0;
 		z-index: -1;
-		background:
-			linear-gradient(105deg, rgba(42, 12, 103, 0.96) 12%, rgba(42, 12, 103, 0.72) 48%, rgba(84, 24, 208, 0.55) 100%),
-			radial-gradient(120% 90% at 78% 8%, rgba(170, 140, 231, 0.5), transparent 62%);
+		background: linear-gradient(105deg, rgba(42, 12, 103, 0.92) 12%, rgba(42, 12, 103, 0.62) 48%, rgba(42, 12, 103, 0.35) 100%);
 	}
 	.ah__inner {
 		display: grid;
