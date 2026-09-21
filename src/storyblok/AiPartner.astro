@@ -79,10 +79,15 @@ const TONES = ['pink', 'cyan', 'yellow', 'green', 'lavender', 'pink'];
 		line-height: var(--lh-h5);
 		letter-spacing: var(--ls-h5);
 		color: var(--color-white);
+		/* The design breaks every title over two lines so the rules under them
+		   line up across the row; a title that fits on one still reserves the
+		   second, so the row survives an edit. */
+		white-space: pre-line;
+		min-height: calc(2 * var(--lh-h5) * 1em);
 	}
 	.an__rule {
 		display: block;
-		height: 1px;
+		height: 2px;
 		margin: 1rem 0;
 	}
 	.an__desc {

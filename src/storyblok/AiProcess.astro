@@ -25,10 +25,8 @@ const TONES = ['yellow', 'lavender', 'pink', 'green'];
 <section class="ap" id="process" {...storyblokEditable(blok)}>
 	<div class="ap__inner container">
 		<div class="ap__head">
-			<div>
-				<p class="ap__eyebrow category">{eyebrow}</p>
-				<h2 class="ap__heading">{heading}</h2>
-			</div>
+			<p class="ap__eyebrow category">{eyebrow}</p>
+			<h2 class="ap__heading">{heading}</h2>
 			{body && <p class="ap__body">{body}</p>}
 		</div>
 
@@ -51,19 +49,26 @@ const TONES = ['yellow', 'lavender', 'pink', 'green'];
 		background: var(--surface-page);
 		padding-block: var(--section-py);
 	}
-	/* Design: the intro sits level with the eyebrow, not the foot of the
-	   heading — top alignment rather than a fixed offset, so it holds however
-	   many lines the heading takes. */
+	/* Design: the intro starts level with the heading. The eyebrow takes a row
+	   of its own so the heading and the intro begin on the same grid line —
+	   true at any width, and whatever either of them wraps to. */
 	.ap__head {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-		gap: clamp(1.5rem, 4vw, 3rem);
+		column-gap: clamp(1.5rem, 4vw, 3rem);
 		align-items: start;
 		padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
 	}
 	.ap__eyebrow {
+		grid-column: 1 / -1;
 		color: var(--color-primary-blue);
 		margin-bottom: 1rem;
+	}
+	.ap__heading {
+		grid-column: 1;
+	}
+	.ap__body {
+		grid-column: 2;
 	}
 	.ap__heading {
 		font-size: var(--fs-h2-fluid);
@@ -127,6 +132,11 @@ const TONES = ['yellow', 'lavender', 'pink', 'green'];
 	@media (max-width: 820px) {
 		.ap__head {
 			grid-template-columns: 1fr;
+			row-gap: 1rem;
+		}
+		.ap__heading,
+		.ap__body {
+			grid-column: 1;
 		}
 		.ap__step {
 			grid-template-columns: 56px minmax(0, 1fr);
