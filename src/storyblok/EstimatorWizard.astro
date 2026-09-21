@@ -1,6 +1,7 @@
 ---
 import { storyblokEditable } from '@storyblok/astro';
 import {
+	CONSTANTS,
 	STEPS,
 	CURRENT_VERSION_OPTIONS,
 	TARGET_VERSION_OPTIONS,
@@ -31,10 +32,20 @@ const heading: string = blok?.heading || 'Build your estimate';
 const body: string =
 	blok?.body ||
 	"Answer seven quick questions about your application. We'll update the ballpark range for hours, cost and timeline as you go.";
-const statQuestions: string = blok?.stat_questions || '7';
-const statQuestionsLabel: string = blok?.stat_questions_label || 'questions';
-const statTime: string = blok?.stat_time || '2 min';
-const statTimeLabel: string = blok?.stat_time_label || 'to complete';
+interface Stat {
+	value: string;
+	label: string;
+	tone?: 'fuchsia' | 'blue' | 'dark' | 'pink';
+}
+/** The rate card is quoted from the model, so it can't drift from the maths. */
+const stats: Stat[] = blok?.stats?.length
+	? blok.stats
+	: [
+			{ value: String(STEPS.length), label: 'questions', tone: 'fuchsia' },
+			{ value: '2 min', label: 'to complete', tone: 'blue' },
+			{ value: 'Live', label: 'estimate', tone: 'dark' },
+			{ value: `£${CONSTANTS.hourlyRate}`, label: 'per hour', tone: 'pink' },
+		];
 
 const sidebarTitle: string = blok?.sidebar_title || 'Current estimate';
 const sidebarEmpty: string = blok?.sidebar_empty || 'Answer the first question to start the estimate.';
@@ -77,14 +88,14 @@ const total = STEPS.length;
 				<p class="ew__body">{body}</p>
 			</div>
 			<ul class="ew__stats" role="list">
-				<li class="ew__stat">
-					<span class="ew__stat-value">{statQuestions}</span>
-					<span class="ew__stat-label">{statQuestionsLabel}</span>
-				</li>
-				<li class="ew__stat">
-					<span class="ew__stat-value is-blue">{statTime}</span>
-					<span class="ew__stat-label">{statTimeLabel}</span>
-				</li>
+				{
+					stats.map((stat) => (
+						<li class:list={['ew__stat', `is-${stat.tone ?? 'blue'}`]}>
+							<span class="ew__stat-value">{stat.value}</span>
+							<span class="ew__stat-label">{stat.label}</span>
+						</li>
+					))
+				}
 			</ul>
 		</div>
 	</div>
@@ -419,35 +430,63 @@ const total = STEPS.length;
 		letter-spacing: var(--ls-h2);
 		color: var(--color-headings-dark);
 	}
+	/* Design: one rule down the whole copy block, not just the paragraph. */
+	.ew__intro-copy {
+		border-left: 3px solid var(--color-lavender);
+		padding-left: clamp(1.25rem, 2vw, 1.75rem);
+	}
 	.ew__body {
 		margin-top: 1rem;
-		max-width: 56ch;
+		max-width: 46ch;
 		font-size: var(--fs-small);
 		line-height: var(--lh-body);
 		color: var(--color-paragraph);
-		border-left: 3px solid var(--color-lavender);
-		padding-left: 1.25rem;
 	}
 	.ew__stats {
-		display: flex;
-		gap: clamp(1.5rem, 3vw, 2.5rem);
+		display: grid;
+		grid-template-columns: repeat(2, minmax(150px, 1fr));
+		gap: 0.75rem;
 		margin: 0;
 		padding: 0;
 	}
+	/* Each card is edged in its own colour on the left. */
 	.ew__stat {
 		display: flex;
 		flex-direction: column;
-		gap: 0.2rem;
-		padding-left: 1.25rem;
-		border-left: 1px solid var(--color-light-lavender);
+		gap: 0.3rem;
+		padding: 1rem 1.25rem;
+		background: var(--surface-card);
+		border: 1px solid var(--surface-lavender-tint);
+		border-left: 3px solid var(--color-lavender);
+	}
+	.ew__stat.is-fuchsia {
+		border-left-color: var(--color-fuchsia);
+	}
+	.ew__stat.is-blue {
+		border-left-color: var(--color-primary-blue);
+	}
+	.ew__stat.is-dark {
+		border-left-color: var(--color-dark-blue);
+	}
+	.ew__stat.is-pink {
+		border-left-color: var(--color-light-pink);
 	}
 	.ew__stat-value {
-		font-size: clamp(2rem, 1.4rem + 2vw, 3rem);
-		line-height: 1;
+		font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2rem);
+		font-weight: var(--fw-semibold);
+		line-height: 1.05;
+	}
+	.ew__stat.is-fuchsia .ew__stat-value {
 		color: var(--color-fuchsia);
 	}
-	.ew__stat-value.is-blue {
+	.ew__stat.is-blue .ew__stat-value {
 		color: var(--color-primary-blue);
+	}
+	.ew__stat.is-dark .ew__stat-value {
+		color: var(--color-dark-blue);
+	}
+	.ew__stat.is-pink .ew__stat-value {
+		color: var(--color-light-pink);
 	}
 	.ew__stat-label {
 		font-size: var(--fs-category);
