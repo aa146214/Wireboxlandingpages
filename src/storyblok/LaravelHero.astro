@@ -212,13 +212,38 @@ const trustItems: string[] = (typeof trustRaw === 'string' && trustRaw.trim()
 		gap: clamp(2rem, 5vw, 5rem);
 		align-items: center;
 	}
+	/* The ring belongs behind the terminal card; this layout has no card. */
+	.lh.is-badges::before {
+		display: none;
+	}
+	/* Design: the partner tiles carry the right-hand column on their own, so
+	   they're a good half again bigger than the row under the partner page's
+	   copy — the logos read at a distance rather than as footnotes. */
 	.lh.is-badges .lh__badges {
 		flex-direction: column;
+		gap: 1.25rem;
 		margin-top: 0;
+	}
+	.lh.is-badges .lh__badge {
+		min-height: 132px;
+		padding: 1.35rem 1.75rem;
+		gap: 1.35rem;
+	}
+	.lh.is-badges .lh__badge-logo {
+		width: 74px;
+		height: 66px;
+	}
+	.lh.is-badges .lh__badge-wordmark,
+	.lh.is-badges .lh__badge-label {
+		font-size: 1.05rem;
 	}
 	.lh.is-badges .lh__trust {
 		justify-content: flex-start;
 		margin-top: 1.75rem;
+	}
+	/* Wide enough that the first line runs to "ballpark". */
+	.lh.is-badges .lh__body {
+		max-width: 64ch;
 	}
 	@media (max-width: 860px) {
 		.lh.is-badges .lh__content {
