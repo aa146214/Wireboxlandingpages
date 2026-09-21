@@ -611,8 +611,8 @@ const total = STEPS.length;
 		gap: 0.85rem;
 		height: 100%;
 		padding: 1rem 1.15rem;
-		background: var(--surface-lavender-tint);
-		border: 1px solid transparent;
+		background: var(--surface-subtle);
+		border: 1px solid var(--color-light-lavender);
 		cursor: pointer;
 		transition:
 			background 0.15s ease,
@@ -661,7 +661,7 @@ const total = STEPS.length;
 	.ew__option-label {
 		font-size: var(--fs-small);
 		font-weight: var(--fw-semibold);
-		color: var(--color-headings-dark);
+		color: var(--color-paragraph-strong);
 	}
 	.ew__option-desc {
 		font-size: var(--fs-category);
@@ -814,8 +814,13 @@ const total = STEPS.length;
 		color: var(--color-white);
 	}
 
-	.ew__includes-title {
+	/* Ruled off from the estimate above it, like the breakdown list is. */
+	.ew__includes {
 		margin-top: 1.75rem;
+		padding-top: 1.75rem;
+		border-top: 1px solid rgba(255, 255, 255, 0.16);
+	}
+	.ew__includes-title {
 		font-size: var(--fs-category);
 		font-weight: var(--fw-semibold);
 		letter-spacing: var(--ls-category);
@@ -825,8 +830,8 @@ const total = STEPS.length;
 	.ew__includes-list {
 		display: flex;
 		flex-direction: column;
-		gap: 0.85rem;
-		margin: 1rem 0 0;
+		gap: 1.15rem;
+		margin: 1.35rem 0 0;
 		padding: 0;
 		list-style: none;
 		counter-reset: none;
