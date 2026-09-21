@@ -182,16 +182,18 @@ const total = STEPS.length;
 
 				<p class="ew__side-empty" data-empty>{sidebarEmpty}</p>
 
+				{/* The three figures are the workbook's "Result" block, labelled as it
+				    labels them: estimated cost, estimated effort, estimated timeline. */}
 				<div class="ew__result" data-result hidden>
 					<p class="ew__result-label">Estimated cost</p>
 					<p class="ew__result-cost" data-cost></p>
 					<dl class="ew__result-rows">
 						<div>
-							<dt>Effort</dt>
+							<dt>Estimated effort</dt>
 							<dd data-hours></dd>
 						</div>
 						<div>
-							<dt>Timeline</dt>
+							<dt>Estimated timeline</dt>
 							<dd data-weeks></dd>
 						</div>
 					</dl>
