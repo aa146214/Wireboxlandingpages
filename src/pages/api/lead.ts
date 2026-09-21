@@ -13,6 +13,7 @@ const SOURCES: Record<string, string> = {
 	cta: 'CTA — "Get My Free Review"',
 	laravel: 'Laravel page — "Book my consultation"',
 	estimator: 'Upgrade estimator — "Book my technical audit"',
+	ai: 'AI page — "Request my free consultation"',
 };
 
 interface SendResult {
@@ -39,6 +40,7 @@ async function sendLeadEmail(fields: Record<string, string>): Promise<SendResult
 		'',
 		`Source:  ${source}`,
 		fields.name ? `Name:    ${fields.name}` : null,
+		fields.company ? `Company: ${fields.company}` : null,
 		`Email:   ${fields.email}`,
 		fields.phone ? `Phone:   ${fields.phone}` : null,
 		fields.page ? `Page:    ${fields.page}` : null,
@@ -88,8 +90,10 @@ export const POST: APIRoute = async ({ request }) => {
 		return reply(false, 'Invalid request.', 400, wantsJson, request);
 	}
 
-	// Honeypot: real users never fill this hidden field.
-	if (fields.company) return reply(true, '', 200, wantsJson, request);
+	// Honeypot: real users never fill this hidden field. Deliberately not named
+	// "company" — the AI page asks for a company, and a visitor answering that
+	// question must not be mistaken for a bot.
+	if (fields.hp_url) return reply(true, '', 200, wantsJson, request);
 
 	const email = (fields.email || '').trim();
 	if (!EMAIL_RE.test(email)) {

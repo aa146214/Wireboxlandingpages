@@ -1,0 +1,136 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+/**
+ * "Our AI development process" — four ruled rows, each a number, a name and
+ * what happens in it.
+ */
+const { blok } = Astro.props;
+
+interface Step {
+	title: string;
+	description: string;
+}
+
+const eyebrow: string = blok?.eyebrow || 'How an engagement runs';
+const heading: string = blok?.heading || 'Our AI development process';
+const body: string = blok?.body || '';
+const steps: Step[] = blok?.steps?.length ? blok.steps : [];
+
+const pad = (n: number) => String(n).padStart(2, '0');
+/** Design: the step numbers run yellow, lavender, pink, green. */
+const TONES = ['yellow', 'lavender', 'pink', 'green'];
+---
+
+<section class="ap" id="process" {...storyblokEditable(blok)}>
+	<div class="ap__inner container">
+		<div class="ap__head">
+			<div>
+				<p class="ap__eyebrow category">{eyebrow}</p>
+				<h2 class="ap__heading">{heading}</h2>
+			</div>
+			{body && <p class="ap__body">{body}</p>}
+		</div>
+
+		<ol class="ap__list" role="list">
+			{
+				steps.map((step, i) => (
+					<li class:list={['ap__step', `is-${TONES[i % TONES.length]}`]}>
+						<span class="ap__num">{pad(i + 1)}</span>
+						<h3 class="ap__title">{step.title}</h3>
+						<p class="ap__desc">{step.description}</p>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+</section>
+
+<style>
+	.ap {
+		background: var(--surface-page);
+		padding-block: var(--section-py);
+	}
+	.ap__head {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: clamp(1.5rem, 4vw, 3rem);
+		align-items: end;
+		padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
+	}
+	.ap__eyebrow {
+		color: var(--color-primary-blue);
+		margin-bottom: 1rem;
+	}
+	.ap__heading {
+		font-size: var(--fs-h2-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h2);
+		color: var(--color-headings-dark);
+	}
+	.ap__body {
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+		max-width: 46ch;
+	}
+
+	.ap__list {
+		margin: 0;
+		padding: 0;
+	}
+	.ap__step {
+		display: grid;
+		grid-template-columns: 80px minmax(0, 200px) minmax(0, 1fr);
+		gap: clamp(1rem, 3vw, 2.5rem);
+		align-items: baseline;
+		padding-block: clamp(1.25rem, 2.5vw, 1.75rem);
+		border-top: 1px solid var(--surface-lavender-tint);
+	}
+	.ap__step:last-child {
+		border-bottom: 1px solid var(--surface-lavender-tint);
+	}
+	.ap__num {
+		font-size: clamp(1.25rem, 1rem + 0.8vw, 1.6rem);
+		font-weight: var(--fw-semibold);
+		line-height: 1;
+	}
+	.ap__step.is-yellow .ap__num {
+		color: var(--color-light-yellow);
+	}
+	.ap__step.is-lavender .ap__num {
+		color: var(--color-light-lavender);
+	}
+	.ap__step.is-pink .ap__num {
+		color: var(--color-light-pink);
+	}
+	.ap__step.is-green .ap__num {
+		color: var(--color-light-green);
+	}
+	.ap__title {
+		font-size: var(--fs-h5-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-headings-dark);
+	}
+	.ap__desc {
+		font-size: var(--fs-category);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+
+	@media (max-width: 820px) {
+		.ap__head {
+			grid-template-columns: 1fr;
+			align-items: start;
+		}
+		.ap__step {
+			grid-template-columns: 56px minmax(0, 1fr);
+		}
+		.ap__desc {
+			grid-column: 2;
+		}
+	}
+</style>

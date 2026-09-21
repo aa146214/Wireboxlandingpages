@@ -27,6 +27,7 @@ const items: Item[] = blok?.items?.length
 			{ question: 'Is there a setup or onboarding fee?', answer: "No setup fee on standard plans. Complex migrations may need a small scoped onboarding – we'll agree it with you up front." },
 		];
 
+const subtitle: string = blok?.subtitle || '';
 const h = splitHighlight(heading, accent);
 ---
 
@@ -35,6 +36,7 @@ const h = splitHighlight(heading, accent);
 		<header class="faq__head">
 			<p class="faq__eyebrow category">{eyebrow}</p>
 			<h2 class="faq__heading section-heading">{h.pre}<span class="faq__hl">{h.mid}</span>{h.post}</h2>
+			{subtitle && <p class="faq__subtitle">{subtitle}</p>}
 		</header>
 
 		<ul class="faq__list" role="list">
@@ -65,6 +67,12 @@ const h = splitHighlight(heading, accent);
 		margin-bottom: clamp(2rem, 4vw, 3.5rem);
 	}
 	/* Wide enough for the heading to stay on one line (per feedback). */
+	.faq__subtitle {
+		margin-top: 0.85rem;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
 	.faq__heading {
 		text-wrap: nowrap;
 	}

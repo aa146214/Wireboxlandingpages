@@ -1,0 +1,43 @@
+---
+import { randomUUID } from 'node:crypto';
+import { useStoryblokApi } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import Layout from '../layouts/Layout.astro';
+import { buildAiBody, AI_SEO } from '../data/ai-content.mjs';
+
+/**
+ * AI development landing page.
+ *
+ * Its own route, like /laravel and the estimator: a campaign URL must not 404
+ * paid traffic if the story is unpublished or Storyblok is unreachable.
+ */
+const FALLBACK = {
+	component: 'page',
+	...AI_SEO,
+	body: buildAiBody({
+		sb: (component: string, fields: Record<string, unknown> = {}) => ({ _uid: randomUUID(), component, ...fields }),
+		A: (name: string) => ({ filename: `/seed-assets/support/${name}`, alt: '' }),
+		mlink: (url: string) => url,
+		header: { _uid: 'fallback-header', component: 'header', nav: [], socials: [], phone_label: 'call us on:', phone_number: '0207 993 5485' },
+		locations: () => ({ _uid: 'fallback-locations', component: 'locations' }),
+		footer: () => ({ _uid: 'fallback-footer', component: 'footer' }),
+	}),
+};
+
+let content: Record<string, unknown> = FALLBACK;
+try {
+	const storyblokApi = useStoryblokApi();
+	const { data } = await storyblokApi.get('cdn/stories/ai', { version: 'published', cv: Date.now() });
+	if (data?.story?.content) content = data.story.content;
+} catch (err) {
+	console.warn('[ai] Storyblok fetch failed — using bundled content:', (err as Error).message);
+}
+
+const seoTitle = (content.seo_title as string) || AI_SEO.seo_title;
+const seoDescription = (content.seo_description as string) || AI_SEO.seo_description;
+const noindex = Boolean(content.seo_noindex);
+---
+
+<Layout title={seoTitle} description={seoDescription} noindex={noindex}>
+	<StoryblokComponent blok={content} />
+</Layout>

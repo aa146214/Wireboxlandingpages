@@ -1,0 +1,149 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+/**
+ * "Why choose Wirebox as your AI development agency" — the long-form case,
+ * with a photograph and a dark "AI that fits" card stacked beside it.
+ */
+const { blok } = Astro.props;
+
+const eyebrow: string = blok?.eyebrow || 'From opportunity to production';
+const heading: string = blok?.heading || 'Why choose Wirebox as your AI development agency';
+const bodyRaw: string = blok?.body || '';
+const paragraphs: string[] = bodyRaw.split(/\n{2,}/).map((p: string) => p.trim()).filter(Boolean);
+
+const image: string = blok?.image?.filename || '';
+const imageAlt: string = blok?.image?.alt || '';
+
+const cardTitle: string = blok?.card_title || 'AI that fits';
+interface Line {
+	label: string;
+}
+const cardItems: Line[] = blok?.card_items?.length ? blok.card_items : [];
+
+const pad = (n: number) => String(n).padStart(2, '0');
+/** The design tints each line's index in turn. */
+const TONES = ['yellow', 'pink', 'green'];
+---
+
+<section class="aa" id="capabilities" {...storyblokEditable(blok)}>
+	<div class="aa__inner container">
+		<div class="aa__copy">
+			<p class="aa__eyebrow category">{eyebrow}</p>
+			<h2 class="aa__heading">{heading}</h2>
+			{paragraphs.map((p) => <p class="aa__body">{p}</p>)}
+		</div>
+
+		<div class="aa__aside">
+			{
+				image ? (
+					<img class="aa__image" src={image} alt={imageAlt} loading="lazy" decoding="async" />
+				) : (
+					<div class="aa__image aa__image--placeholder" aria-hidden="true" />
+				)
+			}
+
+			{cardItems.length > 0 && (
+				<div class="aa__card">
+					<h3 class="aa__card-title">{cardTitle}</h3>
+					<ol class="aa__card-list" role="list">
+						{cardItems.map((item, i) => (
+							<li class:list={['aa__card-item', `is-${TONES[i % TONES.length]}`]}>
+								<span class="aa__card-num">{pad(i + 1)}</span>
+								<span class="aa__card-label">{item.label}</span>
+							</li>
+						))}
+					</ol>
+				</div>
+			)}
+		</div>
+	</div>
+</section>
+
+<style>
+	.aa {
+		background: var(--surface-muted);
+		padding-block: var(--section-py);
+	}
+	.aa__inner {
+		display: grid;
+		grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+		gap: clamp(2rem, 5vw, 4rem);
+		align-items: start;
+	}
+	.aa__eyebrow {
+		color: var(--color-primary-blue);
+		margin-bottom: 1rem;
+	}
+	.aa__heading {
+		font-size: var(--fs-h2-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h2);
+		color: var(--color-headings-dark);
+		max-width: 20ch;
+	}
+	.aa__body {
+		margin-top: 1.25rem;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+
+	.aa__image {
+		display: block;
+		width: 100%;
+		aspect-ratio: 16 / 9;
+		object-fit: cover;
+	}
+	/* Until the client supplies the photograph, hold its exact footprint. */
+	.aa__image--placeholder {
+		background:
+			linear-gradient(135deg, var(--color-light-lavender), var(--surface-lavender-tint) 60%, var(--color-light-bg-1));
+	}
+	.aa__card {
+		background: var(--surface-invert);
+		color: var(--color-white);
+		padding: clamp(1.25rem, 2.5vw, 1.75rem);
+	}
+	.aa__card-title {
+		font-size: var(--fs-h5-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-light-green);
+	}
+	.aa__card-list {
+		margin: 1.25rem 0 0;
+		padding: 0;
+	}
+	.aa__card-item {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 1rem;
+		padding-block: 0.85rem;
+		border-top: 1px solid rgba(255, 255, 255, 0.16);
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		color: var(--color-white);
+	}
+	.aa__card-num {
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+	}
+	.aa__card-item.is-yellow .aa__card-num {
+		color: var(--color-light-yellow);
+	}
+	.aa__card-item.is-pink .aa__card-num {
+		color: var(--color-light-pink);
+	}
+	.aa__card-item.is-green .aa__card-num {
+		color: var(--color-light-green);
+	}
+
+	@media (max-width: 900px) {
+		.aa__inner {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

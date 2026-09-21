@@ -23,6 +23,7 @@ import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildLaravelBody, LARAVEL_SEO, TESTIMONIAL_ITEMS, CASE_ITEMS } from '../src/data/laravel-content.mjs';
 import { buildEstimatorBody, ESTIMATOR_SEO } from '../src/data/estimator-content.mjs';
+import { buildAiBody, AI_SEO } from '../src/data/ai-content.mjs';
 import { DEFAULT_SITE_SCRIPTS } from '../src/data/site-scripts.mjs';
 
 const SEED_ASSETS = fileURLToPath(new URL('../public/seed-assets/support', import.meta.url));
@@ -242,7 +243,7 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'sla_tiers', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), tiers: bloks(4, ['sla_tier']), eyebrow_tone: opt(5, ['pink', 'lavender', 'green'], 'pink'), hide_dividers: bool(6), stack_label: text(7), stack: area(8, { description: 'One technology per line, shown as chips under the tiers' }), stack_highlight: text(9, { description: 'Which chip gets the fuchsia highlight' }) } },
 	{ name: 'pricing', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), plans: bloks(4, ['pricing_plan']), footnote: text(5), foot_link_label: text(6), foot_link: text(7), foot_trail: text(8) } },
 	{ name: 'support_cases', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), items: bloks(4, ['support_case']), footnote: text(5, { description: 'Optional closing line under the grid' }), chip_tags: bool(6), link_tone: opt(7, ['fuchsia', 'blue'], 'fuchsia'), square_media: bool(8) } },
-	{ name: 'faq', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), items: bloks(3, ['faq_item']) } },
+	{ name: 'faq', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), subtitle: area(3), items: bloks(4, ['faq_item']) } },
 	{ name: 'cta_contact', schema: { form_message_prompt: text(30, { description: 'Placeholder for the message box' }), eyebrow: text(0), heading: text(1), heading_accent: text(2), body: area(3), phones: bloks(4, ['cta_phone']), form_cta_label: text(5), tone: opt(6, ['fuchsia', 'blue'], 'fuchsia'), form_title: text(7), body_strong: area(8), show_message: bool(9), labels_first: bool(10), form_source: text(11, { description: 'Tag sent with the lead so the source form is identifiable' }), form_note: text(12, { description: 'Reassurance line under the submit button' }) } },
 	{ name: 'locations', schema: { places: bloks(0, ['map_place']), tall: bool(1) } },
 	{ name: 'thank_you', schema: { eyebrow: text(0), heading: text(1), heading_line_2: text(2, { description: 'Shown on a second line, in the accent colour' }), body: area(3), cta_label: text(4), cta_link: text(5), phones_title: text(6), phones: bloks(7, ['cta_phone']) } },
@@ -273,6 +274,47 @@ const SUPPORT_COMPONENTS = [
 		},
 	},
 	{ name: 'estimator_stat', schema: { value: text(0), label: text(1), tone: opt(2, ['fuchsia', 'blue', 'dark', 'pink'], 'blue') } },
+	{ name: 'numbered_line', schema: { label: text(0) } },
+	{ name: 'ai_benefit', schema: { title: text(0), description: area(1), tone: opt(2, ['cyan', 'pink', 'green', 'fuchsia', 'lavender'], 'lavender') } },
+	{ name: 'ai_tech_item', schema: { title: text(0), description: area(1), tone: opt(2, ['yellow', 'pink', 'green', 'fuchsia', 'white'], 'white') } },
+	{ name: 'ai_ask', schema: { title: text(0), description: area(1), tone: opt(2, ['yellow', 'pink', 'green', 'lavender', 'fuchsia'], 'lavender') } },
+	{ name: 'ai_office', schema: { name: text(0), phone: text(1), email: text(2) } },
+	{
+		name: 'ai_hero',
+		schema: {
+			eyebrow: text(0),
+			heading: area(1),
+			body: area(2),
+			ctas: bloks(3, ['cta']),
+			trust_line: text(4),
+			background: asset(5, { description: 'Hero photograph; a gradient stands in when empty' }),
+			form_title: text(6),
+			form_cta_label: text(7),
+			form_source: text(8),
+		},
+	},
+	{ name: 'ai_agency', schema: { eyebrow: text(0), heading: area(1), body: area(2, { description: 'Blank line between paragraphs' }), image: asset(3), card_title: text(4), card_items: bloks(5, ['numbered_line']) } },
+	{ name: 'ai_process', schema: { eyebrow: text(0), heading: text(1), body: area(2), steps: bloks(3, ['numbered_point']) } },
+	{ name: 'ai_partner', schema: { eyebrow: text(0), heading: text(1), items: bloks(2, ['numbered_point']) } },
+	{ name: 'ai_benefits', schema: { eyebrow: text(0), heading: text(1), items: bloks(2, ['ai_benefit']) } },
+	{ name: 'ai_tech', schema: { eyebrow: text(0), heading: area(1), body: area(2), chips: area(3, { description: 'One chip per line' }), items: bloks(4, ['ai_tech_item']) } },
+	{ name: 'ai_catalogue', schema: { eyebrow: text(0), heading: area(1), body: area(2), items: bloks(3, ['ai_ask']) } },
+	{
+		name: 'ai_contact',
+		schema: {
+			eyebrow: text(0),
+			heading: text(1),
+			body: area(2),
+			form_cta_label: text(3),
+			form_note: text(4),
+			form_source: text(5),
+			offices_title: text(6),
+			offices_body: area(7),
+			offices: bloks(8, ['ai_office']),
+			explore_title: text(9),
+			explore: bloks(10, ['footer_link']),
+		},
+	},
 	{ name: 'estimator_drivers', schema: { eyebrow: text(0), heading: area(1), body: area(2), items: bloks(3, ['numbered_point']) } },
 	{ name: 'estimator_range', schema: { eyebrow: text(0), heading: area(1), body: area(2, { description: 'Leave empty to state the rate and spread the calculator actually uses' }), low_label: text(3), mid_label: text(4), high_label: text(5) } },
 	{ name: 'cta_banner', schema: { heading: text(0), prompt: text(1), cta_label: text(2), cta_link: text(3) } },
@@ -692,6 +734,24 @@ async function seedEstimatorStory() {
 	}
 }
 
+async function seedAiStory() {
+	const content = sb('page', {
+		...AI_SEO,
+		body: buildAiBody({ sb, A, mlink, header, locations, footer }),
+	});
+	const found = await mapi('GET', '/stories/?with_slug=ai');
+	const existing = (found.stories || []).find((st) => st.slug === 'ai');
+	const story = { name: 'AI Development', slug: 'ai', content };
+	if (existing) {
+		await backupStory(existing.id, 'ai');
+		await mapi('PUT', `/stories/${existing.id}`, { story, publish: 1 });
+		console.log(`Published "ai" (updated, ${content.body.length} sections).`);
+	} else {
+		await mapi('POST', '/stories/', { story, publish: 1 });
+		console.log(`Published "ai" (created, ${content.body.length} sections).`);
+	}
+}
+
 async function seedThankYouStory() {
 	const content = buildThankYouContent();
 	const found = await mapi('GET', '/stories/?with_slug=thankyou');
@@ -737,7 +797,7 @@ async function main() {
 	}
 	await uploadAssets();
 	if (ONLY) {
-		const targets = { laravel: seedLaravelStory, settings: seedSettingsStory, estimator: seedEstimatorStory };
+		const targets = { laravel: seedLaravelStory, settings: seedSettingsStory, estimator: seedEstimatorStory, ai: seedAiStory };
 		if (!targets[ONLY]) throw new Error(`Unknown --only target "${ONLY}" (supported: ${Object.keys(targets).join(', ')}).`);
 		console.log('\n=== Story ===');
 		await targets[ONLY]();
