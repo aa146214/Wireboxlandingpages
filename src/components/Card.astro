@@ -1,0 +1,103 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+interface Props extends HTMLAttributes<"div"> {
+	class?: string;
+	bg?: string;
+	collapse?: boolean,
+	variant?: "light" | "dark" | null
+}
+
+const {
+	class: className,
+	bg = "var(--color-white)",
+	style,
+	collapse,
+	variant = null,
+	...attributes
+} = Astro.props;
+---
+
+<div class:list={["card", collapse ? "card-collapse" : "", variant ? `card-variant card-${variant}` : "", className]} style={style} {...attributes}>
+	<slot />
+	{collapse &&
+		<div class='card-collapser' onclick="this.parentNode.classList.toggle('card-open')">
+			Expand
+			<svg
+				class="card-collapser-arrow"
+				width="20"
+				height="10"
+				viewBox="0 0 23 10"
+				fill="none"
+				aria-hidden="true"
+			>
+				<path d="M0 5H20" stroke="currentColor" stroke-width="2" />
+				<path
+					d="M17 1L21 5L17 9"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				/>
+			</svg>
+		</div>
+	}
+</div>
+
+<style define:vars={{ bg }}>
+	.card {
+		padding: 24px;
+		border-radius: 20px;
+		background-color: var(--bg);
+	}
+	.card-collapse {
+		max-height: 500px;
+		overflow: hidden;
+		position: relative;
+		padding-bottom: 62px;
+		transition: max-height 1s cubic-bezier(0, 1, 0, 1);
+	}
+	.card-collapse.card-open {
+		transition: max-height 2s ease-in-out;
+		max-height: 9999px;
+	}
+	.card-collapser {
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		text-align: center;
+		padding-top: 48px;
+		padding-bottom: 16px;
+		background-image: linear-gradient(180deg, transparent 0%, var(--bg) 60%);
+		color: var(--color-card-text, var(--color-headings-dark));
+		cursor: pointer;
+	}
+	.card-open .card-collapser {
+		background-image: none;
+	}
+	.card-collapser-arrow {
+		display: inline;
+		transform: rotate(90deg);
+		position: relative;
+		transition: transform 0.2s;
+		top: -2px;
+	}
+	.card-open .card-collapser-arrow {
+		display: inline;
+		transform: rotate(-90deg);
+		position: relative;
+		top: -2px;
+	}
+	.card-light {
+		--color-card-text: var(--color-headings-dark);
+	}
+	.card-dark {
+		--color-card-text: var(--text-on-dark);
+	}
+	.card-variant :global(h1), .card-variant :global(h2), .card-variant :global(h3), .card-variant :global(h4), .card-variant :global(h5), .card-variant :global(h6),
+	.card-variant :global(.h1), .card-variant :global(.h2), .card-variant :global(.h3), .card-variant :global(.h4), .card-variant :global(.h5), .card-variant :global(.h6),
+	.card-variant {
+		color: var(--color-card-text);
+	}
+</style>

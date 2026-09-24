@@ -17,6 +17,7 @@
 	},
 	"dependencies": {
 		"@astrojs/vercel": "^10.0.2",
-		"@fontsource-variable/inter": "^5.2.8"
+		"@fontsource-variable/inter": "^5.2.8",
+		"lru-cache": "^11.5.3"
 	}
 }

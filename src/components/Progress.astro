@@ -1,0 +1,37 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<"div"> {
+	bg?: string;
+	color?: string
+	value: number;
+}
+
+const {
+	class: className,
+	bg = "var(--color-light-bg-1)",
+	color = "var(--color-primary-blue)",
+	value,
+	style,
+	...attributes
+} = Astro.props;
+---
+
+<div class:list={['progress', className]} style={style} {...attributes}>
+	<div style={{ width: (value*100) + "%" }}>
+	</div>
+</div>
+
+<style define:vars={{ bg, color }}>
+	.progress {
+		border-radius: var(--radius-pill);
+		background-color: var(--bg);
+		height: 18px;
+	}
+
+	.progress div {
+		border-radius: var(--radius-pill);
+		height: 100%;
+		background-color: var(--color);
+	}
+</style>

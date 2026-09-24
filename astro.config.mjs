@@ -74,6 +74,8 @@ export default defineConfig({
 				winning_formula: 'storyblok/WinningFormula',
 				blog: 'storyblok/Blog',
 				awards: 'storyblok/Awards',
+				// --- SEO Report ---
+				report_data: 'storyblok/ReportData'
 			},
 		}),
 	],
