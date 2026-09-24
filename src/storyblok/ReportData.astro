@@ -101,7 +101,7 @@ const totalScore = weightedAverage([
 					<Card>
 						<h4>{category.title}</h4>
 						<p>{Math.floor(category.score * 100)} / 100</p>
-						<p>{} action{problemsByStatus(category.problems).pass.length} passed</p>
+						<p>{problemsByStatus(category.problems).fail.length + problemsByStatus(category.problems).warn.length} action • {problemsByStatus(category.problems).pass.length} passed</p>
 						<Progress value={category.score} color={statusInfo(categoryStatus(category)).color} style="margin-top: 16px"/>
 					</Card>
 				)}
