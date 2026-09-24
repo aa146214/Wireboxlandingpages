@@ -55,6 +55,13 @@ export function buildEstimatorBody({ sb, A, mlink, header, locations, footer }) 
 		cta_label: 'Book a technical audit',
 		cta_link: mlink('#contact'),
 		update_note: 'Your estimate updates after each answer.',
+		done_eyebrow: 'Your estimate',
+		done_heading: "Here's your ballpark.",
+		done_body: "Send it to yourself and we'll include the itemised breakdown behind these numbers.",
+		email_label: 'Where should we send it?',
+		email_placeholder: 'you@company.com',
+		email_cta_label: 'Email me this estimate',
+		email_note: "No obligation, and no newsletter — just this estimate and a note on what would firm it up.",
 	});
 
 	const drivers = sb('estimator_drivers', {
