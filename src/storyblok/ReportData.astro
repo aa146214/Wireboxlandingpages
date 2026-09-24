@@ -1,0 +1,387 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Card from '../components/Card.astro';
+import Progress from '../components/Progress.astro';
+import Gauge from '../components/Gauge.astro';
+import type { AuditReport, DisplayCategory } from '../lib/report';
+import type { Problem } from '../lib/report';
+import Button from '../components/Button.astro';
+import Hero from '../components/Hero.astro';
+const report = (Astro.locals as any).reportData as AuditReport;
+
+const STATUSES = ["fail", "warn", "pass", "unknown"];
+type Status = typeof STATUSES[number];
+
+function categoryStatus(category: DisplayCategory) {
+	return rawScoreStatus(category.score);
+}
+
+function rawScoreStatus(score: number) {
+	return score < 0.5 ? "fail" :
+		score < 0.9 ? "warn" :
+		"pass"
+}
+
+function problemStatus(problem: Problem): Status {
+	if (problem.score === null) return "unknown";
+	if (problem.score > 0.9) return "pass";
+	if (problem.weight === 0) return problem.score < 0.5 ? "warn" : "unknown";
+	return problem.score < 0.5 ? "fail" :
+		problem.score < 0.9 ? "warn" :
+		"pass"
+}
+
+function statusInfo(status: Status) {
+	const unknown = { name: "Other", desc: "Not checked", color: "var(--color-light-bg-1)" };
+	const result = {
+		"fail": { name: "Urgent findings", desc: "Fix immediately", color: "var(--color-light-pink)" },
+		"warn": { name: "Warnings", desc: "Plan into the next sprint", color: "var(--color-light-yellow)" },
+		"pass": { name: "Passed checks", desc: "No action required", color: "var(--color-light-green)" },
+	}[status] ?? unknown;
+	console.log(status, result.name);
+	return result;
+}
+
+function problemsByStatus(problems: Problem[]) {
+	const statusCategories: Record<Status, Problem[]> = {};
+	STATUSES.forEach(status => statusCategories[status] = []);
+	problems.forEach(problem => statusCategories[problemStatus(problem)].push(problem));
+	return statusCategories;
+}
+
+const allProblemsByStatus = problemsByStatus(report.problems);
+const opportunities = allProblemsByStatus.fail.length + allProblemsByStatus.warn.length;
+
+function weightedAverage(valueWeights: [number, number][]) {
+	return valueWeights.reduce((acc, [value, weight]) => acc + value * weight, 0) / valueWeights.reduce((acc, [_value, weight]) => acc + weight, 0);
+}
+
+const totalScore = weightedAverage([
+	[report.categories["seo"].score, 1],
+	[report.categories["performance"].score, 1],
+	[report.categories["agentic-browsing"].score, 0.3],
+]);
+---
+
+<section {...storyblokEditable(Astro.props.blok)} class="dashboard">
+	<Hero imageSrc="https://a.storyblok.com/f/293434407023515/4096x2731/cba97db68e/report-hero.jpg" class="report__hero">
+		<div class="report__hero-content">
+			<div>
+				<p class="category report__hl-yellow">Website health check • Confidential</p>
+				<h1 class="report__hl-white report__margin-top">Website Health Report</h1>
+				<p class="report__margin-top">A practical, evidence-led review of {report.url} - highlighting the fastest ways to improve visibility, trust and enquiries</p>
+				<p class="report__margin-top"><small style="opacity: 0.8">Prepared {report.date.toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" })} • {report.problems.length} checks completed</small></p>
+			</div>
+			<Card class="report__hero-card" bg="var(--color-dark-blue)" variant="dark">
+				<Gauge
+					value={totalScore}
+					class="report__hl-blue"
+					size={20000}
+					fontSize="3vw"
+					color={statusInfo(rawScoreStatus(totalScore)).color}
+					bg="#f1f0f744" />
+				<p>Good foundation</p>
+				<p>{opportunities} high-impact opportunit{opportunities === 1 ? "y" : "ies"} found</p>
+			</Card>
+		</div>
+	</Hero>
+	
+	<section class="report__darker-bg">
+		<div class="container">
+			<p class="category report__hl-blue">At a glance</p>
+			<h2>Where the website is winning and where it is losing enquiries</h2>
+
+			<p>
+				Green checks are performing well. Amber items need attention.
+				Red items are likely suppressing organic visibility, usability or conversion.
+			</p>
+
+			<div class="report__card-grid report__margin-top">
+				{Object.values(report.categories).map(category => 
+					<Card>
+						<h4>{category.title}</h4>
+						<p>{Math.floor(category.score * 100)} / 100</p>
+						<p>{} action{problemsByStatus(category.problems).pass.length} passed</p>
+						<Progress value={category.score} color={statusInfo(categoryStatus(category)).color} style="margin-top: 16px"/>
+					</Card>
+				)}
+			</div>
+		</div>
+	</section>
+
+	<section class="container">
+		<p class="category">Your fastest wins</p>
+		<h2>Three changes most likely to increase qualified enquiries</h2>
+
+		<div class="report__card-grid report__margin-top">
+			{Object.values(report.keyIssues).map((issue, index) =>
+				<Card bg={statusInfo(rawScoreStatus(issue.score)).color} style="padding: 32px" variant="light">
+					<h5 style="font-weight: 300">0{index+1}</h5>
+					<h4 class="report__margin-top" style="font-size: 1.2em">{issue.title}</h4>
+					<p class="report__margin-top" style="font-size: 0.9em; line-height: 1.4em">
+						{issue.description}
+					</p>
+				</Card>
+			)}
+		</div>
+	</section>
+
+	<section class="container">
+		<h1>Report</h1>
+
+		<Card bg="var(--color-light-bg-1)" class="report__margin-top" style="display: flex; gap: 24px; flex-wrap: wrap;">
+			<Card style="flex: 1 0 400px">
+				<h4>Issues summary</h4>
+				<p>A quick view of what needs fixing first</p>
+				{["fail", "warn", "pass"].map(status =>
+					<div class="report__issue-summary">
+						<div style={{ backgroundColor: statusInfo(status).color }} class="report__issue-summary-number">{report.problems.filter(p => problemStatus(p) == status).length}</div>
+						<div>
+							<h5>{statusInfo(status).name}</h5>
+							<p>{statusInfo(status).desc}</p>
+						</div>
+					</div>
+				)}
+			</Card>
+			<Card style="flex: 1 0 25px">
+				<h5>Your audit includes</h5>
+				<ul>
+					<li>SEO and on-page optimisation</li>
+					<li>Performance and speed analysis</li>
+					<li>Agent-ready browsing checks</li>
+					<li>Prioritised rercommendations</li>
+				</ul>
+			</Card>
+		</Card>
+
+		<Card bg="var(--color-dark-blue)" variant="dark" class="report__margin-top">
+			<p class="category">Complete technical report</p>
+			<h4>{report.problems.length} checks, organised by area and priority</h4>
+		</Card>
+
+		{Object.values(report.categories).map(category =>
+			<div class="report__margin-top">
+				<div style="display: flex; gap: 24px; padding: 8px; align-items: center">
+					<Gauge value={category.score} color={statusInfo(categoryStatus(category)).color} size={120} strokeWidth={15} fontSize="1.1em" />
+					<div>
+						<h4 style="margin-bottom: 10px">{category.title}</h4>
+						<p>{category.description}</p>
+					</div>
+				</div>
+
+				{Object.entries(problemsByStatus(category.problems)).map(([status, problems]: [Status, Problem[]]) =>
+					problems.length > 0 && status !== "unknown" &&
+						<Card bg={statusInfo(status).color} class="report__margin-top" variant="light" collapse={problems.length > 4}>
+							<p class="category">{statusInfo(status).name} • {problems.length}</p>
+
+							<div class="report__status-card-container">
+								{problems.map(problem =>
+									<Card class="report__margin-top">
+										<h5>{problem.title}{problem.displayValue ? `: ${problem.displayValue} ` : ""}</h5>
+										<p>{problem.description}</p>
+									</Card>
+								)}
+							</div>
+						</Card>
+				)}
+			</div>
+		)}
+	</section>
+
+	<section style="background-color: var(--color-dark-blue);">
+		<div class="container">
+			<h1 class="report__hl-white" style="margin-top: 0">A closer look at the highest-impact issue</h1>
+			<p class="report__hl-white">One of the big problems, and a potential fix</p>
+			<div class="report__margin-top report__big-issue">
+				<img src={report.problems.find(problem => problem.id === "final-screenshot")?.details?.data} />
+
+				<Card bg="var(--color-light-pink)" variant="light" style="font-size: 0.9em; line-height: 1.3em">
+					<h4 style="line-height: 1.1em">{report.keyIssues[0].title}</h4>
+					<p class="report__margin-top-small">{report.keyIssues[0].description}</p>
+					<h5 class="report__margin-top category" style="font-size: 1.1em">Potential fix</h5>
+					<p class="report__margin-top-small">{report.keyIssues[0].recommendedFix}</p>
+				</Card>
+			</div>
+		</div>
+	</section>
+
+	<section class="container">
+		<h1>A focused 90-day improvement plan</h1>
+		<p>Prioritised by impact, effort and dependency, so the site improves quickly without becoming a disruptive rebuild.</p>
+
+		<div class="report__card-grid report__margin-top report__fixes">
+			<Card bg="var(--color-fuchsia)" variant="dark">
+				<h6 class="category">Days 1-14</h6>
+				<h4>Immediate fixes</h4>
+				<ul>
+					{report.plan["shortTerm"].map(step =>
+						<li>{step}</li>
+					)}
+				</ul>
+			</Card>
+			<Card bg="var(--color-light-yellow)">
+				<h6 class="category">Days 15-45</h6>
+				<h4>Later upgrades</h4>
+				<ul>
+					{report.plan["midTerm"].map(step =>
+						<li>{step}</li>
+					)}
+				</ul>
+			</Card>
+			<Card bg="var(--color-light-green)">
+				<h6 class="category">Days 46-90</h6>
+				<h4>Long term improvement</h4>
+				<ul>
+					{report.plan["longTerm"].map(step =>
+						<li>{step}</li>
+					)}
+				</ul>
+			</Card>
+		</div>
+		<Card bg="var(--color-dark-blue)" style="padding: 24px 40px; margin-top: 24px;" variant="dark">
+			<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+				<div style="min-width: 50%; flex: 1 1 60%">
+					<h4>Ready to turn the findings into enquiries?</h4>
+					<p class="report__margin-top-small">Wirebox can help prioritise, design and deliver the highest-impact improvements.</p>
+				</div>
+				<Button label="Discuss this report" icon="arrow-right" class="report__btn-cta" link="/#contact" />
+			</div>
+		</Card>
+	</section>
+</section>
+
+<style>
+	.report__hl-blue {
+		color: var(--color-primary-blue);
+	}
+	.report__hl-pink {
+		color: var(--color-light-pink);
+	}
+	.report__hl-yellow {
+		color: var(--color-light-yellow);
+	}
+	.report__hl-white {
+		color: var(--color-white);
+	}
+
+	.report__card-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 24px;
+	}
+	@media (max-width: 1080px) {
+		.report__card-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+	.report__big-issue {
+		display: flex;
+		grid-template-columns: 2fr 1fr;
+		gap: 24px;
+	}
+	.report__big-issue img {
+		border-radius: 24px;
+		border: 4px solid var(--color-light-pink);
+		object-fit: cover;
+	}
+	@media (max-width: 1080px) {
+		.report__big-issue img {
+			display: none;
+		}
+	}
+
+	.report__darker-bg {
+		background-color: var(--color-light-bg-2);
+	}
+	.report__margin-top {
+		margin-top: 16px;
+	}
+	.report__margin-top-small {
+		margin-top: 8px;
+	}
+
+	.report__status-card-container div {
+		padding: 16px 20px;
+	}
+
+	.report__status-card-container h5 {
+		font-size: 1em;
+	}
+	.report__status-card-container p {
+		font-size: 0.8em;
+		line-height: normal;
+	}
+
+	.report__fixes h4 {
+		font-size: 1.4em;
+		line-height: normal;
+		margin-bottom: 8px;
+	}
+
+	:global(.report__btn-cta) {
+		flex-shrink: 0;
+		padding-block: 32px;
+		color: var(--color-headings-dark) !important;
+	}
+
+	.container {
+		padding-block: var(--section-py);
+	}
+
+	.report__issue-summary {
+		display: flex;
+		align-items: center;
+		justify-items: end;
+		gap: 16px;
+		padding: 12px 16px;
+		border-radius: 16px;
+		margin-top: 8px;
+		background-color: var(--color-light-bg-1);
+	}
+
+	.report__issue-summary-number {
+		width: 64px;
+		height: 64px;
+		line-height: 64px;
+		font-size: 24px;
+		font-weight: bold;
+		color: var(--color-headings-dark);
+		text-align: center;
+		border-radius: var(--radius-pill);
+	}
+
+	.report__hero-content {
+		display: grid;
+		align-items: center;
+		gap: clamp(1.5rem,3vw,3.5rem);
+		padding-block: clamp(3rem,6vw,6rem);
+		grid-template-columns: 2fr 1fr;
+	}
+	@media (max-width: 960px) {
+		.report__hero-content {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.report__hero-card {
+		text-align: center;
+		padding: 32px;
+		margin: auto;
+		max-width: 400px;
+		box-shadow: 0 20px 40px 0px #0004;
+		border: 1px solid var(--color-lavender);
+	}
+
+	h1, h2 {
+		margin-top: 24px;
+		line-height: inital;
+	}
+
+	h1 {
+		font-size: 60px;
+	}
+
+	h2 {
+		font-size: 50px;
+	}
+</style>

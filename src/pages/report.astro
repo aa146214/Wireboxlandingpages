@@ -1,0 +1,32 @@
+---
+export const prerender = false;
+
+import '../styles/tokens.css';
+import '../styles/global.css';
+import { getReport } from '../lib/report';
+import Layout from '../layouts/Layout.astro';
+import { useStoryblokApi } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+
+const id = Astro.url.searchParams.get("id");
+const report = id ? await getReport(id) : null;
+
+if (report === null) {
+	return Astro.redirect("/");
+}
+
+(Astro.locals as any).reportData = report;
+
+const storyblokApi = useStoryblokApi();
+const { data } = await storyblokApi.get('cdn/stories/report', {
+  version: 'draft',
+  cv: Date.now(),
+});
+const content = data.story.content;
+
+Astro.response.headers.set('Cache-Control', 'public, max-age=30, s-maxage=60');
+---
+
+<Layout title={"SEO Report - Wirebox"}>
+	<StoryblokComponent blok={content} />
+</Layout>

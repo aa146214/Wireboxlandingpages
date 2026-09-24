@@ -1,0 +1,86 @@
+---
+interface Props {
+    class?: string;
+    bg?: string;
+    color?: string;
+    value: number;
+    size?: number;
+    strokeWidth?: number;
+	fontSize?: string;
+}
+
+let {
+    class: className,
+    bg = "var(--color-light-bg-1)",
+	color = "var(--color-primary-blue)",
+    value = 0,
+    size = 120,
+	strokeWidth,
+	fontSize
+} = Astro.props;
+
+strokeWidth ??= size / 6;
+
+const radius = (size - strokeWidth) / 2;
+const circumference = 2 * Math.PI * radius;
+const dashOffset = circumference * (1 - value);
+---
+
+<div class:list={['gauge', className]}>
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <!-- Background Track -->
+        <circle
+            class="gauge-bg"
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke-width={strokeWidth}
+        />
+        <!-- Progress Bar -->
+        <circle
+            class="gauge-progress"
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke-width={strokeWidth + 0.5}
+            stroke-dasharray={circumference}
+            stroke-dashoffset={dashOffset}
+        />
+    </svg>
+    
+    <span class="gauge-value">{Math.round(value * 100)}%</span>
+</div>
+
+<style define:vars={{ bg, color, fontSize }}>
+    .gauge {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    svg {
+        transform: rotate(-90deg);
+    }
+
+    circle {
+        fill: none;
+    }
+
+    .gauge-bg {
+        stroke: var(--bg);
+    }
+
+    .gauge-progress {
+        stroke: var(--color);
+        /* stroke-linecap: round; */
+        transition: stroke-dashoffset 0.3s ease;
+    }
+
+    .gauge-value {
+        position: absolute;
+        font-weight: bold;
+        font-size: var(--fontSize);
+        color: currentColor;
+    }
+</style>
