@@ -64,6 +64,16 @@ const ctaLink: string =
 
 const updateNote: string = blok?.update_note || 'Your estimate updates after each answer.';
 
+const doneEyebrow: string = blok?.done_eyebrow || 'Your estimate';
+const doneHeading: string = blok?.done_heading || "Here's your ballpark.";
+const doneBody: string =
+	blok?.done_body || "Send it to yourself and we'll include the itemised breakdown behind these numbers.";
+const emailLabel: string = blok?.email_label || 'Where should we send it?';
+const emailPlaceholder: string = blok?.email_placeholder || 'you@company.com';
+const emailCtaLabel: string = blok?.email_cta_label || 'Email me this estimate';
+const emailNote: string =
+	blok?.email_note || "No obligation, and no newsletter — just this estimate and a note on what would firm it up.";
+
 /** Options for each step, in the order the workbook lists them. */
 const OPTIONS: Record<string, { key: string; label: string; description?: string }[]> = {
 	current: CURRENT_VERSION_OPTIONS,
@@ -156,6 +166,45 @@ const total = STEPS.length;
 						</fieldset>
 					))
 				}
+
+				<div class="ew__done" data-done hidden>
+					<p class="ew__step-count category">{doneEyebrow}</p>
+					<h3 class="ew__question">{doneHeading}</h3>
+					<p class="ew__hint">{doneBody}</p>
+
+					<dl class="ew__done-figures">
+						<div>
+							<dt>Estimated cost</dt>
+							<dd data-done-cost></dd>
+						</div>
+						<div>
+							<dt>Estimated effort</dt>
+							<dd data-done-hours></dd>
+						</div>
+						<div>
+							<dt>Estimated timeline</dt>
+							<dd data-done-weeks></dd>
+						</div>
+					</dl>
+
+					<label class="ew__done-label" for="ew-email">{emailLabel}</label>
+					<div class="ew__done-row">
+						<input
+							class="ew__done-input"
+							id="ew-email"
+							type="email"
+							name="estimator_email"
+							placeholder={emailPlaceholder}
+							autocomplete="email"
+						/>
+						<button class="ew__btn ew__btn--primary" type="button" data-send>
+							<span data-send-label>{emailCtaLabel}</span>
+							<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13M11 5l5 5-5 5" /></svg>
+						</button>
+					</div>
+					<p class="ew__done-note">{emailNote}</p>
+					<p class="ew__done-status" data-done-status aria-live="polite"></p>
+				</div>
 
 				<p class="ew__update">{updateNote}</p>
 
@@ -253,6 +302,15 @@ const total = STEPS.length;
 		const weeksEl = side.querySelector<HTMLElement>('[data-weeks]')!;
 		const breakdownEl = side.querySelector<HTMLElement>('[data-breakdown]')!;
 		const ctaEl = side.querySelector<HTMLAnchorElement>('[data-cta]')!;
+		const doneEl = form.querySelector<HTMLElement>('[data-done]')!;
+		const doneCost = form.querySelector<HTMLElement>('[data-done-cost]')!;
+		const doneHours = form.querySelector<HTMLElement>('[data-done-hours]')!;
+		const doneWeeks = form.querySelector<HTMLElement>('[data-done-weeks]')!;
+		const emailInput = form.querySelector<HTMLInputElement>('#ew-email')!;
+		const sendBtn = form.querySelector<HTMLButtonElement>('[data-send]')!;
+		const sendLabel = form.querySelector<HTMLElement>('[data-send-label]')!;
+		const doneStatus = form.querySelector<HTMLElement>('[data-done-status]')!;
+		const defaultSendLabel = sendLabel.textContent || 'Email me this estimate';
 
 		let index = 0;
 		const answers: Record<string, string | string[]> = {};
@@ -336,22 +394,90 @@ const total = STEPS.length;
 			}
 		}
 
+		/** Index STEPS.length is the confirmation screen, one past the questions. */
+		const DONE = STEPS.length;
+
 		function show(i: number) {
-			index = Math.max(0, Math.min(STEPS.length - 1, i));
+			index = Math.max(0, Math.min(DONE, i));
+			const onDone = index === DONE;
 			STEPS.forEach((step, n) => {
-				panels.get(step.key)!.hidden = n !== index;
-				rails.get(step.key)!.classList.toggle('is-active', n === index);
-				rails.get(step.key)!.classList.toggle('is-done', n < index);
+				panels.get(step.key)!.hidden = onDone || n !== index;
+				rails.get(step.key)!.classList.toggle('is-active', !onDone && n === index);
+				rails.get(step.key)!.classList.toggle('is-done', onDone || n < index);
 			});
+			doneEl.hidden = !onDone;
 			backBtn.hidden = index === 0;
-			const last = index === STEPS.length - 1;
-			restartBtn.hidden = !last;
-			nextBtn.hidden = last;
-			nextLabel.textContent = last ? 'See your estimate' : 'Next';
-			nextBtn.disabled = !answered(stepAt(index).key);
-			if (stepAt(index).key === 'target') syncTargets();
+			const lastQuestion = index === DONE - 1;
+			restartBtn.hidden = !(lastQuestion || onDone);
+			nextBtn.hidden = onDone;
+			nextLabel.textContent = lastQuestion ? 'See your estimate' : 'Next';
+			nextBtn.disabled = onDone ? true : !answered(stepAt(index).key);
+			if (!onDone && stepAt(index).key === 'target') syncTargets();
 			renderEstimate();
+			if (onDone) fillDone();
 		}
+
+		/** Repeat the figures on the confirmation screen, so it stands alone. */
+		function fillDone() {
+			const result = estimate(answers);
+			if (!result) return;
+			doneCost.textContent = `${formatCost(result.costLow)} – ${formatCost(result.costHigh)}`;
+			doneHours.textContent = `${result.lowHours} – ${result.highHours} hrs`;
+			doneWeeks.textContent = `${result.weeksLow} – ${result.weeksHigh} weeks`;
+		}
+
+		/** The estimate, written out for the enquiry email. */
+		function summary(result: ReturnType<typeof estimate>) {
+			if (!result) return '';
+			const lines = [
+				`Laravel ${answers.current}.x → ${answers.target}.x upgrade.`,
+				`Estimate: ${result.lowHours}–${result.highHours} hrs (${formatCost(result.costLow)}–${formatCost(result.costHigh)}), ${result.weeksLow}–${result.weeksHigh} weeks.`,
+				`Upgrade path ${result.coreHours} hrs.`,
+			];
+			if (result.phpBumpNeeded) lines.push(`PHP upgrade to ${result.minPhp}: ${result.phpBumpHours} hrs.`);
+			for (const addon of result.addonLines) lines.push(`${addon.label}: ${addon.hours} hrs.`);
+			return lines.join('\n');
+		}
+
+		sendBtn.addEventListener('click', async () => {
+			const email = emailInput.value.trim();
+			const result = estimate(answers);
+			if (!email || !email.includes('@')) {
+				doneStatus.textContent = 'Please enter a valid email address.';
+				doneStatus.dataset.state = 'error';
+				emailInput.focus();
+				return;
+			}
+			doneStatus.dataset.state = '';
+			doneStatus.textContent = '';
+			sendBtn.disabled = true;
+			sendLabel.textContent = 'Sending…';
+			try {
+				const res = await fetch('/api/lead', {
+					method: 'POST',
+					headers: { 'content-type': 'application/json', accept: 'application/json' },
+					body: JSON.stringify({
+						source: 'estimator',
+						email,
+						message: summary(result),
+						page: window.location.pathname,
+					}),
+				});
+				const data = await res.json().catch(() => ({ ok: res.ok }));
+				if (!res.ok || !data.ok) throw new Error(data.error || 'Something went wrong.');
+				doneStatus.textContent = "Sent — check your inbox. We'll follow up with the breakdown.";
+				doneStatus.dataset.state = 'ok';
+				sendLabel.textContent = 'Sent';
+				emailInput.disabled = true;
+				window.dataLayer = window.dataLayer || [];
+				window.dataLayer.push({ event: 'estimator_email_capture', estimator_hours_low: result?.lowHours });
+			} catch (err) {
+				doneStatus.textContent = (err as Error).message;
+				doneStatus.dataset.state = 'error';
+				sendBtn.disabled = false;
+				sendLabel.textContent = defaultSendLabel;
+			}
+		});
 
 		form.addEventListener('change', (event) => {
 			const input = (event.target as HTMLElement).closest<HTMLInputElement>('.ew__input');
@@ -361,7 +487,7 @@ const total = STEPS.length;
 			nextBtn.disabled = !answered(stepAt(index).key);
 			renderEstimate();
 			// A single-choice answer is unambiguous, so move on without a second click.
-			if (input.type === 'radio' && index < STEPS.length - 1) {
+			if (input.type === 'radio' && index < DONE - 1) {
 				window.setTimeout(() => show(index + 1), 180);
 			}
 		});
@@ -669,6 +795,83 @@ const total = STEPS.length;
 		font-size: var(--fs-category);
 		line-height: var(--lh-body);
 		color: var(--color-paragraph);
+	}
+
+	/* --- Confirmation screen --- */
+	.ew__done-figures {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem 2.5rem;
+		margin: 1.75rem 0 0;
+		padding: 1.25rem 1.5rem;
+		background: var(--surface-subtle);
+		border-left: 3px solid var(--color-primary-blue);
+	}
+	.ew__done-figures div {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+	}
+	.ew__done-figures dt {
+		font-size: var(--fs-category);
+		color: var(--color-paragraph);
+	}
+	.ew__done-figures dd {
+		margin: 0;
+		font-size: clamp(1.15rem, 0.9rem + 0.8vw, 1.5rem);
+		font-weight: var(--fw-semibold);
+		line-height: 1.1;
+		color: var(--color-headings-dark);
+	}
+	.ew__done-label {
+		display: block;
+		margin-top: 1.75rem;
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		color: var(--color-headings-dark);
+	}
+	.ew__done-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-top: 0.75rem;
+	}
+	.ew__done-input {
+		flex: 1 1 260px;
+		min-width: 0;
+		height: 46px;
+		padding: 8px 14px;
+		background: var(--surface-card);
+		border: 1px solid var(--color-light-lavender);
+		font-size: var(--fs-small);
+		color: var(--color-headings-dark);
+	}
+	.ew__done-input::placeholder {
+		color: var(--color-paragraph);
+	}
+	.ew__done-input:focus-visible {
+		outline: 2px solid var(--color-primary-blue);
+		outline-offset: 1px;
+	}
+	.ew__done-input:disabled {
+		opacity: 0.6;
+	}
+	.ew__done-note {
+		margin-top: 0.85rem;
+		font-size: var(--fs-category);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+	.ew__done-status {
+		margin-top: 0.75rem;
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+	}
+	.ew__done-status[data-state='ok'] {
+		color: #2f9e5f;
+	}
+	.ew__done-status[data-state='error'] {
+		color: var(--color-fuchsia);
 	}
 
 	.ew__update {
