@@ -7,10 +7,11 @@ import type { AuditReport, DisplayCategory } from '../lib/report';
 import type { Problem } from '../lib/report';
 import Button from '../components/Button.astro';
 import Hero from '../components/Hero.astro';
-const report = (Astro.locals as any).reportData as AuditReport;
 
 const STATUSES = ["fail", "warn", "pass", "unknown"];
 type Status = typeof STATUSES[number];
+
+const report = (Astro.locals as any).reportData as AuditReport;
 
 function categoryStatus(category: DisplayCategory) {
 	return rawScoreStatus(category.score);
@@ -25,7 +26,7 @@ function rawScoreStatus(score: number) {
 function problemStatus(problem: Problem): Status {
 	if (problem.score === null) return "unknown";
 	if (problem.score > 0.9) return "pass";
-	if (problem.weight === 0) return problem.score < 0.5 ? "warn" : "unknown";
+	if (problem.weight === 0) return problem.score <= 0.5 ? "warn" : "unknown";
 	return problem.score < 0.5 ? "fail" :
 		problem.score < 0.9 ? "warn" :
 		"pass"
@@ -50,6 +51,7 @@ function problemsByStatus(problems: Problem[]) {
 }
 
 const allProblemsByStatus = problemsByStatus(report.problems);
+const totalRelevantProblems = report.problems.filter(problem => problemStatus(problem) !== "unknown").length;
 const opportunities = allProblemsByStatus.fail.length + allProblemsByStatus.warn.length;
 
 function weightedAverage(valueWeights: [number, number][]) {
@@ -70,7 +72,7 @@ const totalScore = weightedAverage([
 				<p class="category report__hl-yellow">Website health check • Confidential</p>
 				<h1 class="report__hl-white report__margin-top">Website Health Report</h1>
 				<p class="report__margin-top">A practical, evidence-led review of {report.url} - highlighting the fastest ways to improve visibility, trust and enquiries</p>
-				<p class="report__margin-top"><small style="opacity: 0.8">Prepared {report.date.toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" })} • {report.problems.length} checks completed</small></p>
+				<p class="report__margin-top"><small style="opacity: 0.8">Prepared {report.date.toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" })} • {totalRelevantProblems} checks completed</small></p>
 			</div>
 			<Card class="report__hero-card" bg="var(--color-dark-blue)" variant="dark">
 				<Gauge
@@ -101,7 +103,7 @@ const totalScore = weightedAverage([
 					<Card>
 						<h4>{category.title}</h4>
 						<p>{Math.floor(category.score * 100)} / 100</p>
-						<p>{problemsByStatus(category.problems).fail.length + problemsByStatus(category.problems).warn.length} action • {problemsByStatus(category.problems).pass.length} passed</p>
+						<p>{problemsByStatus(category.problems).fail.length} urgent • {problemsByStatus(category.problems).warn.length} warnings • {problemsByStatus(category.problems).pass.length} passed</p>
 						<Progress value={category.score} color={statusInfo(categoryStatus(category)).color} style="margin-top: 16px"/>
 					</Card>
 				)}
@@ -156,7 +158,7 @@ const totalScore = weightedAverage([
 
 		<Card bg="var(--color-dark-blue)" variant="dark" class="report__margin-top">
 			<p class="category">Complete technical report</p>
-			<h4>{report.problems.length} checks, organised by area and priority</h4>
+			<h4>{totalRelevantProblems} checks, organised by area and priority</h4>
 		</Card>
 
 		{Object.values(report.categories).map(category =>
@@ -179,6 +181,7 @@ const totalScore = weightedAverage([
 									<Card class="report__margin-top">
 										<h5>{problem.title}{problem.displayValue ? `: ${problem.displayValue} ` : ""}</h5>
 										<p>{problem.description}</p>
+										<p>{problem.score}s {problem.weight}w {problem.id}</p>
 									</Card>
 								)}
 							</div>

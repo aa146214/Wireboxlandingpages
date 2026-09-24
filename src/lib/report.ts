@@ -78,6 +78,20 @@ export interface AuditReport {
 
 let cache = new LRUCache<string, AuditReport>({ max: 500 });
 
+const NO_SCORE_PROBLEMS = [
+	"lcp-breakdown-insight",
+	"resource-summary",
+	"main-thread-tasks",
+	"script-treemap-data",
+	"diagnostics",
+	"metrics",
+	"final-screenshot",
+	"network-requests",
+	"screenshot-thumbnails",
+	"document-request-latency",
+	"long-tasks",
+	"cls-culprits-insight"
+];
 export async function getReport(id: string): Promise<AuditReport | null> {
 	try {
 		let cacheEntry;
@@ -88,7 +102,8 @@ export async function getReport(id: string): Promise<AuditReport | null> {
 		const json: ApiResponse = await fetch(`https://wirebox.app.n8n.cloud/webhook/8e02871b-0428-4051-8f62-dcc8f4ff168c/report/${id}`)
 			.then(res => res.json());
 
-		json.problems = json.problems.filter(problem => !["lcp-breakdown", "resources-summary"].includes(problem.id))
+		json.problems.filter(problem => NO_SCORE_PROBLEMS.includes(problem.id))
+			.forEach(problem => problem.score = null);
 
 		const report: AuditReport = {
 			...json,
