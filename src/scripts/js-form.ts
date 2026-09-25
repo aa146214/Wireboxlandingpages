@@ -6,9 +6,9 @@ import fillPlaceholders from "./form-placeholder";
  * with JS we submit in the background and show an inline status instead.
  */
 function initJsForms() {
-	const forms = document.querySelectorAll<HTMLFormElement>('form[data-js-enable]');
+	const forms = document.querySelectorAll<HTMLFormElement>('form[data-js-enable], form[data-lead]');
 	forms.forEach((form) => {
-		const status = form.querySelector<HTMLElement>('[data-js-status]');
+		const status = form.querySelector<HTMLElement>('[data-js-status, data-lead-status]');
 		const submit = form.querySelector<HTMLButtonElement>('button[type="submit"], [type="submit"]');
 
 		form.addEventListener('submit', async (e) => {
