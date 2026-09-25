@@ -41,6 +41,7 @@ async function sendLeadEmail(fields: Record<string, string>): Promise<SendResult
 		`Source:  ${source}`,
 		fields.name ? `Name:    ${fields.name}` : null,
 		fields.company ? `Company: ${fields.company}` : null,
+		fields.website ? `Website: ${fields.website}` : null,
 		`Email:   ${fields.email}`,
 		fields.phone ? `Phone:   ${fields.phone}` : null,
 		fields.page ? `Page:    ${fields.page}` : null,
