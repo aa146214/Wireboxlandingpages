@@ -671,7 +671,7 @@ function buildThankYouContent() {
 				eyebrow: 'Message received',
 				heading: 'Thank you',
 				heading_line_2: 'We’ve got your request',
-				body: "One of our support specialists will review your site and get back to you within 1 business day. If it's urgent, call us using the numbers below and we'll pick it up straight away.",
+				body: "We'll review your site and get back to you within 1 business day. If it's urgent, call us using the numbers below and we'll pick it up straight away.",
 				cta_label: 'back to home',
 				cta_link: '/',
 				phones_title: 'Need us sooner?',
