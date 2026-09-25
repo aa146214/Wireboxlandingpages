@@ -1,12 +1,14 @@
+import fillPlaceholders from "./form-placeholder";
+
 /**
- * Progressive enhancement for the lead-capture forms (hero + CTA).
- * Without JS the forms still POST to /api/lead and get a redirect/HTML reply;
+ * Progressive enhancement for the lead-capture forms (hero + CTA + report).
+ * Without JS the forms still POST to /api/... and get a redirect/HTML reply;
  * with JS we submit in the background and show an inline status instead.
  */
-function initLeadForms() {
-	const forms = document.querySelectorAll<HTMLFormElement>('form[data-lead]');
+function initJsForms() {
+	const forms = document.querySelectorAll<HTMLFormElement>('form[data-js-enable]');
 	forms.forEach((form) => {
-		const status = form.querySelector<HTMLElement>('[data-lead-status]');
+		const status = form.querySelector<HTMLElement>('[data-js-status]');
 		const submit = form.querySelector<HTMLButtonElement>('button[type="submit"], [type="submit"]');
 
 		form.addEventListener('submit', async (e) => {
@@ -16,7 +18,7 @@ function initLeadForms() {
 
 			const setStatus = (msg: string, kind: 'ok' | 'error' | '') => {
 				if (!status) return;
-				status.textContent = msg;
+				status.innerHTML = fillPlaceholders(msg.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"))
 				status.dataset.state = kind;
 			};
 
@@ -62,7 +64,7 @@ function initLeadForms() {
 }
 
 if (document.readyState === 'loading') {
-	document.addEventListener('DOMContentLoaded', initLeadForms);
+	document.addEventListener('DOMContentLoaded', initJsForms);
 } else {
-	initLeadForms();
+	initJsForms();
 }

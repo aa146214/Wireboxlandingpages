@@ -168,3 +168,22 @@ export async function getReport(id: string): Promise<AuditReport | null> {
 	}
 }
 
+export async function requestReport(body: { email: string, url: string }): Promise<"ok" | "already-generated" | "fail"> {
+	const response = await fetch(`https://wirebox.app.n8n.cloud/webhook/seo-report-generate`, {
+		method: 'POST',
+		headers: { 'content-type': 'application/json' },
+		body: JSON.stringify(body),
+	});
+	try {
+		if (!response.ok) {
+			throw new Error("response not ok");
+		}
+
+		const json = await response.json();
+		return json.status;
+	} catch (e) {
+		console.error(`[requestReport] request failed: ${response.status} ${e}`);
+		response.text().then(e => console.error(`[requestReport] response body: ${e}`)).catch(() => {});
+		return "fail";
+	}
+}

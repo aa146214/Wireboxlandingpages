@@ -120,7 +120,7 @@ const h = splitHighlight(heading, accent);
 					))}
 				</ul>
 
-				<form class="s-hero__form" id="hero-review" action="/api/lead" method="post" data-lead novalidate>
+				<form class="s-hero__form" id="hero-review" action="/api/report" method="post" data-js-enable novalidate>
 					<p class="s-hero__form-title category">{formTitle}</p>
 					<input type="hidden" name="source" value="hero" />
 					<input type="hidden" name="page" value="" />
@@ -136,9 +136,19 @@ const h = splitHighlight(heading, accent);
 							autocomplete="email"
 							required
 						/>
+						<label class="visually-hidden" for="hero-url">Your website</label>
+						<input
+							class="s-hero__input"
+							id="hero-url"
+							type="url"
+							name="url"
+							placeholder="https://your.website.com/"
+							autocomplete="url"
+							required
+						/>
 						<Button label={formCtaLabel} variant="fuchsia" icon="arrow-right" type="submit" />
 					</div>
-					<p class="s-hero__form-note" data-lead-status aria-live="polite">
+					<p class="s-hero__form-note" data-js-status aria-live="polite">
 						<span aria-hidden="true">🔒</span> {formNote}
 					</p>
 				</form>
@@ -194,7 +204,7 @@ const h = splitHighlight(heading, accent);
 			</ul>
 		</div>
 
-		<form class="s-commit__form" id="hero-review" action="/api/lead" method="post" data-lead novalidate>
+		<form class="s-commit__form" id="hero-review" action="/api/report" method="post" data-js-enable novalidate>
 			<p class="s-commit__title category">{formTitle}</p>
 			<input type="hidden" name="source" value="hero" />
 			<input type="hidden" name="page" value="" />
@@ -217,9 +227,19 @@ const h = splitHighlight(heading, accent);
 					autocomplete="email"
 					required
 				/>
+				<label class="visually-hidden" for="hero-url">Your website</label>
+				<input
+					class="s-hero__input"
+					id="hero-url"
+					type="url"
+					name="url"
+					placeholder="https://your.website.com/"
+					autocomplete="url"
+					required
+				/>
 				<Button label={formCtaLabel} variant="fuchsia" icon="arrow-right" type="submit" />
 			</div>
-			<p class="s-commit__form-note" data-lead-status aria-live="polite">
+			<p class="s-commit__form-note" data-js-status aria-live="polite">
 				<span aria-hidden="true">🔒</span> {formNote}
 			</p>
 		</form>
@@ -555,5 +575,5 @@ const h = splitHighlight(heading, accent);
 </style>
 
 <script>
-	import '../scripts/lead-form';
+	import '../scripts/js-form';
 </script>

@@ -86,7 +86,7 @@ const h = splitHighlight(heading, accent);
 				<Button label={formCtaLabel} variant={tone === 'blue' ? 'primary' : 'deep'} icon="arrow-right" type="submit" />
 				{formNote && <p class="cta__note">{formNote}</p>}
 			</div>
-			<p class="cta__status" data-lead-status aria-live="polite"></p>
+			<p class="cta__status" data-js-status aria-live="polite"></p>
 		</form>
 	</div>
 </section>
@@ -270,5 +270,5 @@ const h = splitHighlight(heading, accent);
 </style>
 
 <script>
-	import '../scripts/lead-form';
+	import '../scripts/js-form';
 </script>
