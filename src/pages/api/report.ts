@@ -5,6 +5,7 @@ import fillPlaceholders from "../../scripts/form-placeholder";
 export const prerender = false;
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+const URL_RE = /https?:\/\/.+/
 
 function text(fields: Record<string, unknown>, field: string): string {
 	return typeof fields[field] === "string" ? fields[field].trim() : "";
@@ -24,9 +25,11 @@ export const POST: APIRoute = async ({ request }) => {
 
 	const email = text(fields, "email");
 	if (!EMAIL_RE.test(email)) return reply({ ok: false, error: "Please enter a valid email address.", status: 400, request });
-	fields.email = email;
 
-	const result = await requestReport({ email: text(fields, "email"), url: text(fields, "url") });
+	const url = text(fields, "url");
+	if (!URL_RE.test(url)) return reply({ ok: false, error: "Please enter a valid URL (start with https://...).", status: 400, request });
+
+	const result = await requestReport({ email, url });
 	if (result === "fail") return reply({ ok: false, error: "Something went wrong. Why not get in [[contact]] for fast, personalised help?", status: 500, request });
 	if (result === "already-generated") return reply({ ok: false, error: "You've already used the automatic SEO report. Why not get in [[contact]] for fast, personalised help?", status: 400, request });
 
