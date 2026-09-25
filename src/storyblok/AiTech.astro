@@ -1,0 +1,188 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+/**
+ * "Technologies we work with" — the model line-up, with the design's little
+ * node diagram drawn in SVG rather than shipped as an image.
+ */
+const { blok } = Astro.props;
+
+interface TechItem {
+	title: string;
+	description: string;
+	tone?: string;
+}
+
+const eyebrow: string = blok?.eyebrow || 'Under the hood';
+const heading: string = blok?.heading || 'Technologies we\nwork with';
+const body: string = blok?.body || '';
+const chipsRaw: string = blok?.chips || '';
+const chips: string[] = chipsRaw.split(/\r?\n/).map((c: string) => c.trim()).filter(Boolean);
+const items: TechItem[] = blok?.items?.length ? blok.items : [];
+
+/** Node positions for the decorative graph, in the design's arrangement. */
+const NODES = [
+	{ cx: 18, cy: 26, r: 13, tone: 'var(--color-light-yellow)' },
+	{ cx: 62, cy: 44, r: 12, tone: 'var(--color-light-pink)' },
+	{ cx: 104, cy: 22, r: 12, tone: 'var(--color-light-green)' },
+	{ cx: 146, cy: 46, r: 12, tone: 'var(--color-light-lavender)' },
+	{ cx: 190, cy: 20, r: 12, tone: 'var(--color-fuchsia)' },
+];
+const EDGES = [
+	[0, 1],
+	[1, 2],
+	[2, 3],
+	[3, 4],
+];
+---
+
+<section class="at" {...storyblokEditable(blok)}>
+	<div class="at__inner container">
+		<div class="at__copy">
+			<p class="at__eyebrow category">{eyebrow}</p>
+			<h2 class="at__heading">{heading}</h2>
+			{body && <p class="at__body">{body}</p>}
+
+			<svg class="at__graph" viewBox="0 0 208 70" role="img" aria-label="Connected model nodes">
+				{
+					EDGES.map(([a, b]) => (
+						<line x1={NODES[a].cx} y1={NODES[a].cy} x2={NODES[b].cx} y2={NODES[b].cy} />
+					))
+				}
+				{NODES.map((n) => <circle cx={n.cx} cy={n.cy} r={n.r} fill={n.tone} />)}
+			</svg>
+
+			{chips.length > 0 && (
+				<ul class="at__chips" role="list">
+					{chips.map((chip) => <li>{chip}</li>)}
+				</ul>
+			)}
+		</div>
+
+		<dl class="at__list">
+			{
+				items.map((item) => (
+					<div class:list={['at__item', `is-${item.tone ?? 'white'}`]}>
+						<dt class="at__name">{item.title}</dt>
+						<dd class="at__desc">{item.description}</dd>
+					</div>
+				))
+			}
+		</dl>
+	</div>
+</section>
+
+<style>
+	.at {
+		background: var(--surface-invert);
+		color: var(--color-white);
+		padding-block: var(--section-py);
+	}
+	.at__inner {
+		display: grid;
+		grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+		gap: clamp(2rem, 5vw, 4rem);
+		align-items: start;
+	}
+	.at__eyebrow {
+		color: var(--color-light-green);
+		margin-bottom: 1rem;
+	}
+	.at__heading {
+		font-size: var(--fs-h2-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h2);
+		white-space: pre-line;
+		color: var(--color-white);
+	}
+	.at__body {
+		margin-top: 1.25rem;
+		max-width: 40ch;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark);
+	}
+	.at__graph {
+		display: block;
+		width: min(100%, 240px);
+		height: auto;
+		margin-top: 2rem;
+	}
+	.at__graph line {
+		stroke: rgba(255, 255, 255, 0.35);
+		stroke-width: 1.5;
+	}
+	.at__chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin: 2rem 0 0;
+		padding: 0;
+	}
+	/* Sampled from the design: solid fills alternating light pink and lavender,
+	   with dark blue text — not a tint of the background. */
+	.at__chips li {
+		padding: 0.3rem 0.65rem;
+		font-size: 0.72rem;
+		font-weight: var(--fw-semibold);
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--color-dark-blue);
+	}
+	.at__chips li:nth-child(odd) {
+		background: var(--color-light-pink);
+	}
+	.at__chips li:nth-child(even) {
+		background: var(--color-lavender);
+	}
+
+	.at__list {
+		margin: 0;
+	}
+	.at__item {
+		display: grid;
+		grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+		gap: clamp(1rem, 3vw, 2.5rem);
+		padding-block: clamp(1rem, 2vw, 1.5rem);
+		border-top: 1px solid rgba(255, 255, 255, 0.16);
+	}
+	.at__item:last-child {
+		border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+	}
+	.at__name {
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+	}
+	.at__desc {
+		margin: 0;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark);
+	}
+	.at__item.is-yellow .at__name {
+		color: var(--color-light-yellow);
+	}
+	.at__item.is-pink .at__name {
+		color: var(--color-light-pink);
+	}
+	.at__item.is-green .at__name {
+		color: var(--color-light-green);
+	}
+	.at__item.is-fuchsia .at__name {
+		color: var(--color-fuchsia);
+	}
+	.at__item.is-white .at__name {
+		color: var(--color-white);
+	}
+
+	@media (max-width: 900px) {
+		.at__inner {
+			grid-template-columns: 1fr;
+		}
+		.at__item {
+			grid-template-columns: 1fr;
+			gap: 0.5rem;
+		}
+	}
+</style>

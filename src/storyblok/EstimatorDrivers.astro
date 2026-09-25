@@ -1,0 +1,152 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+/**
+ * "What drives the number" — the four inputs behind the range, so the figure
+ * doesn't read as a guess. Dark band between the wizard and the range
+ * explainer.
+ */
+const { blok } = Astro.props;
+
+interface Driver {
+	title: string;
+	description: string;
+}
+
+const eyebrow: string = blok?.eyebrow || 'What drives the number';
+const heading: string = blok?.heading || 'A clearer estimate, built from the work involved';
+const body: string =
+	blok?.body || 'Every answer changes the upgrade path, testing effort or implementation risk behind the range.';
+
+const drivers: Driver[] = blok?.items?.length
+	? blok.items
+	: [
+			{ title: 'Upgrade path', description: 'Every Laravel version hop is weighted for the engineering changes involved.' },
+			{ title: 'Application size', description: 'The number of controllers, modules and integrations sets the baseline.' },
+			{ title: 'Tests and packages', description: 'Coverage and dependency load change the regression-testing effort.' },
+			{ title: 'Additional complexity', description: 'Auth, queues, APIs, multi-tenancy and deployment constraints are costed separately.' },
+		];
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/**
+ * The design colours each column in turn — yellow, pink, green, lavender — with
+ * the number and its rule sharing the colour. Driven by position rather than a
+ * CMS field so the sequence can't be broken by reordering.
+ */
+const TONES = ['yellow', 'pink', 'green', 'lavender'];
+---
+
+<section class="ed" {...storyblokEditable(blok)}>
+	<div class="ed__inner container">
+		<p class="ed__eyebrow category">{eyebrow}</p>
+		<h2 class="ed__heading">{heading}</h2>
+		<p class="ed__body">{body}</p>
+
+		<ol class="ed__grid" role="list">
+			{
+				drivers.map((d, i) => (
+					<li class:list={['ed__item', `is-${TONES[i % TONES.length]}`]}>
+						<span class="ed__num">{pad(i + 1)}</span>
+						<span class="ed__rule" aria-hidden="true" />
+						<h3 class="ed__title">{d.title}</h3>
+						<p class="ed__desc">{d.description}</p>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+</section>
+
+<style>
+	.ed {
+		background: var(--color-dark-blue);
+		color: var(--color-white);
+		padding-block: var(--section-py);
+	}
+	.ed__eyebrow {
+		color: var(--color-light-lavender);
+		margin-bottom: 1rem;
+	}
+	.ed__heading {
+		font-size: var(--fs-h5-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-white);
+	}
+	.ed__body {
+		margin-top: 0.75rem;
+		max-width: 72ch;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--color-light-lavender);
+	}
+	.ed__grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: clamp(1.5rem, 3vw, 2.5rem);
+		margin: clamp(2rem, 4vw, 3rem) 0 0;
+		padding: 0;
+	}
+	/* Design: the number sits above its rule, both in the column's colour. */
+	.ed__num {
+		display: block;
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--ls-category);
+	}
+	.ed__rule {
+		display: block;
+		height: 2px;
+		margin-top: 0.5rem;
+	}
+	.ed__item.is-yellow .ed__num {
+		color: var(--color-light-yellow);
+	}
+	.ed__item.is-yellow .ed__rule {
+		background: var(--color-light-yellow);
+	}
+	.ed__item.is-pink .ed__num {
+		color: var(--color-light-pink);
+	}
+	.ed__item.is-pink .ed__rule {
+		background: var(--color-light-pink);
+	}
+	.ed__item.is-green .ed__num {
+		color: var(--color-light-green);
+	}
+	.ed__item.is-green .ed__rule {
+		background: var(--color-light-green);
+	}
+	.ed__item.is-lavender .ed__num {
+		color: var(--color-light-lavender);
+	}
+	.ed__item.is-lavender .ed__rule {
+		background: var(--color-light-lavender);
+	}
+	.ed__title {
+		margin-top: 1.5rem;
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		color: var(--color-white);
+	}
+	.ed__desc {
+		margin-top: 0.75rem;
+		font-size: var(--fs-category);
+		font-weight: var(--fw-regular);
+		line-height: var(--lh-body);
+		color: var(--color-light-lavender);
+	}
+
+	@media (max-width: 900px) {
+		.ed__grid {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+	@media (max-width: 520px) {
+		.ed__grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

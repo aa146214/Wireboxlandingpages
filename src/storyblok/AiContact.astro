@@ -1,0 +1,286 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Button from '../components/Button.astro';
+
+/**
+ * "Start with a free AI consultation" — the closing form, with the offices and
+ * an in-page index beside it.
+ */
+const { blok } = Astro.props;
+
+interface Office {
+	name: string;
+	phone?: string;
+	email?: string;
+}
+interface Link {
+	label: string;
+	url?: string;
+}
+
+const eyebrow: string = blok?.eyebrow || 'Get in touch';
+const heading: string = blok?.heading || 'Start with a free AI consultation';
+const body: string = blok?.body || '';
+const formCtaLabel: string = blok?.form_cta_label || 'Request my free consultation';
+const formNote: string = blok?.form_note || '';
+const formSource: string = blok?.form_source || 'ai';
+
+const officesTitle: string = blok?.offices_title || 'Offices';
+const officesBody: string = blok?.offices_body || '';
+const offices: Office[] = blok?.offices?.length ? blok.offices : [];
+const exploreTitle: string = blok?.explore_title || 'Explore';
+const explore: Link[] = blok?.explore?.length ? blok.explore : [];
+---
+
+<section class="ax" id="contact" {...storyblokEditable(blok)}>
+	<div class="ax__inner container">
+		<div class="ax__head">
+			<p class="ax__eyebrow category">{eyebrow}</p>
+			<h2 class="ax__heading">{heading}</h2>
+			{body && <p class="ax__body">{body}</p>}
+		</div>
+
+		<div class="ax__grid">
+			<form class="ax__form" action="/api/lead" method="post" data-lead novalidate>
+				<input type="hidden" name="source" value={formSource} />
+				<input type="hidden" name="page" value="" />
+				<input class="lead-hp" type="text" name="hp_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+				<div class="ax__fields" data-lead-fields>
+					<label class="visually-hidden" for="ai-name">Name</label>
+					<input class="ax__input" id="ai-name" name="name" type="text" placeholder="Name" autocomplete="name" />
+					<label class="visually-hidden" for="ai-company">Company</label>
+					<input class="ax__input" id="ai-company" name="company" type="text" placeholder="Company" autocomplete="organization" />
+					<label class="visually-hidden" for="ai-email">Email</label>
+					<input class="ax__input" id="ai-email" name="email" type="email" placeholder="Email" autocomplete="email" required />
+					<label class="visually-hidden" for="ai-phone">Phone</label>
+					<input class="ax__input" id="ai-phone" name="phone" type="tel" placeholder="Phone" autocomplete="tel" />
+					<label class="visually-hidden" for="ai-message">Message</label>
+					<textarea class="ax__input ax__textarea" id="ai-message" name="message" placeholder="Message" rows="4" />
+					<Button label={formCtaLabel} variant="primary" icon="arrow-right" type="submit" />
+					{formNote && <p class="ax__note">{formNote}</p>}
+				</div>
+				<p class="ax__status" data-lead-status aria-live="polite"></p>
+			</form>
+
+			<div class="ax__aside">
+				<h3 class="ax__aside-title">{officesTitle}</h3>
+				{officesBody && <p class="ax__aside-body">{officesBody}</p>}
+				<ul class="ax__offices" role="list">
+					{
+						offices.map((office) => (
+							<li class="ax__office">
+								<span class="ax__office-name">{office.name}</span>
+								{office.phone && (
+									<a class="ax__office-link ax__office-phone" href={`tel:${office.phone.replace(/[^\d+]/g, '')}`}>
+										{office.phone}
+									</a>
+								)}
+								{office.email && (
+									<a class="ax__office-link ax__office-email" href={`mailto:${office.email}`}>
+										{office.email}
+									</a>
+								)}
+							</li>
+						))
+					}
+				</ul>
+
+				{explore.length > 0 && (
+					<>
+						<h3 class="ax__aside-title ax__aside-title--explore">{exploreTitle}</h3>
+						<ul class="ax__explore" role="list">
+							{explore.map((link) => (
+								<li>
+									<a href={link.url || '#'}>{link.label}</a>
+								</li>
+							))}
+						</ul>
+					</>
+				)}
+			</div>
+		</div>
+	</div>
+</section>
+
+<script>
+	import '../scripts/lead-form';
+</script>
+
+<style>
+	.ax {
+		position: relative;
+		overflow: hidden;
+		background: var(--color-dark-blue);
+		color: var(--color-white);
+		padding-block: var(--section-py);
+	}
+	/* Design: the band is dark blue throughout, with a lighter diagonal wedge
+	   cutting in from each end — sampled as lavender at 25% over the base. */
+	.ax::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			105deg,
+			rgba(170, 140, 231, 0.25) 0 5%,
+			transparent 5% 90%,
+			rgba(170, 140, 231, 0.25) 90%
+		);
+		pointer-events: none;
+	}
+	.ax__inner {
+		position: relative;
+	}
+	.ax__eyebrow {
+		color: var(--color-light-green);
+		margin-bottom: 1rem;
+	}
+	.ax__heading {
+		font-size: var(--fs-h2-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h2);
+		color: var(--color-white);
+	}
+	.ax__body {
+		margin-top: 1rem;
+		max-width: 52ch;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark);
+	}
+	.ax__grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: clamp(2rem, 5vw, 4rem);
+		margin-top: clamp(2rem, 4vw, 3rem);
+		align-items: start;
+	}
+	.ax__form {
+		background: var(--color-primary-blue);
+		padding: clamp(1.25rem, 3vw, 2rem);
+	}
+	.ax__fields {
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+	}
+	.ax__input {
+		height: 44px;
+		padding: 8px 14px;
+		border: 0;
+		background: var(--color-white);
+		color: var(--color-headings-dark);
+		font-size: var(--fs-small);
+	}
+	.ax__textarea {
+		height: auto;
+		min-height: 110px;
+		padding-top: 12px;
+		resize: vertical;
+	}
+	.ax__input::placeholder {
+		color: var(--color-paragraph);
+	}
+	.ax__input:focus-visible {
+		outline: 2px solid var(--color-light-yellow);
+		outline-offset: 1px;
+	}
+	.ax__fields :global(.btn) {
+		justify-content: center;
+		width: 100%;
+		margin-top: 0.4rem;
+	}
+	.ax__note {
+		font-size: var(--fs-category);
+		text-align: center;
+		color: var(--color-light-green);
+	}
+	.ax__status {
+		font-size: var(--fs-category);
+		text-align: center;
+		color: var(--text-on-dark);
+	}
+	.ax__status[data-state='error'] {
+		color: var(--color-light-pink);
+	}
+
+	.ax__aside-title {
+		font-size: var(--fs-h5-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-light-pink);
+	}
+	.ax__aside-title--explore {
+		margin-top: 2.5rem;
+		color: var(--color-light-yellow);
+	}
+	.ax__aside-body {
+		margin-top: 0.85rem;
+		max-width: 34ch;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark);
+	}
+	.ax__offices {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1.5rem;
+		margin: 1.75rem 0 0;
+		padding: 0;
+	}
+	.ax__office {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+	}
+	.ax__office-name {
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+	}
+	.ax__office-link {
+		font-size: var(--fs-small);
+		color: var(--text-on-dark);
+	}
+	.ax__office-link:hover {
+		color: var(--color-white);
+	}
+	/* Design: each office carries its own accent — first yellow, then green —
+	   on its name and its email address. The phone stays plain. */
+	.ax__office:nth-child(odd) .ax__office-name,
+	.ax__office:nth-child(odd) .ax__office-email {
+		color: var(--color-light-yellow);
+	}
+	.ax__office:nth-child(even) .ax__office-name,
+	.ax__office:nth-child(even) .ax__office-email {
+		color: var(--color-light-green);
+	}
+	.ax__explore {
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+		margin: 1.25rem 0 0;
+		padding: 0;
+	}
+	.ax__explore a {
+		font-size: var(--fs-small);
+		color: var(--color-light-lavender);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+	.ax__explore a:hover {
+		color: var(--color-white);
+	}
+
+	@media (max-width: 900px) {
+		.ax__grid {
+			grid-template-columns: 1fr;
+		}
+	}
+	@media (max-width: 480px) {
+		.ax__offices {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

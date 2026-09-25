@@ -1,0 +1,140 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+/** "Why choose Wirebox as your AI partner" — six cards on the dark band. */
+const { blok } = Astro.props;
+
+interface Item {
+	title: string;
+	description: string;
+}
+
+const eyebrow: string = blok?.eyebrow || 'Why work with Wirebox';
+const heading: string = blok?.heading || 'Why choose Wirebox as your AI partner';
+const items: Item[] = blok?.items?.length ? blok.items : [];
+
+const pad = (n: number) => String(n).padStart(2, '0');
+/** Design: the index and its rule cycle through the accent colours. */
+const TONES = ['pink', 'cyan', 'yellow', 'green', 'lavender', 'pink'];
+---
+
+<section class="an" id="why" {...storyblokEditable(blok)}>
+	<div class="an__inner container">
+		<p class="an__eyebrow category">{eyebrow}</p>
+		<h2 class="an__heading">{heading}</h2>
+
+		<ol class="an__grid" role="list">
+			{
+				items.map((item, i) => (
+					<li class:list={['an__card', `is-${TONES[i % TONES.length]}`]}>
+						<span class="an__num">{pad(i + 1)}</span>
+						<h3 class="an__title">{item.title}</h3>
+						<span class="an__rule" aria-hidden="true" />
+						<p class="an__desc">{item.description}</p>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+</section>
+
+<style>
+	.an {
+		background: var(--surface-invert);
+		color: var(--color-white);
+		padding-block: var(--section-py);
+	}
+	.an__eyebrow {
+		color: var(--color-light-lavender);
+		margin-bottom: 1rem;
+	}
+	.an__heading {
+		font-size: var(--fs-h2-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h2);
+		color: var(--color-white);
+	}
+	.an__grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: clamp(1rem, 2vw, 1.5rem);
+		margin: clamp(2rem, 4vw, 3rem) 0 0;
+		padding: 0;
+	}
+	.an__card {
+		display: flex;
+		flex-direction: column;
+		background: var(--color-dark-blue);
+		padding: clamp(1.25rem, 2.5vw, 1.75rem);
+	}
+	.an__num {
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+	}
+	.an__title {
+		margin-top: 0.6rem;
+		font-size: var(--fs-h5-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-white);
+		/* The design breaks every title over two lines so the rules under them
+		   line up across the row; a title that fits on one still reserves the
+		   second, so the row survives an edit. */
+		white-space: pre-line;
+		min-height: calc(2 * var(--lh-h5) * 1em);
+	}
+	.an__rule {
+		display: block;
+		height: 5px;
+		margin: 1rem 0;
+	}
+	.an__desc {
+		font-size: var(--fs-category);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark);
+	}
+
+	.an__card.is-pink .an__num {
+		color: var(--color-light-pink);
+	}
+	.an__card.is-pink .an__rule {
+		background: var(--color-light-pink);
+	}
+	.an__card.is-cyan .an__num {
+		color: var(--color-cyan);
+	}
+	.an__card.is-cyan .an__rule {
+		background: var(--color-cyan);
+	}
+	.an__card.is-yellow .an__num {
+		color: var(--color-light-yellow);
+	}
+	.an__card.is-yellow .an__rule {
+		background: var(--color-light-yellow);
+	}
+	.an__card.is-green .an__num {
+		color: var(--color-light-green);
+	}
+	.an__card.is-green .an__rule {
+		background: var(--color-light-green);
+	}
+	.an__card.is-lavender .an__num {
+		color: var(--color-light-lavender);
+	}
+	.an__card.is-lavender .an__rule {
+		background: var(--color-light-lavender);
+	}
+
+	@media (max-width: 900px) {
+		.an__grid {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+	@media (max-width: 560px) {
+		.an__grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

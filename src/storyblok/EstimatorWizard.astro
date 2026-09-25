@@ -1,0 +1,1127 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import {
+	CONSTANTS,
+	STEPS,
+	CURRENT_VERSION_OPTIONS,
+	TARGET_VERSION_OPTIONS,
+	APP_SIZES,
+	PHP_OPTIONS,
+	TEST_COVERAGE,
+	DEPENDENCY_LOAD,
+	ADDONS,
+} from '../data/estimator-model.mjs';
+
+/**
+ * The seven-question upgrade estimator.
+ *
+ * Every step is rendered server-side and hidden with [hidden]; the client
+ * script only moves between them and scores the answers, so there is no
+ * templating in two places and the questions are in the HTML for crawlers.
+ * Scoring runs in the browser from the same module the seed and the check
+ * script use — see src/data/estimator-model.mjs.
+ *
+ * Copy that changes per campaign (headings, the sidebar promise, the CTA) is
+ * CMS-editable; the questions and weights are not, because they're the
+ * commercial model and must stay in step with the reference workbook.
+ */
+const { blok } = Astro.props;
+
+const eyebrow: string = blok?.eyebrow || 'Laravel upgrade estimator';
+const heading: string = blok?.heading || 'Build your estimate';
+const body: string =
+	blok?.body ||
+	"Answer seven quick questions about your application. We'll update the ballpark range for hours, cost and timeline as you go.";
+interface Stat {
+	value: string;
+	label: string;
+	tone?: 'fuchsia' | 'blue' | 'dark' | 'pink';
+}
+/** The rate card is quoted from the model, so it can't drift from the maths. */
+const stats: Stat[] = blok?.stats?.length
+	? blok.stats
+	: [
+			{ value: String(STEPS.length), label: 'questions', tone: 'fuchsia' },
+			{ value: '2 min', label: 'to complete', tone: 'blue' },
+			{ value: 'Live', label: 'estimate', tone: 'dark' },
+			{ value: `£${CONSTANTS.hourlyRate}`, label: 'per hour', tone: 'pink' },
+		];
+
+const sidebarTitle: string = blok?.sidebar_title || 'Current estimate';
+const sidebarEmpty: string = blok?.sidebar_empty || 'Answer the first question to start the estimate.';
+const includesTitle: string = blok?.includes_title || 'Your estimate will include';
+const includesRaw: string =
+	blok?.includes ||
+	['Estimated cost range', 'Estimated effort in hours', 'Estimated timeline', 'Itemised work breakdown'].join('\n');
+const includes: string[] = includesRaw.split(/\r?\n/).map((s: string) => s.trim()).filter(Boolean);
+
+const noteTitle: string = blok?.note_title || 'Planning estimate, not a fixed quote';
+const noteBody: string =
+	blok?.note_body || "Book a short technical audit and we'll turn this into a fixed price within a few days.";
+const ctaLabel: string = blok?.cta_label || 'Book a technical audit';
+const ctaLink: string =
+	(typeof blok?.cta_link === 'string' ? blok.cta_link : blok?.cta_link?.url || blok?.cta_link?.cached_url) || '#contact';
+
+const updateNote: string = blok?.update_note || 'Your estimate updates after each answer.';
+
+const doneEyebrow: string = blok?.done_eyebrow || 'Your estimate';
+const doneHeading: string = blok?.done_heading || "Here's your ballpark.";
+const doneBody: string =
+	blok?.done_body || "Send it to yourself and we'll include the itemised breakdown behind these numbers.";
+const emailLabel: string = blok?.email_label || 'Where should we send it?';
+const emailPlaceholder: string = blok?.email_placeholder || 'you@company.com';
+const emailCtaLabel: string = blok?.email_cta_label || 'Email me this estimate';
+const emailNote: string =
+	blok?.email_note || "No obligation, and no newsletter — just this estimate and a note on what would firm it up.";
+
+/** Options for each step, in the order the workbook lists them. */
+const OPTIONS: Record<string, { key: string; label: string; description?: string }[]> = {
+	current: CURRENT_VERSION_OPTIONS,
+	target: TARGET_VERSION_OPTIONS,
+	size: APP_SIZES,
+	php: PHP_OPTIONS,
+	tests: TEST_COVERAGE,
+	deps: DEPENDENCY_LOAD,
+	addons: ADDONS,
+};
+
+const pad = (n: number) => String(n).padStart(2, '0');
+const total = STEPS.length;
+---
+
+<section class="ew" id="estimator" {...storyblokEditable(blok)}>
+	<div class="ew__intro">
+		<div class="ew__intro-inner container">
+			<div class="ew__intro-copy">
+				<p class="ew__eyebrow category">{eyebrow}</p>
+				<h2 class="ew__heading">{heading}</h2>
+				<p class="ew__body">{body}</p>
+			</div>
+			<ul class="ew__stats" role="list">
+				{
+					stats.map((stat) => (
+						<li class:list={['ew__stat', `is-${stat.tone ?? 'blue'}`]}>
+							<span class="ew__stat-value">{stat.value}</span>
+							<span class="ew__stat-label">{stat.label}</span>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+	</div>
+
+	<div class="ew__main container">
+		<ol class="ew__rail" role="list" aria-label="Estimator progress">
+			{
+				STEPS.map((step, i) => (
+					<li class:list={['ew__rail-step', { 'is-active': i === 0 }]} data-rail={step.key}>
+						<span class="ew__rail-label">
+							<span class="ew__rail-num">{pad(i + 1)}</span> {step.short}
+						</span>
+						<span class="ew__rail-bar" aria-hidden="true" />
+						<span class="ew__rail-dot" aria-hidden="true" />
+					</li>
+				))
+			}
+		</ol>
+
+		<div class="ew__grid">
+			<form class="ew__card" data-estimator novalidate>
+				{
+					STEPS.map((step, i) => (
+						<fieldset class="ew__panel" data-panel={step.key} hidden={i !== 0} aria-labelledby={`ew-q-${step.key}`}>
+							{/* A <legend> always paints at the top of its fieldset, which would
+							    put the question above the step counter — so the group is
+							    labelled by the heading instead. */}
+							<p class="ew__step-count category">
+								Step {pad(i + 1)} of {pad(total)}
+							</p>
+							<h3 class="ew__question" id={`ew-q-${step.key}`}>{step.title}</h3>
+							<p class="ew__hint">{step.hint}</p>
+
+							<ul class="ew__options" role="list" data-options={step.key}>
+								{OPTIONS[step.key].map((opt) => (
+									<li>
+										<label class="ew__option">
+											<input
+												class="ew__input"
+												type={step.type === 'multi' ? 'checkbox' : 'radio'}
+												name={step.key}
+												value={opt.key}
+											/>
+											<span class="ew__marker" aria-hidden="true" />
+											<span class="ew__option-text">
+												<span class="ew__option-label">{opt.label}</span>
+												{opt.description && <span class="ew__option-desc">{opt.description}</span>}
+											</span>
+										</label>
+									</li>
+								))}
+							</ul>
+							{step.key === 'target' && (
+								<p class="ew__hint ew__hint--inline" data-target-note hidden>
+									Only versions above the one you're on are listed.
+								</p>
+							)}
+						</fieldset>
+					))
+				}
+
+				<div class="ew__done" data-done hidden>
+					<p class="ew__step-count category">{doneEyebrow}</p>
+					<h3 class="ew__question">{doneHeading}</h3>
+					<p class="ew__hint">{doneBody}</p>
+
+					<dl class="ew__done-figures">
+						<div>
+							<dt>Estimated cost</dt>
+							<dd data-done-cost></dd>
+						</div>
+						<div>
+							<dt>Estimated effort</dt>
+							<dd data-done-hours></dd>
+						</div>
+						<div>
+							<dt>Estimated timeline</dt>
+							<dd data-done-weeks></dd>
+						</div>
+					</dl>
+
+					<label class="ew__done-label" for="ew-email">{emailLabel}</label>
+					<div class="ew__done-row">
+						<input
+							class="ew__done-input"
+							id="ew-email"
+							type="email"
+							name="estimator_email"
+							placeholder={emailPlaceholder}
+							autocomplete="email"
+						/>
+						<button class="ew__btn ew__btn--primary" type="button" data-send>
+							<span data-send-label>{emailCtaLabel}</span>
+							<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13M11 5l5 5-5 5" /></svg>
+						</button>
+					</div>
+					<p class="ew__done-note">{emailNote}</p>
+					<p class="ew__done-status" data-done-status aria-live="polite"></p>
+				</div>
+
+				<p class="ew__update">{updateNote}</p>
+
+				<div class="ew__actions">
+					<button class="ew__btn ew__btn--ghost" type="button" data-back hidden>Back</button>
+					<button class="ew__btn ew__btn--primary" type="button" data-next disabled>
+						<span data-next-label>Next</span>
+						<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13M11 5l5 5-5 5" /></svg>
+					</button>
+					<button class="ew__btn ew__btn--ghost" type="button" data-restart hidden>Start again</button>
+				</div>
+
+				<noscript>
+					<p class="ew__hint">
+						The estimator needs JavaScript. Call us on 0207 993 5485 and we'll size the upgrade with you
+						instead.
+					</p>
+				</noscript>
+			</form>
+
+			<aside class="ew__side" data-side aria-live="polite">
+				<p class="ew__side-title category">{sidebarTitle}</p>
+				<span class="ew__side-rule" aria-hidden="true"></span>
+
+				<p class="ew__side-empty" data-empty>{sidebarEmpty}</p>
+
+				{/* The three figures are the workbook's "Result" block, labelled as it
+				    labels them: estimated cost, estimated effort, estimated timeline. */}
+				<div class="ew__result" data-result hidden>
+					<p class="ew__result-label">Estimated cost</p>
+					<p class="ew__result-cost" data-cost></p>
+					<dl class="ew__result-rows">
+						<div>
+							<dt>Estimated effort</dt>
+							<dd data-hours></dd>
+						</div>
+						<div>
+							<dt>Estimated timeline</dt>
+							<dd data-weeks></dd>
+						</div>
+					</dl>
+					<ul class="ew__breakdown" role="list" data-breakdown></ul>
+				</div>
+
+				<div class="ew__includes" data-includes>
+					<p class="ew__includes-title">{includesTitle}</p>
+					<ol class="ew__includes-list" role="list">
+						{
+							includes.map((item, i) => (
+								<li>
+									<span class="ew__includes-num">{pad(i + 1)}</span>
+									{item}
+								</li>
+							))
+						}
+					</ol>
+				</div>
+
+				<div class="ew__note">
+					<p class="ew__note-title">{noteTitle}</p>
+					<p class="ew__note-body">{noteBody}</p>
+					<a class="ew__note-cta" href={ctaLink} data-cta hidden>
+						{ctaLabel}
+						<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10h13M11 5l5 5-5 5" /></svg>
+					</a>
+				</div>
+			</aside>
+		</div>
+	</div>
+</section>
+
+<script>
+	import { estimate, targetsFor, formatCost, STEPS } from '../data/estimator-model.mjs';
+
+	const root = document.querySelector<HTMLElement>('.ew');
+	const form = root?.querySelector<HTMLFormElement>('[data-estimator]');
+	if (root && form) {
+		const side = root.querySelector<HTMLElement>('[data-side]')!;
+		const panels = new Map(
+			STEPS.map((s) => [s.key, form.querySelector<HTMLElement>(`[data-panel="${s.key}"]`)!])
+		);
+		const rails = new Map(
+			STEPS.map((s) => [s.key, root.querySelector<HTMLElement>(`[data-rail="${s.key}"]`)!])
+		);
+		const backBtn = form.querySelector<HTMLButtonElement>('[data-back]')!;
+		const nextBtn = form.querySelector<HTMLButtonElement>('[data-next]')!;
+		const nextLabel = form.querySelector<HTMLElement>('[data-next-label]')!;
+		const restartBtn = form.querySelector<HTMLButtonElement>('[data-restart]')!;
+		const targetNote = form.querySelector<HTMLElement>('[data-target-note]')!;
+		const emptyEl = side.querySelector<HTMLElement>('[data-empty]')!;
+		const resultEl = side.querySelector<HTMLElement>('[data-result]')!;
+		const includesEl = side.querySelector<HTMLElement>('[data-includes]')!;
+		const costEl = side.querySelector<HTMLElement>('[data-cost]')!;
+		const hoursEl = side.querySelector<HTMLElement>('[data-hours]')!;
+		const weeksEl = side.querySelector<HTMLElement>('[data-weeks]')!;
+		const breakdownEl = side.querySelector<HTMLElement>('[data-breakdown]')!;
+		const ctaEl = side.querySelector<HTMLAnchorElement>('[data-cta]')!;
+		const doneEl = form.querySelector<HTMLElement>('[data-done]')!;
+		const doneCost = form.querySelector<HTMLElement>('[data-done-cost]')!;
+		const doneHours = form.querySelector<HTMLElement>('[data-done-hours]')!;
+		const doneWeeks = form.querySelector<HTMLElement>('[data-done-weeks]')!;
+		const emailInput = form.querySelector<HTMLInputElement>('#ew-email')!;
+		const sendBtn = form.querySelector<HTMLButtonElement>('[data-send]')!;
+		const sendLabel = form.querySelector<HTMLElement>('[data-send-label]')!;
+		const doneStatus = form.querySelector<HTMLElement>('[data-done-status]')!;
+		const defaultSendLabel = sendLabel.textContent || 'Email me this estimate';
+
+		let index = 0;
+		const answers: Record<string, string | string[]> = {};
+
+		const stepAt = (i: number) => STEPS[i];
+		/** Add-ons are optional — every other step needs an answer to continue. */
+		const answered = (key: string) =>
+			key === 'addons' ? true : typeof answers[key] === 'string' && answers[key] !== '';
+
+		function readAnswers() {
+			for (const step of STEPS) {
+				if (step.type === 'multi') {
+					answers[step.key] = Array.from(
+						form.querySelectorAll<HTMLInputElement>(`input[name="${step.key}"]:checked`)
+					).map((el) => el.value);
+				} else {
+					const checked = form.querySelector<HTMLInputElement>(`input[name="${step.key}"]:checked`);
+					answers[step.key] = checked ? checked.value : '';
+				}
+			}
+		}
+
+		/** Target versions below the chosen current version can't be upgraded to. */
+		function syncTargets() {
+			const allowed = new Set(targetsFor(answers.current as string).map((t) => t.key));
+			let clearedSelection = false;
+			form.querySelectorAll<HTMLInputElement>('input[name="target"]').forEach((input) => {
+				const ok = allowed.has(input.value);
+				const item = input.closest('li');
+				if (item) item.hidden = !ok;
+				if (!ok && input.checked) {
+					input.checked = false;
+					clearedSelection = true;
+				}
+			});
+			targetNote.hidden = allowed.size === STEPS.length;
+			if (clearedSelection) readAnswers();
+		}
+
+		function renderEstimate() {
+			const result = estimate(answers);
+			const complete = index >= STEPS.length - 1 && result !== null;
+
+			if (!result) {
+				emptyEl.hidden = false;
+				resultEl.hidden = true;
+				includesEl.hidden = false;
+				ctaEl.hidden = true;
+				return;
+			}
+
+			emptyEl.hidden = true;
+			resultEl.hidden = false;
+			// Once the range is on screen the placeholder list is just noise.
+			includesEl.hidden = true;
+			ctaEl.hidden = !complete;
+
+			costEl.textContent = `${formatCost(result.costLow)} – ${formatCost(result.costHigh)}`;
+			hoursEl.textContent = `${result.lowHours} – ${result.highHours} hrs`;
+			weeksEl.textContent = `${result.weeksLow} – ${result.weeksHigh} weeks`;
+
+			const lines: { label: string; value: string }[] = [
+				{ label: `Upgrade path (${answers.current}.x → ${answers.target}.x)`, value: `${result.coreHours} hrs` },
+			];
+			if (result.phpBumpNeeded) {
+				lines.push({ label: `PHP upgrade to ${result.minPhp}`, value: `${result.phpBumpHours} hrs` });
+			}
+			for (const addon of result.addonLines) {
+				lines.push({ label: addon.label, value: `${addon.hours} hrs` });
+			}
+			breakdownEl.innerHTML = '';
+			for (const line of lines) {
+				const li = document.createElement('li');
+				const label = document.createElement('span');
+				label.textContent = line.label;
+				const value = document.createElement('span');
+				value.className = 'ew__breakdown-value';
+				value.textContent = line.value;
+				li.append(label, value);
+				breakdownEl.append(li);
+			}
+		}
+
+		/** Index STEPS.length is the confirmation screen, one past the questions. */
+		const DONE = STEPS.length;
+
+		function show(i: number) {
+			index = Math.max(0, Math.min(DONE, i));
+			const onDone = index === DONE;
+			STEPS.forEach((step, n) => {
+				panels.get(step.key)!.hidden = onDone || n !== index;
+				rails.get(step.key)!.classList.toggle('is-active', !onDone && n === index);
+				rails.get(step.key)!.classList.toggle('is-done', onDone || n < index);
+			});
+			doneEl.hidden = !onDone;
+			backBtn.hidden = index === 0;
+			const lastQuestion = index === DONE - 1;
+			restartBtn.hidden = !(lastQuestion || onDone);
+			nextBtn.hidden = onDone;
+			nextLabel.textContent = lastQuestion ? 'See your estimate' : 'Next';
+			nextBtn.disabled = onDone ? true : !answered(stepAt(index).key);
+			if (!onDone && stepAt(index).key === 'target') syncTargets();
+			renderEstimate();
+			if (onDone) fillDone();
+		}
+
+		/** Repeat the figures on the confirmation screen, so it stands alone. */
+		function fillDone() {
+			const result = estimate(answers);
+			if (!result) return;
+			doneCost.textContent = `${formatCost(result.costLow)} – ${formatCost(result.costHigh)}`;
+			doneHours.textContent = `${result.lowHours} – ${result.highHours} hrs`;
+			doneWeeks.textContent = `${result.weeksLow} – ${result.weeksHigh} weeks`;
+		}
+
+		/** The estimate, written out for the enquiry email. */
+		function summary(result: ReturnType<typeof estimate>) {
+			if (!result) return '';
+			const lines = [
+				`Laravel ${answers.current}.x → ${answers.target}.x upgrade.`,
+				`Estimate: ${result.lowHours}–${result.highHours} hrs (${formatCost(result.costLow)}–${formatCost(result.costHigh)}), ${result.weeksLow}–${result.weeksHigh} weeks.`,
+				`Upgrade path ${result.coreHours} hrs.`,
+			];
+			if (result.phpBumpNeeded) lines.push(`PHP upgrade to ${result.minPhp}: ${result.phpBumpHours} hrs.`);
+			for (const addon of result.addonLines) lines.push(`${addon.label}: ${addon.hours} hrs.`);
+			return lines.join('\n');
+		}
+
+		sendBtn.addEventListener('click', async () => {
+			const email = emailInput.value.trim();
+			const result = estimate(answers);
+			if (!email || !email.includes('@')) {
+				doneStatus.textContent = 'Please enter a valid email address.';
+				doneStatus.dataset.state = 'error';
+				emailInput.focus();
+				return;
+			}
+			doneStatus.dataset.state = '';
+			doneStatus.textContent = '';
+			sendBtn.disabled = true;
+			sendLabel.textContent = 'Sending…';
+			try {
+				const res = await fetch('/api/lead', {
+					method: 'POST',
+					headers: { 'content-type': 'application/json', accept: 'application/json' },
+					body: JSON.stringify({
+						source: 'estimator',
+						email,
+						message: summary(result),
+						page: window.location.pathname,
+					}),
+				});
+				const data = await res.json().catch(() => ({ ok: res.ok }));
+				if (!res.ok || !data.ok) throw new Error(data.error || 'Something went wrong.');
+				doneStatus.textContent = "Sent — check your inbox. We'll follow up with the breakdown.";
+				doneStatus.dataset.state = 'ok';
+				sendLabel.textContent = 'Sent';
+				emailInput.disabled = true;
+				window.dataLayer = window.dataLayer || [];
+				window.dataLayer.push({ event: 'estimator_email_capture', estimator_hours_low: result?.lowHours });
+			} catch (err) {
+				doneStatus.textContent = (err as Error).message;
+				doneStatus.dataset.state = 'error';
+				sendBtn.disabled = false;
+				sendLabel.textContent = defaultSendLabel;
+			}
+		});
+
+		form.addEventListener('change', (event) => {
+			const input = (event.target as HTMLElement).closest<HTMLInputElement>('.ew__input');
+			if (!input) return;
+			readAnswers();
+			if (input.name === 'current') syncTargets();
+			nextBtn.disabled = !answered(stepAt(index).key);
+			renderEstimate();
+			// A single-choice answer is unambiguous, so move on without a second click.
+			if (input.type === 'radio' && index < DONE - 1) {
+				window.setTimeout(() => show(index + 1), 180);
+			}
+		});
+
+		nextBtn.addEventListener('click', () => show(index + 1));
+		backBtn.addEventListener('click', () => show(index - 1));
+		restartBtn.addEventListener('click', () => {
+			form.reset();
+			readAnswers();
+			show(0);
+		});
+
+		/**
+		 * Carry the estimate into the enquiry: the visitor has just answered seven
+		 * questions, so asking them to retype it would be rude. Only fills a
+		 * message box they haven't written in themselves.
+		 */
+		ctaEl.addEventListener('click', () => {
+			const result = estimate(answers);
+			if (!result) return;
+			const target = document.querySelector<HTMLTextAreaElement>('#contact textarea, #contact [name="message"]');
+			if (target && !target.value.trim()) {
+				const addons = result.addonLines.map((a) => a.label).join(', ');
+				target.value = [
+					`Laravel ${answers.current}.x → ${answers.target}.x upgrade.`,
+					`Estimator says ${result.lowHours}–${result.highHours} hrs (${formatCost(result.costLow)}–${formatCost(result.costHigh)}), ${result.weeksLow}–${result.weeksHigh} weeks.`,
+					addons ? `Also relevant: ${addons}.` : '',
+					"I'd like a technical audit to firm this up.",
+				]
+					.filter(Boolean)
+					.join('\n');
+			}
+			window.dataLayer = window.dataLayer || [];
+			window.dataLayer.push({
+				event: 'estimator_complete',
+				estimator_hours_low: result.lowHours,
+				estimator_hours_high: result.highHours,
+				estimator_cost_low: result.costLow,
+				estimator_cost_high: result.costHigh,
+			});
+		});
+
+		readAnswers();
+		show(0);
+	}
+</script>
+
+<style>
+	/* --- Intro band --- */
+	.ew__intro {
+		background: var(--surface-muted);
+		padding-block: clamp(2.5rem, 5vw, 4rem);
+	}
+	.ew__intro-inner {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: clamp(1.5rem, 4vw, 4rem);
+		align-items: center;
+	}
+	.ew__eyebrow {
+		color: var(--color-primary-blue);
+		margin-bottom: 0.85rem;
+	}
+	.ew__heading {
+		font-size: var(--fs-h2-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h2);
+		color: var(--color-headings-dark);
+	}
+	/* Design: one rule down the whole copy block, not just the paragraph. */
+	.ew__intro-copy {
+		border-left: 3px solid var(--color-lavender);
+		padding-left: clamp(1.25rem, 2vw, 1.75rem);
+	}
+	.ew__body {
+		margin-top: 1rem;
+		max-width: 46ch;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+	.ew__stats {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(150px, 1fr));
+		gap: 0.75rem;
+		margin: 0;
+		padding: 0;
+	}
+	/* Each card is edged in its own colour on the left. */
+	.ew__stat {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+		padding: 1rem 1.25rem;
+		background: var(--surface-card);
+		border: 1px solid var(--surface-lavender-tint);
+		border-left: 2px solid var(--color-lavender);
+	}
+	.ew__stat.is-fuchsia {
+		border-left-color: var(--color-fuchsia);
+	}
+	.ew__stat.is-blue {
+		border-left-color: var(--color-primary-blue);
+	}
+	.ew__stat.is-dark {
+		border-left-color: var(--color-dark-blue);
+	}
+	.ew__stat.is-pink {
+		border-left-color: var(--color-light-pink);
+	}
+	.ew__stat-value {
+		font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2rem);
+		font-weight: var(--fw-semibold);
+		line-height: 1.05;
+	}
+	.ew__stat.is-fuchsia .ew__stat-value {
+		color: var(--color-fuchsia);
+	}
+	.ew__stat.is-blue .ew__stat-value {
+		color: var(--color-primary-blue);
+	}
+	.ew__stat.is-dark .ew__stat-value {
+		color: var(--color-dark-blue);
+	}
+	.ew__stat.is-pink .ew__stat-value {
+		color: var(--color-light-pink);
+	}
+	.ew__stat-label {
+		font-size: var(--fs-category);
+		color: var(--color-paragraph);
+	}
+
+	/* --- Progress rail --- */
+	.ew__main {
+		padding-block: clamp(2.5rem, 5vw, 4rem);
+	}
+	.ew__rail {
+		display: grid;
+		grid-template-columns: repeat(7, 1fr);
+		/* Design: the bars are clearly separated, not a near-continuous line. */
+		gap: clamp(1rem, 2vw, 1.75rem);
+		margin: 0 0 clamp(1.5rem, 3vw, 2.5rem);
+		padding: 0;
+	}
+	.ew__rail-step {
+		display: flex;
+		flex-direction: column;
+		gap: 0.8rem;
+	}
+	.ew__rail-label {
+		font-size: var(--fs-category);
+		font-weight: var(--fw-medium);
+		letter-spacing: var(--ls-category);
+		text-transform: uppercase;
+		color: var(--color-paragraph);
+		white-space: nowrap;
+	}
+	.ew__rail-num {
+		color: inherit;
+	}
+	/* The step you're on is called out whole, number and name together. */
+	.ew__rail-step.is-active .ew__rail-label {
+		font-weight: var(--fw-semibold);
+		color: var(--color-primary-blue);
+	}
+	.ew__rail-step.is-done .ew__rail-label {
+		color: var(--color-headings-dark);
+	}
+	.ew__rail-bar {
+		height: 8px;
+		background: var(--color-light-lavender);
+		transition: background 0.2s ease;
+	}
+	.ew__rail-step.is-active .ew__rail-bar,
+	.ew__rail-step.is-done .ew__rail-bar {
+		background: var(--color-primary-blue);
+	}
+	.ew__rail-dot {
+		width: 14px;
+		height: 14px;
+		border-radius: 50%;
+		border: 1.5px solid var(--color-lavender);
+		background: var(--color-white);
+	}
+	.ew__rail-step.is-active .ew__rail-dot {
+		border-color: var(--color-primary-blue);
+		box-shadow: inset 0 0 0 2px var(--color-light-yellow);
+	}
+	.ew__rail-step.is-done .ew__rail-dot {
+		border-color: var(--color-primary-blue);
+		background: var(--color-primary-blue);
+	}
+
+	/* --- Card + sidebar --- */
+	.ew__grid {
+		display: grid;
+		grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+		gap: clamp(1rem, 2vw, 1.5rem);
+		align-items: start;
+	}
+	.ew__card {
+		position: relative;
+		background: var(--surface-card);
+		border: 1px solid var(--surface-lavender-tint);
+		/* Same weight as the progress bars above it. */
+		border-top: 8px solid var(--color-primary-blue);
+		padding: clamp(1.5rem, 3vw, 2.5rem);
+	}
+	.ew__panel {
+		border: 0;
+		margin: 0;
+		padding: 0;
+		min-width: 0;
+	}
+	.ew__step-count {
+		color: var(--color-primary-blue);
+		margin-bottom: 0.85rem;
+	}
+	.ew__question {
+		display: block;
+		padding: 0;
+		font-size: var(--fs-h5-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-headings-dark);
+		max-width: 22ch;
+	}
+	.ew__hint {
+		margin-top: 0.75rem;
+		font-size: var(--fs-small);
+		color: var(--color-paragraph);
+	}
+	.ew__hint--inline {
+		margin-top: 1rem;
+	}
+
+	.ew__options {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.75rem;
+		margin: 1.75rem 0 0;
+		padding: 0;
+	}
+	.ew__option {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.85rem;
+		height: 100%;
+		padding: 1rem 1.15rem;
+		background: var(--surface-subtle);
+		border: 1px solid var(--color-light-lavender);
+		cursor: pointer;
+		transition:
+			background 0.15s ease,
+			border-color 0.15s ease;
+	}
+	.ew__option:hover {
+		border-color: var(--color-lavender);
+	}
+	.ew__input {
+		position: absolute;
+		opacity: 0;
+		width: 0;
+		height: 0;
+	}
+	.ew__marker {
+		flex: none;
+		width: 20px;
+		height: 20px;
+		margin-top: 0.1rem;
+		border: 1.5px solid var(--color-primary-blue);
+		border-radius: 50%;
+		background: var(--color-white);
+		transition: box-shadow 0.15s ease;
+	}
+	/* Multi-select reads as a checkbox, single-select as a radio. */
+	.ew__input[type='checkbox'] + .ew__marker {
+		border-radius: 3px;
+	}
+	.ew__input:checked + .ew__marker {
+		box-shadow: inset 0 0 0 4px var(--color-primary-blue);
+	}
+	.ew__input:focus-visible + .ew__marker {
+		outline: 2px solid var(--color-primary-blue);
+		outline-offset: 2px;
+	}
+	.ew__option:has(.ew__input:checked) {
+		background: var(--color-white);
+		border-color: var(--color-primary-blue);
+	}
+	.ew__option-text {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		min-width: 0;
+	}
+	.ew__option-label {
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		color: var(--color-paragraph-strong);
+	}
+	.ew__option-desc {
+		font-size: var(--fs-category);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+
+	/* --- Confirmation screen --- */
+	.ew__done-figures {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem 2.5rem;
+		margin: 1.75rem 0 0;
+		padding: 1.25rem 1.5rem;
+		background: var(--surface-subtle);
+		border-left: 3px solid var(--color-primary-blue);
+	}
+	.ew__done-figures div {
+		display: flex;
+		flex-direction: column;
+		gap: 0.2rem;
+	}
+	.ew__done-figures dt {
+		font-size: var(--fs-category);
+		color: var(--color-paragraph);
+	}
+	.ew__done-figures dd {
+		margin: 0;
+		font-size: clamp(1.15rem, 0.9rem + 0.8vw, 1.5rem);
+		font-weight: var(--fw-semibold);
+		line-height: 1.1;
+		color: var(--color-headings-dark);
+	}
+	.ew__done-label {
+		display: block;
+		margin-top: 1.75rem;
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		color: var(--color-headings-dark);
+	}
+	.ew__done-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-top: 0.75rem;
+	}
+	.ew__done-input {
+		flex: 1 1 260px;
+		min-width: 0;
+		height: 46px;
+		padding: 8px 14px;
+		background: var(--surface-card);
+		border: 1px solid var(--color-light-lavender);
+		font-size: var(--fs-small);
+		color: var(--color-headings-dark);
+	}
+	.ew__done-input::placeholder {
+		color: var(--color-paragraph);
+	}
+	.ew__done-input:focus-visible {
+		outline: 2px solid var(--color-primary-blue);
+		outline-offset: 1px;
+	}
+	.ew__done-input:disabled {
+		opacity: 0.6;
+	}
+	.ew__done-note {
+		margin-top: 0.85rem;
+		font-size: var(--fs-category);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+	.ew__done-status {
+		margin-top: 0.75rem;
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+	}
+	.ew__done-status[data-state='ok'] {
+		color: #2f9e5f;
+	}
+	.ew__done-status[data-state='error'] {
+		color: var(--color-fuchsia);
+	}
+
+	.ew__update {
+		margin-top: 1.75rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--surface-lavender-tint);
+		font-size: var(--fs-category);
+		color: var(--color-paragraph);
+	}
+	.ew__actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem;
+		margin-top: 1.5rem;
+	}
+	.ew__btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.65rem;
+		height: 46px;
+		padding-inline: 28px;
+		border: 1px solid transparent;
+		border-radius: 999px;
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		cursor: pointer;
+		transition:
+			background 0.15s ease,
+			color 0.15s ease,
+			opacity 0.15s ease;
+	}
+	/* A class-level display beats the UA's [hidden] rule, so say it explicitly. */
+	.ew__btn[hidden],
+	.ew__note-cta[hidden] {
+		display: none;
+	}
+	.ew__btn svg {
+		width: 18px;
+		height: 18px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.6;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+	.ew__btn--primary {
+		background: var(--color-primary-blue);
+		color: var(--color-white);
+	}
+	.ew__btn--primary:hover:not(:disabled) {
+		background: var(--color-dark-blue);
+	}
+	.ew__btn--primary:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+	}
+	.ew__btn--ghost {
+		background: transparent;
+		border-color: var(--color-light-lavender);
+		color: var(--color-primary-blue);
+	}
+	.ew__btn--ghost:hover {
+		border-color: var(--color-primary-blue);
+	}
+
+	/* --- Sidebar --- */
+	.ew__side {
+		position: sticky;
+		top: 1.5rem;
+		background: var(--surface-invert);
+		color: var(--color-white);
+		padding: clamp(1.25rem, 2.5vw, 1.75rem);
+	}
+	.ew__side-title {
+		color: var(--color-light-lavender);
+	}
+	.ew__side-rule {
+		display: block;
+		width: 38px;
+		height: 3px;
+		margin: 1rem 0 1.25rem;
+		background: var(--color-light-yellow);
+	}
+	.ew__side-empty {
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark);
+	}
+
+	.ew__result-label {
+		font-size: var(--fs-category);
+		text-transform: uppercase;
+		letter-spacing: var(--ls-category);
+		color: var(--color-light-lavender);
+	}
+	.ew__result-cost {
+		margin-top: 0.4rem;
+		font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2rem);
+		line-height: 1.1;
+		color: var(--color-light-yellow);
+	}
+	.ew__result-rows {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem 1.75rem;
+		margin: 1.25rem 0 0;
+	}
+	.ew__result-rows div {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+	}
+	.ew__result-rows dt {
+		font-size: var(--fs-category);
+		color: var(--color-light-lavender);
+	}
+	.ew__result-rows dd {
+		margin: 0;
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		color: var(--color-white);
+	}
+	.ew__breakdown {
+		margin: 1.5rem 0 0;
+		padding: 1.25rem 0 0;
+		border-top: 1px solid rgba(255, 255, 255, 0.16);
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+	}
+	/* The rows are built in JS, so they never get Astro's scoping attribute —
+	   these two rules have to reach past it. */
+	.ew__breakdown :global(li) {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		font-size: var(--fs-category);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark);
+	}
+	.ew__breakdown :global(.ew__breakdown-value) {
+		flex: none;
+		font-weight: var(--fw-semibold);
+		color: var(--color-white);
+	}
+
+	/* Ruled off from the estimate above it, like the breakdown list is. */
+	.ew__includes {
+		margin-top: 1.75rem;
+		padding-top: 1.75rem;
+		border-top: 1px solid rgba(255, 255, 255, 0.16);
+	}
+	.ew__includes-title {
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+		letter-spacing: var(--ls-category);
+		text-transform: uppercase;
+		color: var(--color-light-lavender);
+	}
+	.ew__includes-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1.15rem;
+		margin: 1.35rem 0 0;
+		padding: 0;
+		list-style: none;
+		counter-reset: none;
+	}
+	.ew__includes-list li {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		font-size: var(--fs-category);
+		font-weight: var(--fw-medium);
+		color: var(--color-white);
+	}
+	.ew__includes-num {
+		display: grid;
+		place-items: center;
+		flex: none;
+		width: 26px;
+		height: 22px;
+		background: rgba(170, 140, 231, 0.2);
+		font-size: 0.7rem;
+		font-weight: var(--fw-semibold);
+		color: var(--color-light-lavender);
+	}
+	.ew__includes-list li:first-child .ew__includes-num {
+		background: var(--color-primary-blue);
+		color: var(--color-white);
+	}
+
+	.ew__note {
+		margin-top: 1.75rem;
+		padding: 1.25rem;
+		background: var(--color-primary-blue);
+	}
+	.ew__note-title {
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		color: var(--color-white);
+	}
+	.ew__note-body {
+		margin-top: 0.6rem;
+		font-size: var(--fs-category);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark);
+	}
+	.ew__note-cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin-top: 1rem;
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+		color: var(--color-light-yellow);
+	}
+	.ew__note-cta svg {
+		width: 16px;
+		height: 16px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.8;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	@media (max-width: 960px) {
+		.ew__grid {
+			grid-template-columns: 1fr;
+		}
+		.ew__side {
+			position: static;
+		}
+	}
+	@media (max-width: 760px) {
+		.ew__intro-inner {
+			grid-template-columns: 1fr;
+		}
+		.ew__rail {
+			grid-template-columns: repeat(7, 1fr);
+			gap: 0.35rem;
+		}
+		.ew__rail-label {
+			display: none;
+		}
+		.ew__options {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

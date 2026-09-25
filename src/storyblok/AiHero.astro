@@ -1,0 +1,204 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+import Button from '../components/Button.astro';
+import type { ButtonVariant } from '../lib/ui';
+import type { IconName } from '../lib/icons';
+
+/**
+ * AI page hero — copy and two calls to action on the left, the consultation
+ * form itself on the right, over a photographic background.
+ *
+ * The form posts to the same /api/lead endpoint as every other form on the
+ * site and is progressively enhanced by the shared lead-form script.
+ */
+const { blok } = Astro.props;
+
+interface CtaBlok {
+	label: string;
+	link?: { url?: string; cached_url?: string } | string;
+	variant?: ButtonVariant;
+	icon?: IconName | null;
+}
+
+const eyebrow: string = blok?.eyebrow || 'Bespoke AI software development';
+const heading: string = blok?.heading || 'Build intelligent software\nthat moves your\nbusiness forward';
+const body: string =
+	blok?.body ||
+	'From AI assistants and generative workflows to custom machine-learning products, we design and deliver secure, production-ready solutions around your business.';
+const ctas: CtaBlok[] = Array.isArray(blok?.ctas) ? blok.ctas : [];
+const trustLine: string = blok?.trust_line || '';
+const formTitle: string = blok?.form_title || 'Start with a free AI consultation';
+const formCtaLabel: string = blok?.form_cta_label || 'Request my free consultation';
+const formSource: string = blok?.form_source || 'ai';
+
+/** The design's sky photograph; a gradient stands in until it's supplied. */
+const background: string = blok?.background?.filename || '';
+---
+
+<section class="ah" {...storyblokEditable(blok)}>
+	{background && <img class="ah__bg" src={background} alt="" loading="eager" decoding="async" />}
+	<div class="ah__inner container">
+		<div class="ah__copy">
+			<p class="ah__eyebrow category">{eyebrow}</p>
+			<h1 class="ah__heading">{heading}</h1>
+			<p class="ah__body">{body}</p>
+
+			{ctas.length > 0 && (
+				<div class="ah__actions">
+					{ctas.map((cta) => (
+						<Button label={cta.label} link={cta.link} variant={cta.variant ?? 'primary'} icon={cta.icon ?? 'arrow-right'} />
+					))}
+				</div>
+			)}
+
+			{trustLine && <p class="ah__trust">{trustLine}</p>}
+		</div>
+
+		<form class="ah__form" action="/api/lead" method="post" data-lead novalidate>
+			<h2 class="ah__form-title">{formTitle}</h2>
+			<input type="hidden" name="source" value={formSource} />
+			<input type="hidden" name="page" value="" />
+			<input class="lead-hp" type="text" name="hp_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+			<div class="ah__fields" data-lead-fields>
+				<label class="visually-hidden" for="ai-hero-name">Full name</label>
+				<input class="ah__input" id="ai-hero-name" name="name" type="text" placeholder="full name" autocomplete="name" />
+				<label class="visually-hidden" for="ai-hero-email">Email</label>
+				<input class="ah__input" id="ai-hero-email" name="email" type="email" placeholder="email" autocomplete="email" required />
+				<label class="visually-hidden" for="ai-hero-phone">Phone</label>
+				<input class="ah__input" id="ai-hero-phone" name="phone" type="tel" placeholder="phone" autocomplete="tel" />
+				<label class="visually-hidden" for="ai-hero-message">Message</label>
+				<textarea class="ah__input ah__textarea" id="ai-hero-message" name="message" placeholder="message" rows="3" />
+				<Button label={formCtaLabel} variant="primary" icon="arrow-right" type="submit" />
+			</div>
+			<p class="ah__status" data-lead-status aria-live="polite"></p>
+		</form>
+	</div>
+</section>
+
+<script>
+	import '../scripts/lead-form';
+</script>
+
+<style>
+	.ah {
+		position: relative;
+		isolation: isolate;
+		background: var(--color-dark-blue);
+		color: var(--color-white);
+		overflow: hidden;
+	}
+	.ah__bg {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		z-index: -2;
+	}
+	/* Keeps the copy legible once a photograph is dropped in; with no image the
+	   band is just the flat dark blue underneath. */
+	.ah__bg + .ah__inner::before,
+	.ah:has(.ah__bg)::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: linear-gradient(105deg, rgb(42 12 103 / 59%) 12%, rgb(42 12 103 / 50%) 48%, rgb(42 12 103 / 26%) 100%);
+	}
+	.ah__inner {
+		display: grid;
+		grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+		gap: clamp(2rem, 5vw, 4.5rem);
+		align-items: center;
+		padding-block: clamp(3rem, 6vw, 5.5rem);
+	}
+	.ah__eyebrow {
+		color: var(--color-light-yellow);
+		margin-bottom: 1.25rem;
+	}
+	.ah__heading {
+		font-size: clamp(2rem, 1.2rem + 2.4vw, 3rem);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h1);
+		white-space: pre-line;
+		color: var(--color-white);
+	}
+	.ah__body {
+		margin-top: 1.5rem;
+		max-width: 52ch;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--text-on-dark);
+	}
+	.ah__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-top: 2rem;
+	}
+	.ah__trust {
+		margin-top: 1.5rem;
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+		color: var(--color-white);
+	}
+
+	.ah__form {
+		background: var(--color-dark-blue);
+		padding: clamp(1.5rem, 3vw, 2.25rem);
+	}
+	.ah__form-title {
+		font-size: var(--fs-h5-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-h5);
+		letter-spacing: var(--ls-h5);
+		color: var(--color-light-yellow);
+	}
+	.ah__fields {
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+		margin-top: 1.5rem;
+	}
+	.ah__input {
+		height: 44px;
+		padding: 8px 14px;
+		border: 0;
+		background: var(--surface-lavender-tint);
+		color: var(--color-headings-dark);
+		font-size: var(--fs-small);
+	}
+	.ah__textarea {
+		height: auto;
+		min-height: 92px;
+		padding-top: 12px;
+		resize: vertical;
+	}
+	.ah__input::placeholder {
+		color: var(--color-paragraph);
+	}
+	.ah__input:focus-visible {
+		outline: 2px solid var(--color-light-yellow);
+		outline-offset: 1px;
+	}
+	.ah__fields :global(.btn) {
+		justify-content: center;
+		width: 100%;
+		margin-top: 0.4rem;
+	}
+	.ah__status {
+		margin-top: 0.85rem;
+		font-size: var(--fs-category);
+		color: var(--text-on-dark);
+	}
+	.ah__status[data-state='error'] {
+		color: var(--color-light-pink);
+	}
+
+	@media (max-width: 900px) {
+		.ah__inner {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

@@ -49,6 +49,19 @@ export default defineConfig({
 				laravel_services: 'storyblok/LaravelServices',
 				featured_testimonial: 'storyblok/FeaturedTestimonial',
 				cta_banner: 'storyblok/CtaBanner',
+				// --- Laravel upgrade estimator page ---
+				estimator_wizard: 'storyblok/EstimatorWizard',
+				estimator_drivers: 'storyblok/EstimatorDrivers',
+				estimator_range: 'storyblok/EstimatorRange',
+				// --- AI development landing page ---
+				ai_hero: 'storyblok/AiHero',
+				ai_agency: 'storyblok/AiAgency',
+				ai_process: 'storyblok/AiProcess',
+				ai_partner: 'storyblok/AiPartner',
+				ai_benefits: 'storyblok/AiBenefits',
+				ai_tech: 'storyblok/AiTech',
+				ai_catalogue: 'storyblok/AiCatalogue',
+				ai_contact: 'storyblok/AiContact',
 				// --- Legacy marketing landing page (kept for other stories) ---
 				hero: 'storyblok/Hero',
 				podcast_banner: 'storyblok/PodcastBanner',

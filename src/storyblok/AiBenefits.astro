@@ -1,0 +1,127 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+/** "The benefits of AI for your business" — six cards edged in their own colour. */
+const { blok } = Astro.props;
+
+interface Benefit {
+	title: string;
+	description: string;
+	tone?: string;
+}
+
+const eyebrow: string = blok?.eyebrow || 'Why it matters';
+const heading: string = blok?.heading || 'The benefits of AI for your business';
+const items: Benefit[] = blok?.items?.length ? blok.items : [];
+
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="ab" {...storyblokEditable(blok)}>
+	<div class="ab__inner container">
+		<p class="ab__eyebrow category">{eyebrow}</p>
+		<h2 class="ab__heading">{heading}</h2>
+
+		<ol class="ab__grid" role="list">
+			{
+				items.map((item, i) => (
+					<li class:list={['ab__card', `is-${item.tone ?? 'lavender'}`]}>
+						<span class="ab__num">{pad(i + 1)}</span>
+						<h3 class="ab__title">{item.title}</h3>
+						<p class="ab__desc">{item.description}</p>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+</section>
+
+<style>
+	.ab {
+		background: var(--surface-muted);
+		padding-block: var(--section-py);
+	}
+	.ab__eyebrow {
+		color: var(--color-fuchsia);
+		margin-bottom: 1rem;
+	}
+	.ab__heading {
+		font-size: var(--fs-h2-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h2);
+		color: var(--color-headings-dark);
+	}
+	.ab__grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: clamp(1rem, 2vw, 1.5rem);
+		margin: clamp(2rem, 4vw, 3rem) 0 0;
+		padding: 0;
+	}
+	.ab__card {
+		background: var(--surface-card);
+		padding: clamp(1.15rem, 2vw, 1.5rem);
+		/* Measured from the design: an 8px edge on a ~420px card. */
+		border-left: 8px solid var(--color-light-lavender);
+	}
+	.ab__num {
+		font-size: var(--fs-category);
+		font-weight: var(--fw-semibold);
+	}
+	.ab__title {
+		margin-top: 0.5rem;
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		color: var(--color-headings-dark);
+	}
+	.ab__desc {
+		margin-top: 0.6rem;
+		font-size: var(--fs-category);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+
+	.ab__card.is-cyan {
+		border-left-color: var(--color-cyan);
+	}
+	.ab__card.is-cyan .ab__num {
+		color: var(--color-cyan);
+	}
+	.ab__card.is-pink {
+		border-left-color: var(--color-light-pink);
+	}
+	.ab__card.is-pink .ab__num {
+		color: var(--color-light-pink);
+	}
+	.ab__card.is-green {
+		border-left-color: var(--color-light-green);
+	}
+	.ab__card.is-green .ab__num {
+		color: var(--color-light-green);
+	}
+	.ab__card.is-fuchsia {
+		border-left-color: var(--color-fuchsia);
+	}
+	.ab__card.is-fuchsia .ab__num {
+		color: var(--color-fuchsia);
+	}
+	.ab__card.is-lavender {
+		border-left-color: var(--color-light-lavender);
+	}
+	.ab__card.is-lavender .ab__num {
+		color: var(--color-light-lavender);
+	}
+
+	@media (max-width: 900px) {
+		.ab__grid {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+	@media (max-width: 560px) {
+		.ab__grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>

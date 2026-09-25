@@ -1,0 +1,128 @@
+---
+import { storyblokEditable } from '@storyblok/astro';
+
+/**
+ * "The 14 most common AI asks" — a two-column list where each card's number
+ * sits in its own colour block.
+ */
+const { blok } = Astro.props;
+
+interface Ask {
+	title: string;
+	description: string;
+	tone?: string;
+}
+
+const eyebrow: string = blok?.eyebrow || 'The catalogue';
+const heading: string = blok?.heading || "The 14 most common AI asks we're getting from mid-market companies right now";
+const body: string = blok?.body || '';
+const items: Ask[] = blok?.items?.length ? blok.items : [];
+
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="ac" id="catalogue" {...storyblokEditable(blok)}>
+	<div class="ac__inner container">
+		<p class="ac__eyebrow category">{eyebrow}</p>
+		<h2 class="ac__heading">{heading}</h2>
+		{body && <p class="ac__body">{body}</p>}
+
+		<ol class="ac__grid" role="list">
+			{
+				items.map((item, i) => (
+					<li class="ac__card">
+						<span class:list={['ac__num', `is-${item.tone ?? 'lavender'}`]}>{pad(i + 1)}</span>
+						<div class="ac__text">
+							<h3 class="ac__title">{item.title}</h3>
+							<p class="ac__desc">{item.description}</p>
+						</div>
+					</li>
+				))
+			}
+		</ol>
+	</div>
+</section>
+
+<style>
+	.ac {
+		background: var(--surface-muted);
+		padding-block: var(--section-py);
+	}
+	.ac__eyebrow {
+		color: var(--color-fuchsia);
+		margin-bottom: 1rem;
+	}
+	.ac__heading {
+		font-size: var(--fs-h2-fluid);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		letter-spacing: var(--ls-h2);
+		color: var(--color-headings-dark);
+		max-width: 34ch; /* design breaks it after "getting" */
+	}
+	.ac__body {
+		margin-top: 1rem;
+		max-width: 76ch;
+		font-size: var(--fs-small);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+	.ac__grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: clamp(0.75rem, 1.5vw, 1.15rem);
+		margin: clamp(2rem, 4vw, 3rem) 0 0;
+		padding: 0;
+	}
+	.ac__card {
+		display: grid;
+		grid-template-columns: 48px minmax(0, 1fr);
+		background: var(--surface-card);
+	}
+	/* The number block runs the full height of its card, as in the design. */
+	.ac__num {
+		display: grid;
+		place-items: center;
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		color: var(--color-headings-dark);
+	}
+	.ac__text {
+		padding: clamp(1rem, 2vw, 1.25rem);
+	}
+	.ac__title {
+		font-size: var(--fs-small);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-tight);
+		color: var(--color-headings-dark);
+	}
+	.ac__desc {
+		margin-top: 0.5rem;
+		font-size: var(--fs-category);
+		line-height: var(--lh-body);
+		color: var(--color-paragraph);
+	}
+
+	.ac__num.is-yellow {
+		background: var(--color-light-yellow);
+	}
+	.ac__num.is-pink {
+		background: var(--color-light-pink);
+	}
+	.ac__num.is-green {
+		background: var(--color-light-green);
+	}
+	.ac__num.is-lavender {
+		background: var(--color-light-lavender);
+	}
+	.ac__num.is-fuchsia {
+		background: var(--color-fuchsia);
+		color: var(--color-white);
+	}
+
+	@media (max-width: 760px) {
+		.ac__grid {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
