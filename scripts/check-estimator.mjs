@@ -58,6 +58,14 @@ scenario(
 	{ hopWeightSum: 0.5, coreHours: 5, phpBumpNeeded: false, phpBumpHours: 0, midHours: 5, lowHours: 4, highHours: 6 }
 );
 
+// Laravel 13 raised the PHP floor to 8.3, so the newest hop still bills a bump
+// for anyone sitting on 8.2 — the version most 11/12 apps are running.
+scenario(
+	'12 → 13, Medium, PHP 8.2, Some tests, Moderate deps — PHP bump on the newest hop',
+	{ current: '12', target: '13', size: 'medium', php: '8.2', tests: 'some', deps: 'mod', addons: [] },
+	{ hopWeightSum: 0.6, coreHours: 14, minPhp: '8.3', phpBumpNeeded: true, phpBumpHours: 9, midHours: 23, lowHours: 20, highHours: 29 }
+);
+
 // Every hop, the largest app, no tests, heaviest dependencies, all seven add-ons.
 scenario(
 	'5 → 12, Enterprise, PHP unsure, No tests, Heavy deps, all add-ons',
@@ -109,9 +117,9 @@ check('missing size', estimate({ current: '8', target: '12', php: '7.4', tests: 
 if (failures === 0) console.log('  ok   all four refused');
 
 console.log('\nTarget filtering');
-check('current 11 → only 12', targetsFor('11').map((t) => t.key), ['12']);
-check('current 5 → 10, 11, 12', targetsFor('5').map((t) => t.key), ['10', '11', '12']);
-check('current 10 → 11, 12', targetsFor('10').map((t) => t.key), ['11', '12']);
+check('current 12 → only 13', targetsFor('12').map((t) => t.key), ['13']);
+check('current 5 → 10, 11, 12, 13', targetsFor('5').map((t) => t.key), ['10', '11', '12', '13']);
+check('current 10 → 11, 12, 13', targetsFor('10').map((t) => t.key), ['11', '12', '13']);
 if (failures === 0) console.log('  ok   filtered to versions above current');
 
 console.log(failures === 0 ? '\nEstimator matches the reference workbook.\n' : `\n${failures} check(s) failed.\n`);

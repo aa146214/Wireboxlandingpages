@@ -34,6 +34,7 @@ export const LARAVEL_VERSIONS = [
 	{ version: 10, minPhp: '8.1' },
 	{ version: 11, minPhp: '8.2' },
 	{ version: 12, minPhp: '8.2' },
+	{ version: 13, minPhp: '8.3' },
 ];
 
 /**
@@ -48,6 +49,7 @@ export const HOP_WEIGHTS = [
 	{ from: 9, to: 10, weight: 0.8, note: 'Mostly routine — added type declarations to the skeleton; invokable validation rules by default.' },
 	{ from: 10, to: 11, weight: 1.7, note: 'Streamlined app skeleton — consolidated config, rebuilt bootstrap/app.php, removed default Kernel classes, new password-reset expiry, Sanctum config changes.' },
 	{ from: 11, to: 12, weight: 0.5, note: 'Low-impact maintenance release — bumped minimum dependency versions, Carbon 3 support.' },
+	{ from: 12, to: 13, weight: 0.6, note: 'Deliberately small upgrade — minimal breaking changes, but PHP 8.3 is now the floor and CSRF protection moves to PreventRequestForgery.' },
 ];
 
 /** App Size Options sheet. `phpBumpHours` is the PHP Bump Flat Hours sheet. */
@@ -84,22 +86,32 @@ export const ADDONS = [
 	{ key: 'critical', label: 'Zero-downtime / business-critical', baseHours: 8, note: 'Zero-downtime requirement — phased rollout and rollback plan required.' },
 ];
 
-/** The version a visitor can say they're on today, in wizard order. */
+/**
+ * The version a visitor can say they're on today, in wizard order.
+ *
+ * No LTS labels: Laravel dropped the designation after 6, and the current
+ * support policy grades every release the same way — 18 months of bug fixes,
+ * two years of security fixes. The workbook still carries them; Andrew asked
+ * for them to come out, so don't reinstate them from the spreadsheet.
+ * https://laravel.com/docs/13.x/releases#support-policy
+ */
 export const CURRENT_VERSION_OPTIONS = [
 	{ key: '5', label: '5.x or older', version: 5 },
-	{ key: '6', label: '6.x (LTS)', version: 6 },
+	{ key: '6', label: '6.x', version: 6 },
 	{ key: '7', label: '7.x', version: 7 },
-	{ key: '8', label: '8.x (LTS)', version: 8 },
+	{ key: '8', label: '8.x', version: 8 },
 	{ key: '9', label: '9.x', version: 9 },
-	{ key: '10', label: '10.x (LTS)', version: 10 },
+	{ key: '10', label: '10.x', version: 10 },
 	{ key: '11', label: '11.x', version: 11 },
+	{ key: '12', label: '12.x', version: 12 },
 ];
 
 /** The versions we upgrade to — filtered at runtime to those above `current`. */
 export const TARGET_VERSION_OPTIONS = [
-	{ key: '10', label: 'Laravel 10 (LTS)', version: 10 },
+	{ key: '10', label: 'Laravel 10', version: 10 },
 	{ key: '11', label: 'Laravel 11', version: 11 },
-	{ key: '12', label: 'Laravel 12 (latest)', version: 12 },
+	{ key: '12', label: 'Laravel 12', version: 12 },
+	{ key: '13', label: 'Laravel 13 (latest)', version: 13 },
 ];
 
 /** Current PHP, in wizard order. `unsure` has no index — see `phpIndex`. */

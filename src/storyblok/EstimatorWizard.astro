@@ -277,7 +277,7 @@ const total = STEPS.length;
 </section>
 
 <script>
-	import { estimate, targetsFor, formatCost, STEPS } from '../data/estimator-model.mjs';
+	import { estimate, targetsFor, formatCost, STEPS, TARGET_VERSION_OPTIONS } from '../data/estimator-model.mjs';
 
 	const root = document.querySelector<HTMLElement>('.ew');
 	const form = root?.querySelector<HTMLFormElement>('[data-estimator]');
@@ -346,7 +346,8 @@ const total = STEPS.length;
 					clearedSelection = true;
 				}
 			});
-			targetNote.hidden = allowed.size === STEPS.length;
+			// The note only earns its place when something was actually filtered out.
+			targetNote.hidden = allowed.size === TARGET_VERSION_OPTIONS.length;
 			if (clearedSelection) readAnswers();
 		}
 
