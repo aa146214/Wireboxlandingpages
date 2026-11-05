@@ -34,6 +34,8 @@ const SPACE = process.env.SB_SPACE_ID || '293147646055661';
 const HOME_STORY_ID = process.env.SB_HOME_STORY_ID || '186762709919814';
 /** Slug for the second landing page (video hero variant). */
 const VARIANT_SLUG = process.env.SB_VARIANT_SLUG || 'A';
+/** Slug for the third landing page (enquiry-form hero variant). */
+const ENQUIRY_SLUG = process.env.SB_ENQUIRY_SLUG || 'B';
 const MAPI = `https://mapi.storyblok.com/v1/spaces/${SPACE}`;
 
 if (!TOKEN) {
@@ -237,7 +239,7 @@ const SUPPORT_COMPONENTS = [
 	{ name: 'testimonials', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), items: bloks(3, ['testimonial']) } },
 	{ name: 'footer', schema: { offices: bloks(0, ['footer_office']), services: bloks(1, ['footer_service']), links: bloks(2, ['footer_link']), credentials: multiasset(3), socials: bloks(4, ['social_link']), privacy_label: text(5), copyright: text(6) } },
 	// sections
-	{ name: 'support_hero', schema: { form_site_placeholder: text(40, { description: 'Placeholder for the website field on the review form' }), layout: opt(0, [{ name: 'Commitments card in hero', value: 'card' }, { name: 'Video in hero, commitments below', value: 'video' }], 'card'), eyebrow: text(0), heading: area(1), heading_accent: text(2), body: area(3), ctas: bloks(4, ['cta']), video: text(5, { description: 'YouTube or Vimeo link (or id) — takes priority over an uploaded file' }), video_file: anyAsset(6, { description: 'Or upload a video file here instead' }), video_poster: asset(7, { description: 'Still shown before the video plays' }), video_title: text(8), card_title: text(9), stats: bloks(10, ['hero_stat']), form_title: text(11), form_cta_label: text(12), form_note: text(13), bg_image: asset(14) } },
+	{ name: 'support_hero', schema: { form_site_placeholder: text(40, { description: 'Placeholder for the website field on the review form' }), layout: opt(0, [{ name: 'Commitments card in hero', value: 'card' }, { name: 'Video in hero, commitments below', value: 'video' }, { name: 'Enquiry form in hero', value: 'enquiry' }], 'card'), eyebrow: text(0), heading: area(1), heading_accent: text(2), body: area(3), ctas: bloks(4, ['cta']), video: text(5, { description: 'YouTube or Vimeo link (or id) — takes priority over an uploaded file' }), video_file: anyAsset(6, { description: 'Or upload a video file here instead' }), video_poster: asset(7, { description: 'Still shown before the video plays' }), video_title: text(8), card_title: text(9), stats: bloks(10, ['hero_stat']), form_title: text(11), form_cta_label: text(12), form_note: text(13), bg_image: asset(14), enquiry_title: area(15, { description: 'Enquiry layout only - headline above the four-field form' }), enquiry_cta_label: text(16, { description: 'Enquiry layout only - submit button label' }), enquiry_action: text(17, { description: 'Enquiry layout only - where the form POSTs (/api/lead). Leave EMPTY to keep it inert. Never /api/report: it treats a filled-in company field as a spam honeypot.' }) } },
 	{ name: 'trust_bar', schema: { items: bloks(0, ['trust_item']), tone: opt(1, ['dark', 'fuchsia'], 'dark') } },
 	{ name: 'risk_stats', schema: { eyebrow: text(0), heading: text(1), heading_accent: text(2), stats: bloks(3, ['risk_stat']), footnote: text(4), cta_label: text(5), cta_link: text(6), heading_tone: opt(7, ['fuchsia', 'dark'], 'fuchsia'), eyebrow_tone: opt(8, ['dark', 'blue'], 'dark'), leading_rule: bool(9), hide_footnote: bool(10) } },
 	{ name: 'value_props', schema: { eyebrow: text(0), heading: text(1), body: area(2), cta_label: text(3), cta_link: text(4), image: asset(5), toolkit_title: text(6), toolkit: area(7, { description: 'One tool per line' }), features: bloks(8, ['vp_feature']) } },
@@ -458,6 +460,11 @@ function supportHero(layout = 'card') {
 		form_title: 'Get your free site review',
 		form_cta_label: 'review my site',
 		form_note: "No obligation · We'll respond within 1 business day",
+		// Enquiry layout only. The card and video treatments ignore these, so they
+		// are set unconditionally rather than branching on `layout`.
+		enquiry_title: 'Find out a better, safer and cheaper way to maintain and support your website',
+		enquiry_cta_label: 'website support experts',
+		enquiry_action: '/api/lead',
 	});
 }
 
@@ -630,16 +637,18 @@ function footer() {
  * the hero treatment and the trust bar's colour.
  *   'card'  – commitments card inside the hero, dark trust bar (the original)
  *   'video' – video in the hero, commitments band beneath, fuchsia trust bar
+ *   'enquiry' – four-field enquiry form in the hero, dark trust bar
  */
 function buildContent(variant = 'card') {
 	const isVideo = variant === 'video';
+	const isEnquiry = variant === 'enquiry';
 	return sb('page', {
 		seo_title: 'Wirebox — Website support & maintenance that keeps you online',
 		seo_description:
 			"Wirebox is your dedicated website support partner — monitoring, protecting, and improving your site 24/7. 1-hour critical response, no long-term contracts.",
 		body: [
 			header,
-			supportHero(isVideo ? 'video' : 'card'),
+			supportHero(isEnquiry ? 'enquiry' : isVideo ? 'video' : 'card'),
 			trustBar(isVideo ? 'fuchsia' : 'dark'),
 			riskStats(),
 			valueProps(),
@@ -794,6 +803,25 @@ async function seedVideoVariantStory() {
 	}
 }
 
+/**
+ * The third landing page: same sections, enquiry-form hero. Created if
+ * missing, so it can be seeded without disturbing home or the video variant.
+ */
+async function seedEnquiryVariantStory() {
+	const content = buildContent('enquiry');
+	const found = await mapi('GET', `/stories/?with_slug=${ENQUIRY_SLUG}`);
+	const existing = (found.stories || []).find((s) => s.slug === ENQUIRY_SLUG);
+	const story = { name: 'Support (enquiry hero)', slug: ENQUIRY_SLUG, content };
+	if (existing) {
+		await backupStory(existing.id, ENQUIRY_SLUG);
+		await mapi('PUT', `/stories/${existing.id}`, { story, publish: 1 });
+		console.log(`Published "${ENQUIRY_SLUG}" (updated) — enquiry hero variant.`);
+	} else {
+		await mapi('POST', '/stories/', { story, publish: 1 });
+		console.log(`Published "${ENQUIRY_SLUG}" (created) — enquiry hero variant.`);
+	}
+}
+
 async function main() {
 	console.log('=== Components ===');
 	await syncComponents();
@@ -805,7 +833,7 @@ async function main() {
 	}
 	await uploadAssets();
 	if (ONLY) {
-		const targets = { laravel: seedLaravelStory, settings: seedSettingsStory, estimator: seedEstimatorStory, ai: seedAiStory };
+		const targets = { laravel: seedLaravelStory, settings: seedSettingsStory, estimator: seedEstimatorStory, ai: seedAiStory, variant: seedVideoVariantStory, enquiry: seedEnquiryVariantStory };
 		if (!targets[ONLY]) throw new Error(`Unknown --only target "${ONLY}" (supported: ${Object.keys(targets).join(', ')}).`);
 		console.log('\n=== Story ===');
 		await targets[ONLY]();
@@ -822,6 +850,7 @@ async function main() {
 	});
 	console.log(`Published "${story.slug}" as the support page (${content.body.length} sections).`);
 	await seedVideoVariantStory();
+	await seedEnquiryVariantStory();
 	await seedThankYouStory();
 	await seedLaravelStory();
 	await seedSettingsStory();

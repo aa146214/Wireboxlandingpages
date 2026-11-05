@@ -9,6 +9,11 @@
 			"source": "/a",
 			"destination": "/A",
 			"permanent": false
+		},
+		{
+			"source": "/b",
+			"destination": "/B",
+			"permanent": false
 		}
 	]
 }

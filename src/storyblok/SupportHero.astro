@@ -67,12 +67,14 @@ function embedUrl(raw?: string): string {
 }
 
 /**
- * Two above-the-fold treatments share this component:
+ * Three above-the-fold treatments share this component:
  *   'card'  – commitments + form in a card on the right of the hero (original)
  *   'video' – video on the right, commitments + form in a band underneath
+ *   'enquiry' - a four-field enquiry form in place of the commitments card
  * Defaults to 'card' so an unset value keeps the original layout.
  */
-const layout: 'card' | 'video' = blok?.layout === 'video' ? 'video' : 'card';
+const layout: 'card' | 'video' | 'enquiry' =
+	blok?.layout === 'video' ? 'video' : blok?.layout === 'enquiry' ? 'enquiry' : 'card';
 
 const videoEmbed: string = embedUrl(blok?.video);
 const videoFile: string = blok?.video_file?.filename || '';
@@ -84,6 +86,23 @@ const formNote: string =
 const formCtaLabel: string = blok?.form_cta_label || 'review my site';
 const bgImage: string =
 	blok?.bg_image?.filename || '/seed-assets/support/hero-building.png';
+
+/**
+ * Enquiry layout ('enquiry'). Storyblok-editable so a campaign page can be
+ * reworded without a deploy.
+ *
+ * enquiry_action is deliberately empty by default. Until the client says where
+ * these enquiries should go, the form renders but refuses to submit rather than
+ * quietly POSTing to the page it sits on. Point it at /api/lead once that is
+ * decided: that endpoint already emails a "Company:" line and uses hp_url as
+ * its honeypot. Do NOT point it at /api/report, which treats a filled-in
+ * company field as its own honeypot and would silently discard every enquiry.
+ */
+const enquiryTitle: string =
+	blok?.enquiry_title ||
+	'Find out a better, safer and cheaper way to maintain and support your website';
+const enquiryCtaLabel: string = blok?.enquiry_cta_label || 'get in touch';
+const enquiryAction: string = blok?.enquiry_action || '';
 
 const h = splitHighlight(heading, accent);
 ---
@@ -148,6 +167,69 @@ const h = splitHighlight(heading, accent);
 						/>
 						<Button label={formCtaLabel} variant="fuchsia" icon="arrow-right" type="submit" />
 					</div>
+					<p class="s-hero__form-note" data-js-status aria-live="polite">
+						<span aria-hidden="true">🔒</span> {formNote}
+					</p>
+				</form>
+			</aside>
+		) : layout === 'enquiry' ? (
+			<aside class="s-hero__card s-hero__card--enquiry">
+				<form
+					class="s-hero__form s-hero__form--enquiry"
+					id="hero-enquiry"
+					action={enquiryAction || undefined}
+					method="post"
+					data-js-enable={enquiryAction ? true : undefined}
+					data-ui-only={enquiryAction ? undefined : true}
+					novalidate
+				>
+					<p class="s-hero__enquiry-title">{enquiryTitle}</p>
+					<input type="hidden" name="source" value="hero-enquiry" />
+					<input type="hidden" name="page" value="" />
+					<input class="lead-hp" type="text" name="hp_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+					<div class="s-hero__enquiry-grid">
+					<label class="visually-hidden" for="enq-name">Full name</label>
+					<input
+						class="s-hero__input"
+						id="enq-name"
+						type="text"
+						name="name"
+						placeholder="Full name"
+						autocomplete="name"
+						required
+					/>
+					<label class="visually-hidden" for="enq-company">Company</label>
+					<input
+						class="s-hero__input"
+						id="enq-company"
+						type="text"
+						name="company"
+						placeholder="Company"
+						autocomplete="organization"
+						required
+					/>
+					<label class="visually-hidden" for="enq-email">Email address</label>
+					<input
+						class="s-hero__input"
+						id="enq-email"
+						type="email"
+						name="email"
+						placeholder="your@email.com"
+						autocomplete="email"
+						required
+					/>
+					<label class="visually-hidden" for="enq-phone">Phone number</label>
+					<input
+						class="s-hero__input"
+						id="enq-phone"
+						type="tel"
+						name="phone"
+						placeholder="Phone number"
+						autocomplete="tel"
+						required
+					/>
+					</div>
+					<Button label={enquiryCtaLabel} variant="fuchsia" icon="arrow-right" type="submit" />
 					<p class="s-hero__form-note" data-js-status aria-live="polite">
 						<span aria-hidden="true">🔒</span> {formNote}
 					</p>
@@ -429,6 +511,30 @@ const h = splitHighlight(heading, accent);
 		color: var(--color-light-pink);
 	}
 
+	/* --- Enquiry card (enquiry layout) --- */
+	.s-hero__enquiry-title {
+		font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+		font-weight: var(--fw-semibold);
+		line-height: 1.25;
+		letter-spacing: var(--ls-h3);
+		color: var(--text-on-dark);
+		margin-bottom: 1.25rem;
+	}
+	.s-hero__enquiry-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 0.75rem;
+		margin-bottom: 1rem;
+	}
+	@media (max-width: 520px) {
+		.s-hero__enquiry-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+	.s-hero__form--enquiry :global(.btn) {
+		padding-inline: 28px 22px;
+	}
+
 	/* --- Hero video (video layout) --- */
 	.s-hero__media {
 		aspect-ratio: 16 / 9;
@@ -590,4 +696,17 @@ const h = splitHighlight(heading, accent);
 
 <script>
 	import '../scripts/js-form';
+
+	// The enquiry form has no destination yet. Keep it inert until one is set:
+	// with no action it would otherwise POST to whatever page it sits on.
+	document.querySelectorAll('form[data-ui-only]').forEach((form) => {
+		form.addEventListener('submit', (e) => {
+			e.preventDefault();
+			const note = form.querySelector('[data-js-status]');
+			if (note) {
+				note.textContent = 'Preview only - this form is not connected yet.';
+				note.dataset.state = 'error';
+			}
+		});
+	});
 </script>
