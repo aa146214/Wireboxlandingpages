@@ -530,6 +530,18 @@ const h = splitHighlight(heading, accent);
 	.s-hero__card--enquiry {
 		/* The mock panel is solid, not the translucent commitments card. */
 		background: rgba(42, 12, 103, 0.92);
+		/*
+		 * Half the hero is far wider than four stacked fields need, so the card
+		 * is capped and pushed to the outer edge of its column rather than
+		 * stretched. Centred below the breakpoint, where it is the only column.
+		 */
+		max-width: 28rem;
+		margin-inline: auto;
+	}
+	@media (min-width: 961px) {
+		.s-hero__card--enquiry {
+			margin-inline: auto 0;
+		}
 	}
 	.s-hero__form--enquiry :global(.s-hero__enquiry-submit) {
 		display: flex;
