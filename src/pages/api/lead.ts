@@ -14,6 +14,7 @@ const SOURCES: Record<string, string> = {
 	laravel: 'Laravel page — "Book my consultation"',
 	estimator: 'Upgrade estimator — "Book my technical audit"',
 	ai: 'AI page — "Request my free consultation"',
+	'hero-enquiry': 'Enquiry form — "Website support experts"',
 };
 
 interface SendResult {
