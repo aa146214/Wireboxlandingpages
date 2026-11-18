@@ -13,6 +13,8 @@
 
 export const GTM_ID = 'GTM-5MQDMD38';
 export const CRAZY_EGG_SRC = '//script.crazyegg.com/pages/scripts/0132/1340.js';
+/** Innovative Inventive visitor identification — the account's tag number. */
+export const INNOVATIVE_INVENTIVE_ID = '822271';
 
 /** Where a snippet is injected. */
 export const PLACEMENTS = ['head', 'body_start', 'body_end'];
@@ -35,6 +37,21 @@ export const DEFAULT_SITE_SCRIPTS = [
 		placement: 'head',
 		enabled: true,
 		code: `<script type="text/javascript" src="${CRAZY_EGG_SRC}" async="async"></script>`,
+	},
+	{
+		name: 'Innovative Inventive',
+		placement: 'head',
+		enabled: true,
+		code: `<script type="text/javascript" src="https://innovativeinventive.com/js/${INNOVATIVE_INVENTIVE_ID}.js"></script>`,
+	},
+	{
+		// The vendor's snippet puts this in <head> alongside the script, but an
+		// <img> isn't valid there and browsers relocate it anyway — hence
+		// body_start, matching how the GTM noscript tag is already handled.
+		name: 'Innovative Inventive (noscript)',
+		placement: 'body_start',
+		enabled: true,
+		code: `<noscript><img src="https://innovativeinventive.com/${INNOVATIVE_INVENTIVE_ID}.png" style="display:none;" alt="" /></noscript>`,
 	},
 ];
 
