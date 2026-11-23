@@ -1,0 +1,193 @@
+---
+import { useStoryblokApi, renderRichText, storyblokEditable } from '@storyblok/astro';
+import Layout from '../layouts/Layout.astro';
+import MainSiteHeader from '../components/main-site/MainSiteHeader.astro';
+import MainSiteFooter from '../components/main-site/MainSiteFooter.astro';
+import FALLBACK_BODY from '../data/legal/privacy-policy.html?raw';
+import '@fontsource/lato/400.css';
+import '../styles/main-site.css';
+
+/**
+ * Privacy policy — a replica of https://wirebox.co.uk/privacy-policy/ (the main
+ * WordPress site): same header, photo hero, content styling and footer, with
+ * values taken from that page's computed styles.
+ *
+ * Content comes from the Storyblok story `privacy-policy` (content type
+ * `legal_page`: hero title + image, rich-text body, SEO fields), seeded by
+ * scripts/seed-privacy-policy.mjs. If Storyblok is unreachable or the story
+ * hasn't been seeded, the page renders the bundled copy in
+ * src/data/legal/privacy-policy.html, so it never errors.
+ *
+ * Changes from the live page: its "Cookie Settings" form is left out (it drives
+ * a WordPress cookie plugin; this app's cookie notice is informational), the
+ * Cloudflare-obfuscated email is written out, and /contact-us links point at
+ * wirebox.co.uk. Header and footer are main-site chrome in
+ * src/components/main-site (links in src/data/main-site-nav.ts).
+ */
+const FALLBACK_HERO = '/seed-assets/main-site/our-process.jpg';
+
+let content: Record<string, any> | null = null;
+try {
+	const { data } = await useStoryblokApi().get('cdn/stories/privacy-policy', { version: 'published', cv: Date.now() });
+	if (data?.story?.content?.component === 'legal_page') content = data.story.content;
+} catch (err) {
+	console.warn('[privacy-policy] Storyblok fetch failed — using bundled copy:', (err as Error).message);
+}
+
+const heroTitle: string = content?.hero_title || 'Privacy Policy';
+const heroImage: string = content?.hero_image?.filename || FALLBACK_HERO;
+const bodyHtml: string = content?.body?.content?.length ? renderRichText(content.body) : FALLBACK_BODY;
+const seoTitle: string = content?.seo_title || 'Privacy Policy - Wirebox';
+const seoDescription: string =
+	content?.seo_description ||
+	'How Wirebox Ltd collects, uses and protects your personal data, and how to exercise your data protection rights.';
+const noindex = Boolean(content?.seo_noindex);
+---
+
+<Layout title={seoTitle} description={seoDescription} noindex={noindex}>
+	<div class="ms-page" {...(content ? storyblokEditable(content as any) : {})}>
+		<MainSiteHeader />
+
+		<main id="main">
+			<section class="ms-hero" style={`background-image: url('${heroImage}')`}>
+				<div class="ms-container">
+					<div class="ms-hero__row">
+						<h1 class="ms-hero__title">
+							<i class="icon-pacman-down ms-icon" style="color: #40E0F0" aria-hidden="true"></i>
+							{heroTitle}
+							<i class="icon-circle ms-icon" style="color: #E60775" aria-hidden="true"></i>
+						</h1>
+					</div>
+				</div>
+			</section>
+
+			<section class="ms-content">
+				<div class="ms-container">
+					<div class="ms-content__body" set:html={bodyHtml} />
+				</div>
+			</section>
+		</main>
+
+		<MainSiteFooter />
+	</div>
+</Layout>
+
+<style>
+	/* --- Photo hero ------------------------------------------------------ */
+	.ms-hero {
+		position: relative;
+		z-index: 1;
+		padding-top: 56.7px;
+		background-position: 50% 50%;
+		background-size: cover;
+		background-repeat: no-repeat;
+	}
+	.ms-hero::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background-color: rgba(22, 16, 38, 0.6);
+	}
+	.ms-hero__row {
+		display: flex;
+		align-items: center;
+		min-height: 600px;
+		overflow: hidden;
+	}
+	.ms-hero__title {
+		width: 100%;
+		margin: 0 0 10.5px;
+		font-family: 'Inter Variable', 'Inter', sans-serif;
+		font-size: clamp(26.25px, 3vw, 52.5px);
+		font-weight: 500;
+		line-height: 1.2;
+		letter-spacing: normal;
+		color: #fff;
+	}
+	@media (min-width: 1200px) {
+		.ms-hero__title {
+			width: 75%;
+			margin-bottom: 21px;
+		}
+	}
+
+	/* --- Policy text ----------------------------------------------------- */
+	.ms-content {
+		padding-block: 21px;
+	}
+	@media (min-width: 1200px) {
+		.ms-content {
+			padding-block: 63px;
+		}
+	}
+	.ms-content__body {
+		/* Long URLs (e.g. the contact-form link) wrap instead of widening the page on phones. */
+		overflow-wrap: break-word;
+		font-family: 'Lato', sans-serif;
+		font-size: 21px;
+		line-height: 1.5;
+		color: #161026;
+	}
+	.ms-content__body :global(h2) {
+		margin: 0 0 10.5px;
+		font-family: 'Inter Variable', 'Inter', sans-serif;
+		font-size: calc(27.825px + 0.9vw);
+		font-weight: 700;
+		line-height: 1.2;
+		letter-spacing: normal;
+		color: #161026;
+	}
+	@media (min-width: 1200px) {
+		.ms-content__body :global(h2) {
+			font-size: 42px;
+		}
+	}
+	.ms-content__body :global(.ms-content__spacer) {
+		height: 10.5px;
+	}
+	.ms-content__body :global(p) {
+		margin: 0 0 21px;
+		color: rgba(22, 16, 38, 0.7);
+	}
+	.ms-content__body :global(ul),
+	.ms-content__body :global(ol) {
+		margin: 0 0 21px;
+		padding-left: 42px;
+		color: rgba(22, 16, 38, 0.7);
+	}
+	/* All of this policy's numbered lists are lettered (a, b, …) on the live site;
+	   rich text can't store the list type, so it's set here. */
+	.ms-content__body :global(ol) {
+		list-style-type: lower-alpha;
+	}
+	/* The closing postal address (an <address> on the live site). */
+	.ms-content__body > :global(p:last-child) {
+		color: #161026;
+	}
+	/* Rich text wraps each list item's text in a <p>; keep items tight like the live page. */
+	.ms-content__body :global(li > p) {
+		margin: 0;
+	}
+	.ms-content__body :global(ul ul),
+	.ms-content__body :global(ol ol) {
+		margin-bottom: 0;
+	}
+	.ms-content__body :global(b),
+	.ms-content__body :global(strong) {
+		font-weight: bolder;
+	}
+	.ms-content__body :global(a) {
+		font-family: 'Inter Variable', 'Inter', sans-serif;
+		color: #6c35fb;
+		text-decoration: none;
+	}
+	.ms-content__body :global(a:hover) {
+		color: #562ac9;
+	}
+	.ms-content__body :global(address) {
+		margin: 0 0 21px;
+		font-style: normal;
+		color: #161026;
+	}
+</style>

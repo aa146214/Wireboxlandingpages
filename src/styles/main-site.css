@@ -1,0 +1,88 @@
+/*
+ * Shared base for pages that replicate the main wirebox.co.uk (WordPress) site,
+ * e.g. /privacy-policy. Values are copied from that site's computed styles. Its
+ * root font size is 21px, so "rem" there = 21px; --ms-rem stands in for it here
+ * because this app's root is 16px.
+ *
+ * Only loaded by those pages (imported from their components), and everything is
+ * namespaced .ms-* so it can't leak into the landing pages.
+ */
+@font-face {
+	font-family: 'fontello';
+	font-style: normal;
+	font-weight: 400;
+	font-display: block;
+	src:
+		url('/fonts/fontello.woff2') format('woff2'),
+		url('/fonts/fontello.woff') format('woff');
+}
+
+.ms-page {
+	--ms-rem: 21px;
+	--ms-ink: #161026;
+	--ms-ink-70: rgba(22, 16, 38, 0.7);
+	--ms-violet: #6c35fb;
+	--ms-nav-bg: #29253a;
+	--ms-gutter: 15.75px;
+
+	font-family: 'Lato', sans-serif;
+	font-size: var(--ms-rem);
+	line-height: 1.5;
+	color: var(--ms-ink);
+}
+
+/* Bootstrap-style container used by the main site (gutter .75rem). */
+.ms-container {
+	width: 100%;
+	margin-inline: auto;
+	padding-inline: var(--ms-gutter);
+}
+@media (min-width: 576px) {
+	.ms-container { max-width: 540px; }
+}
+@media (min-width: 768px) {
+	.ms-container { max-width: 720px; }
+}
+@media (min-width: 992px) {
+	.ms-container { max-width: 960px; }
+}
+@media (min-width: 1200px) {
+	.ms-container { max-width: 1140px; }
+}
+@media (min-width: 1400px) {
+	.ms-container { max-width: 1440px; }
+}
+
+/* Fontello icon font, same glyphs and classes as the main site. */
+[class^='icon-']::before,
+[class*=' icon-']::before {
+	font-family: 'fontello';
+	font-style: normal;
+	font-weight: 400;
+	speak: never;
+	display: inline-block;
+	text-decoration: inherit;
+	width: 1em;
+	margin-inline: 0.2em;
+	text-align: center;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1em;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+.icon-arrow-right::before { content: '\e802'; }
+.icon-circle::before { content: '\e804'; }
+.icon-pacman-down::before { content: '\e805'; }
+.icon-twitter-x-squared::before { content: '\e808'; }
+.icon-github-circled::before { content: '\f09b'; }
+.icon-instagram::before { content: '\f16d'; }
+.icon-vimeo-squared::before { content: '\f194'; }
+.icon-facebook-squared::before { content: '\f308'; }
+.icon-linkedin-squared::before { content: '\f30c'; }
+
+.ms-icon { vertical-align: middle; }
+.ms-icon::before {
+	margin: 0;
+	width: auto;
+}

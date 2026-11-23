@@ -8,4 +8,4 @@
 export { GTM_ID, CRAZY_EGG_SRC } from '../data/site-scripts.mjs';
 
 /** Where the cookie notice's "privacy policy" link points. */
-export const PRIVACY_URL = 'https://wirebox.co.uk/privacy-policy/';
+export const PRIVACY_URL = '/privacy-policy';
