@@ -128,3 +128,67 @@ export const MAIN_FOOTER_SERVICES: MainNavLink[] = [
 	{ label: 'Database Development', href: u('/what-we-do/technology-build/database-development/') },
 	{ label: 'Laravel Development Agency', href: u('/Laravel-development-agency/') },
 ];
+
+/** Social platforms the main-site header/footer support → icon-font class. */
+export const MAIN_SOCIAL_ICONS: Record<string, { icon: string; label: string }> = {
+	facebook: { icon: 'icon-facebook-squared', label: 'Facebook' },
+	x: { icon: 'icon-twitter-x-squared', label: 'X' },
+	vimeo: { icon: 'icon-vimeo-squared', label: 'Vimeo' },
+	linkedin: { icon: 'icon-linkedin-squared', label: 'LinkedIn' },
+	github: { icon: 'icon-github-circled', label: 'GitHub' },
+	instagram: { icon: 'icon-instagram', label: 'Instagram' },
+};
+/** Same socials as MAIN_SOCIALS, keyed by platform (the CMS stores platform + url). */
+export const MAIN_SOCIAL_LINKS = [
+	{ platform: 'facebook', url: 'https://facebook.com/WireboxConsultancy/' },
+	{ platform: 'x', url: 'https://x.com/wirebox' },
+	{ platform: 'vimeo', url: 'https://vimeo.com/wirebox' },
+	{ platform: 'linkedin', url: 'https://www.linkedin.com/company/wirebox-consultancy' },
+	{ platform: 'github', url: 'https://github.com/Wirebox' },
+	{ platform: 'instagram', url: 'https://www.instagram.com/wireboxuk' },
+];
+
+export interface MainOffice {
+	name: string;
+	/** One line per address line. */
+	address: string;
+	phone: string;
+	email: string;
+	tone: 'green' | 'yellow';
+}
+export const MAIN_OFFICES: MainOffice[] = [
+	{
+		name: 'Watford',
+		address: 'Leavesden Lodge,\nUnit 1 Copsewood Lodge,\n1A Copsewood Road, Watford\nHertfordshire, WD24 5DY',
+		phone: '+44 (0) 207 993 5485',
+		email: 'hello@wirebox.co.uk',
+		tone: 'green',
+	},
+	{
+		name: 'Milton Keynes',
+		address: '3rd Floor Elder House West,\nElder Gate, Milton Keynes\nMK9 1LR',
+		phone: '+44 (0) 1908 11 04 20',
+		email: 'hi@wirebox.co.uk',
+		tone: 'yellow',
+	},
+];
+
+export interface MainCredential {
+	src: string;
+	alt: string;
+	link?: string;
+}
+export const MAIN_CREDENTIALS: MainCredential[] = [
+	{ src: '/main-site/biz4biz-awards-2025-winner.png', alt: 'Biz4Biz Awards 2025' },
+	{ src: '/main-site/sme-herts-2024-gold-winner.jpg', alt: 'Hertfordshire SME Business Awards 2024' },
+	{ src: '/main-site/watford-pledge-member.png', alt: 'Watford Business Pledge member', link: u('/our-commitment-to-the-watford-business-pledge/') },
+];
+
+export const MAIN_FOOTER_TEXT = {
+	formHeading: 'have a project in mind? reach out to our team, so we can understand more_',
+	formButton: "let's talk",
+	contactHeading: 'get in touch_',
+	credentialsHeading: 'credentials you can trust_',
+	servicesHeading: 'Services',
+	copyright: 'Copyright © Wirebox Ltd | Registered in England and Wales, registered number 07887947',
+};

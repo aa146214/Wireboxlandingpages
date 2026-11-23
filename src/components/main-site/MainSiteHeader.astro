@@ -7,20 +7,29 @@
  *
  * Measurements come from the live site's computed styles (its rem = 21px).
  * The live logo is a Lottie animation; this uses the same logo as a static SVG.
+ *
+ * Content (logo, menu, drawers, contact pill, socials) comes from the Storyblok
+ * `main_site_header` blok; see src/lib/main-site.ts.
  */
 import '../../styles/main-site.css';
-import { MAIN_NAV, MAIN_CONTACT_URL, MAIN_SOCIALS, MAIN_SITE, type MainNavEntry } from '../../data/main-site-nav';
+import { storyblokEditable } from '@storyblok/astro';
+import { mainHeader } from '../../lib/main-site';
+import type { MainNavEntry } from '../../data/main-site-nav';
+
+/** Storyblok `main_site_header` blok; every field falls back to the code defaults. */
+const { blok } = Astro.props;
+const h = mainHeader(blok);
 
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 const isGroup = (e: MainNavEntry): e is Extract<MainNavEntry, { children: unknown }> => 'children' in e;
-const drawers = MAIN_NAV.filter((i) => i.drawer);
+const drawers = h.nav.filter((i) => i.drawer);
 ---
 
-<header class="ms-header">
+<header class="ms-header" {...(blok ? storyblokEditable(blok) : {})}>
 	<nav class="ms-nav" aria-label="Main" data-ms-nav>
 		<div class="ms-container ms-nav__inner">
-			<a class="ms-nav__logo" href={MAIN_SITE} aria-label="Wirebox — home">
-				<img src="/logo-wirebox-white.svg" alt="Wirebox" width="150" height="38" />
+			<a class="ms-nav__logo" href={h.homeHref} aria-label="Wirebox — home">
+				<img src={h.logo} alt={h.logoAlt} width="150" height="38" />
 			</a>
 
 			<button
@@ -37,7 +46,7 @@ const drawers = MAIN_NAV.filter((i) => i.drawer);
 			<div class="ms-nav__collapse" id="ms-nav-collapse" data-ms-collapse>
 				<ul class="ms-nav__list">
 					{
-						MAIN_NAV.map((item) => (
+						h.nav.map((item) => (
 							<li class="ms-nav__item">
 								{item.drawer ? (
 									<button
@@ -58,11 +67,11 @@ const drawers = MAIN_NAV.filter((i) => i.drawer);
 						))
 					}
 					<li class="ms-nav__item ms-nav__item--btn">
-						<a class="ms-nav__btn" href={MAIN_CONTACT_URL}>contact</a>
+						<a class="ms-nav__btn" href={h.contactHref}>{h.contactLabel}</a>
 					</li>
 					<li class="ms-nav__item ms-nav__socials">
 						{
-							MAIN_SOCIALS.map((s) => (
+							h.socials.map((s) => (
 								<a class="ms-nav__social" href={s.href} target="_blank" rel="noopener" aria-label={s.label}>
 									<i class={`${s.icon} ms-icon`} aria-hidden="true" />
 								</a>
