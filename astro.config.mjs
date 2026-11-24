@@ -74,9 +74,6 @@ export default defineConfig({
 				winning_formula: 'storyblok/WinningFormula',
 				blog: 'storyblok/Blog',
 				awards: 'storyblok/Awards',
-				// --- Main-site chrome (privacy policy / legal pages) ---
-				main_site_header: 'components/main-site/MainSiteHeader',
-				main_site_footer: 'components/main-site/MainSiteFooter',
 				// --- SEO Report ---
 				report_data: 'storyblok/ReportData'
 			},

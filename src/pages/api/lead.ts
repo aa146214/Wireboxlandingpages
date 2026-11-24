@@ -15,7 +15,6 @@ const SOURCES: Record<string, string> = {
 	estimator: 'Upgrade estimator — "Book my technical audit"',
 	ai: 'AI page — "Request my free consultation"',
 	'hero-enquiry': 'Enquiry form — "Website support experts"',
-	footer: 'Main-site footer — "have a project in mind?"',
 };
 
 interface SendResult {

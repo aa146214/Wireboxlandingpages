@@ -1,19 +1,19 @@
 ---
 import { useStoryblokApi, renderRichText, storyblokEditable } from '@storyblok/astro';
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
 import Layout from '../layouts/Layout.astro';
-import MainSiteHeader from '../components/main-site/MainSiteHeader.astro';
-import MainSiteFooter from '../components/main-site/MainSiteFooter.astro';
 import FALLBACK_BODY from '../data/legal/privacy-policy.html?raw';
 import '@fontsource/lato/400.css';
 import '../styles/main-site.css';
 
 /**
- * Privacy policy — a replica of https://wirebox.co.uk/privacy-policy/ (the main
- * WordPress site): same header, photo hero, content styling and footer, with
- * values taken from that page's computed styles.
+ * Privacy policy. The photo hero and the policy's content styling replicate
+ * https://wirebox.co.uk/privacy-policy/ (values taken from that page's computed
+ * styles); the header and footer are this site's own, as on every other page.
  *
  * Content comes from the Storyblok story `privacy-policy` (content type
- * `legal_page`: header + footer bloks, hero title + image, rich-text body, SEO fields), seeded by
+ * `legal_page`: header + footer bloks — the same `header`/`footer` components
+ * the other pages use — hero title + image, rich-text body, SEO fields), seeded by
  * scripts/seed-privacy-policy.mjs. If Storyblok is unreachable or the story
  * hasn't been seeded, the page renders the bundled copy in
  * src/data/legal/privacy-policy.html, so it never errors.
@@ -22,8 +22,6 @@ import '../styles/main-site.css';
  * a WordPress cookie plugin; this app's cookie notice is informational), the
  * Cloudflare-obfuscated email is written out, and /contact-us links point at
  * wirebox.co.uk.
- * Header and footer render from the story's main_site_header / main_site_footer
- * bloks (src/components/main-site), falling back to src/data/main-site-nav.ts.
  */
 const FALLBACK_HERO = '/seed-assets/main-site/our-process.jpg';
 
@@ -43,16 +41,17 @@ const seoDescription: string =
 	content?.seo_description ||
 	'How Wirebox Ltd collects, uses and protects your personal data, and how to exercise your data protection rights.';
 const noindex = Boolean(content?.seo_noindex);
-// Main-site header/footer bloks (single-item bloks fields), like the other pages' header/footer.
-const headerBlok = Array.isArray(content?.header) ? content.header[0] : undefined;
-const footerBlok = Array.isArray(content?.footer) ? content.footer[0] : undefined;
+// This site's header/footer bloks (single-item bloks fields). Without the CMS,
+// fall back to the minimal landing-page header and the default footer.
+const headerBlok = (Array.isArray(content?.header) && content.header[0]) || { _uid: 'pp-header', component: 'header', nav: [], socials: [] };
+const footerBlok = (Array.isArray(content?.footer) && content.footer[0]) || { _uid: 'pp-footer', component: 'footer' };
 ---
 
 <Layout title={seoTitle} description={seoDescription} noindex={noindex}>
-	<div class="ms-page" {...(content ? storyblokEditable(content as any) : {})}>
-		<MainSiteHeader blok={headerBlok} />
+	<div {...(content ? storyblokEditable(content as any) : {})}>
+		<StoryblokComponent blok={headerBlok} />
 
-		<main id="main">
+		<main id="main" class="ms-page">
 			<section class="ms-hero" style={`background-image: url('${heroImage}')`}>
 				<div class="ms-container">
 					<div class="ms-hero__row">
@@ -72,7 +71,7 @@ const footerBlok = Array.isArray(content?.footer) ? content.footer[0] : undefine
 			</section>
 		</main>
 
-		<MainSiteFooter blok={footerBlok} />
+		<StoryblokComponent blok={footerBlok} />
 	</div>
 </Layout>
 
@@ -81,7 +80,6 @@ const footerBlok = Array.isArray(content?.footer) ? content.footer[0] : undefine
 	.ms-hero {
 		position: relative;
 		z-index: 1;
-		padding-top: 56.7px;
 		background-position: 50% 50%;
 		background-size: cover;
 		background-repeat: no-repeat;
